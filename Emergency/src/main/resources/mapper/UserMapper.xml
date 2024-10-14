@@ -1,0 +1,17 @@
+<mapper namespace="com.emergency.web.mapper.UserMapper">
+	
+	<select id="findById" resultType="com.emergency.web.model.User">
+		SELECT  id
+		      , password
+		      , email
+		      , hp
+		      , address
+		      , regAt
+		      , modAt
+		      , lastLogin
+		      , roles
+		   FROM tbUser
+		  WHERE id = #{id}
+	</select>
+	
+</mapper>
