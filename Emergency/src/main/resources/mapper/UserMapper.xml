@@ -14,4 +14,29 @@
 		  WHERE id = #{id}
 	</select>
 	
+	<insert id="saveUser" parameterType="com.emergency.web.model.User" resultType="com.emergency.web.model.User">
+		INSERT INTO tbUser
+		(
+			id,
+			password,
+			email,
+			hp,
+			address,
+			regAt,
+			modAt,
+			roles
+		)
+		VALUES
+		(
+			#{id},
+			#{password},
+			#{email},
+			#{hp},
+			#{address},
+			#{regAt},
+			#{modAt},
+			#{roles}
+		)
+	</insert>
+	
 </mapper>

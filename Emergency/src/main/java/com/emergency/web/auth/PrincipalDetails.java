@@ -11,7 +11,18 @@ import com.emergency.web.model.User;
 
 import lombok.Data;
 
-// Authentication => UserDetails(PrincipalDetails)
+/**
+ * 
+* @packageName     : com.emergency.web.auth
+* @fileName        : PrincipalDetails.java
+* @author          : KHK
+* @date            : 2024.10.16
+* @description     : 인증 정보
+* ===========================================================
+* DATE              AUTHOR             NOTE
+* -----------------------------------------------------------
+* 2024.10.16        KHK       		   최초 생성
+ */
 
 @Data
 public class PrincipalDetails implements UserDetails {

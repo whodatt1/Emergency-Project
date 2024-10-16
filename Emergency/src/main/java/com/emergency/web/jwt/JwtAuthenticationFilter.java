@@ -1,13 +1,23 @@
 package com.emergency.web.jwt;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.emergency.web.auth.PrincipalDetails;
 import com.emergency.web.config.TypeSafeProperties;
+import com.emergency.web.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.FilterChain;
@@ -17,28 +27,81 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
+/**
+ * 
+* @packageName     : com.emergency.web.jwt
+* @fileName        : JwtAuthenticationFilter.java
+* @author          : KHK
+* @date            : 2024.10.16
+* @description     : JWT 기반 인증을 처리하며 로그인 요청을 처리하고 인증결과 반환
+* ===========================================================
+* DATE              AUTHOR             NOTE
+* -----------------------------------------------------------
+* 2024.10.16        KHK                최초 생성
+ */
+
 @Log4j2
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	
 	private final TypeSafeProperties typeSafeProperties;
 	private final AuthenticationManager authenticationManager;
+	private final ObjectMapper objectMapper;
 
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException {
-		log.info("JwtAuthenicationFilter attemptAuthentication : Login..");
+		log.info("JwtAuthenicationFilter attemptAuthentication : 로그인중..");
 		
-		ObjectMapper om = new ObjectMapper();
-		
-		return null;
+		try {
+			// 자바 객체로 역직렬화
+			User user = objectMapper.readValue(request.getInputStream(), User.class);
+			
+			// 토큰 생성
+			UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user.getId(), user.getPassword());
+			
+			// 인증 시도 성공시 Authentication 객체 반환
+			Authentication authentication = authenticationManager.authenticate(authenticationToken);
+			
+			return authentication;
+		} catch (IOException e) {
+			log.info("인증 요청 파싱에 실패하였습니다.");
+			
+			// HTTP 응답 메시지
+			response.setStatus(HttpServletResponse.SC_BAD_GATEWAY); // 400
+			response.setContentType("application/json;charset=UTF-8");
+			
+			Map<String, String> errorResponse = new HashMap<>();
+			errorResponse.put("error", "인증 요청 파싱에 실패하였습니다.");
+			
+			try {
+				// 직렬화하여 전달
+				objectMapper.writeValue(response.getWriter(), errorResponse);
+			} catch (IOException e2) {
+				log.error("응답 작성 중 오류 발생", e2);
+			}
+			
+			return null;
+		}
 	}
 
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication authResult) throws IOException, ServletException {
-		// TODO Auto-generated method stub
-		super.successfulAuthentication(request, response, chain, authResult);
+		log.info("JwtAuthenicationFilter successfulAuthentication : 인증 완료");
+		
+		PrincipalDetails principalDetails = (PrincipalDetails) authResult.getPrincipal();
+		
+		// Hash 암호 방식 
+		// HMAC512는 SecetKey 값을 가지고 있다.
+		String jwtToken = JWT.create()
+							 .withSubject(principalDetails.getUser().getId() + "token")
+							 .withExpiresAt(Date.from(Instant.now().plus(typeSafeProperties.getJwtExpirationTime(), ChronoUnit.MINUTES)))
+							 .withClaim("id", principalDetails.getUser().getId())
+							 .sign(Algorithm.HMAC512(typeSafeProperties.getJwtSecretCd()));
+		
+		// Authorization 헤더에 JWT 토큰 추가
+		response.addHeader(typeSafeProperties.getHeaderString(), typeSafeProperties.getTokenPrefix() + jwtToken);
 	}
 	
 	

@@ -14,6 +14,19 @@ import org.springframework.web.filter.CorsFilter;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * 
+* @packageName     : com.emergency.web.config
+* @fileName        : SecurityConfig.java
+* @author          : KHK
+* @date            : 2024.10.16
+* @description     : 시큐리티 설정
+* ===========================================================
+* DATE              AUTHOR             NOTE
+* -----------------------------------------------------------
+* 2024.10.16        KHK                최초 생성
+ */
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor

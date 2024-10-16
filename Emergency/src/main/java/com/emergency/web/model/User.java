@@ -7,6 +7,19 @@ import java.util.List;
 
 import lombok.Data;
 
+/**
+ * 
+* @packageName     : com.emergency.web.model
+* @fileName        : User.java
+* @author          : KHK
+* @date            : 2024.10.16
+* @description     : User VO
+* ===========================================================
+* DATE              AUTHOR             NOTE
+* -----------------------------------------------------------
+* 2024.10.16        KHK                최초 생성
+ */
+
 @Data
 public class User {
 	
