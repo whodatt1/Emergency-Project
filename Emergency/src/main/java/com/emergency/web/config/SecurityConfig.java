@@ -7,10 +7,15 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.filter.CorsFilter;
+
+import com.emergency.web.jwt.JwtAuthenticationFilter;
+import com.emergency.web.jwt.JwtAuthorizationFilter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -33,6 +38,8 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 	
 	private final CorsFilter corsFilter;
+	private final TypeSafeProperties typeSafeProperties;
+	private final ObjectMapper objectMapper;
 	
 	@Bean
 	BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -47,10 +54,11 @@ public class SecurityConfig {
 	@Bean
 	SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
 		http.csrf(AbstractHttpConfigurer::disable)
-		    .sessionManagement((sessionManagement) -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-		    .addFilter(corsFilter)
-		    .formLogin(form -> form.disable());
-		
+		    .sessionManagement((sessionManagement) -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 미사용
+		    .addFilter(corsFilter) // CORS 정책 필터
+		    .formLogin(form -> form.disable()) // 폼로그인 미사용
+		    .httpBasic(HttpBasicConfigurer::disable) // HTTP 로그인 방식 미사용
+		    .addFilter(new JwtAuthenticationFilter(authenticationManager, typeSafeProperties, objectMapper));
 		return http.build();
 	}
 }

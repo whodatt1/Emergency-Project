@@ -41,12 +41,19 @@ import lombok.extern.log4j.Log4j2;
  */
 
 @Log4j2
-@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	
-	private final TypeSafeProperties typeSafeProperties;
-	private final AuthenticationManager authenticationManager;
-	private final ObjectMapper objectMapper;
+	private TypeSafeProperties typeSafeProperties;
+	private AuthenticationManager authenticationManager;
+	private ObjectMapper objectMapper;
+	
+	public JwtAuthenticationFilter(AuthenticationManager authenticationManager, TypeSafeProperties typeSafeProperties, ObjectMapper objectMapper) {
+        this.authenticationManager = authenticationManager;
+        this.typeSafeProperties = typeSafeProperties;
+        this.objectMapper = objectMapper;
+
+        this.setFilterProcessesUrl("/api/auth/login"); // 원하는 로그인 URL로 설정
+    }
 
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
@@ -65,18 +72,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 			
 			return authentication;
 		} catch (IOException e) {
-			log.info("인증 요청 파싱에 실패하였습니다.");
-			
-			// HTTP 응답 메시지
-			response.setStatus(HttpServletResponse.SC_BAD_GATEWAY); // 400
-			response.setContentType("application/json;charset=UTF-8");
-			
-			Map<String, String> errorResponse = new HashMap<>();
-			errorResponse.put("error", "인증 요청 파싱에 실패하였습니다.");
+			log.error("인증 요청 파싱에 실패하였습니다.");
 			
 			try {
-				// 직렬화하여 전달
-				objectMapper.writeValue(response.getWriter(), errorResponse);
+				// HTTP 응답 메시지
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "인증 요청 파싱에 실패하였습니다."); // 400
 			} catch (IOException e2) {
 				log.error("응답 작성 중 오류 발생", e2);
 			}
