@@ -2,16 +2,21 @@ package com.emergency.web.jwt;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.Date;
 
 import javax.crypto.spec.SecretKeySpec;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import com.emergency.web.auth.PrincipalDetails;
 import com.emergency.web.config.TypeSafeProperties;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -36,6 +41,36 @@ public class JwtUtils {
 	
 	private final TypeSafeProperties typeSafeProperties;
 	
+	public String createAccessToken(Authentication authentication) {
+		PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+		Date expiryDate = new Date(new Date().getTime() + typeSafeProperties.getJwtAccessExpirationTime());
+		byte[] secretByteKey = typeSafeProperties.getJwtSecretCd().getBytes(StandardCharsets.UTF_8);
+		Key signKey = new SecretKeySpec(secretByteKey, "HmacSHA512");
+		return Jwts.builder()
+				   .setSubject(principalDetails.getUsername())
+				   .claim("user-id", principalDetails.getUsername())
+				   .claim("user-email", principalDetails.getUser().getEmail())
+				   .setIssuedAt(new Date())
+				   .setExpiration(expiryDate)
+				   .signWith(signKey, SignatureAlgorithm.HS512)
+				   .compact();
+	}
+	
+	public String createRefreshToken(Authentication authentication) {
+		PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+		Date expiryDate = new Date(new Date().getTime() + typeSafeProperties.getJwtRefreshExpirationTime());
+		byte[] secretByteKey = typeSafeProperties.getJwtSecretCd().getBytes(StandardCharsets.UTF_8);
+		Key signKey = new SecretKeySpec(secretByteKey, "HmacSHA512");
+		return Jwts.builder()
+				   .setSubject(principalDetails.getUsername())
+				   .claim("user-id", principalDetails.getUsername())
+				   .claim("user-email", principalDetails.getUser().getEmail())
+				   .setIssuedAt(new Date())
+				   .setExpiration(expiryDate)
+				   .signWith(signKey, SignatureAlgorithm.HS512)
+				   .compact();
+	}
+	
 	// 토큰에서 유저 ID 추출
 	public String getUserNameFromJwtToken(String token) {
 		// 비밀 키를 UTF-8 문자열로 변환 후 HMAC512에 사용할 키로 지정
@@ -54,13 +89,23 @@ public class JwtUtils {
 	// 토큰 검증 메서드
 	public boolean validateJwtToken(String token) throws MalformedJwtException, ExpiredJwtException, UnsupportedJwtException, IllegalArgumentException {
 		
-		// 비밀 키를 UTF-8 문자열로 변환 후 HMAC512에 사용할 키로 지정
-		byte[] secretByteKey = typeSafeProperties.getJwtSecretCd().getBytes(StandardCharsets.UTF_8);
-		Key signKey = new SecretKeySpec(secretByteKey, "HmacSHA512");
+		try {
+			// 비밀 키를 UTF-8 문자열로 변환 후 HMAC512에 사용할 키로 지정
+			byte[] secretByteKey = typeSafeProperties.getJwtSecretCd().getBytes(StandardCharsets.UTF_8);
+			Key signKey = new SecretKeySpec(secretByteKey, "HmacSHA512");
+			
+			// JWT 토큰을 검증
+			Jwts.parserBuilder().setSigningKey(signKey).build().parseClaimsJws(token);
+		} catch (MalformedJwtException e) {
+			log.error("유효하지 JWT 토큰 : {}", e.getMessage());
+		} catch (ExpiredJwtException e) {
+			log.error("만료된 JWT 토큰 : {}", e.getMessage());
+		} catch (UnsupportedJwtException e) {
+			log.error("지원되지 않는 JWT 토큰 : {}", e.getMessage());
+		} catch (IllegalArgumentException e) {
+			log.error("JWT Claims String이 비어있습니다. : {}", e.getMessage());
+		}
 		
-		// JWT 토큰을 검증
-		Jwts.parserBuilder().setSigningKey(signKey).build().parseClaimsJws(token);
-		return true;
-		
+		return false;
 	}
 }

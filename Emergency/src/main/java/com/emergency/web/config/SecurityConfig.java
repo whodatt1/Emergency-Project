@@ -11,11 +11,10 @@ import org.springframework.security.config.annotation.web.configurers.HttpBasicC
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 
-import com.emergency.web.jwt.JwtAuthenticationFilter;
 import com.emergency.web.jwt.JwtAuthorizationFilter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -38,9 +37,8 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 	
 	private final CorsFilter corsFilter;
-	private final TypeSafeProperties typeSafeProperties;
-	private final ObjectMapper objectMapper;
-	
+	private final JwtAuthorizationFilter jwtAuthorizationFilter;
+
 	@Bean
 	BCryptPasswordEncoder bCryptPasswordEncoder() {
 		return new BCryptPasswordEncoder();
@@ -58,7 +56,15 @@ public class SecurityConfig {
 		    .addFilter(corsFilter) // CORS 정책 필터
 		    .formLogin(form -> form.disable()) // 폼로그인 미사용
 		    .httpBasic(HttpBasicConfigurer::disable) // HTTP 로그인 방식 미사용
-		    .addFilter(new JwtAuthenticationFilter(authenticationManager, typeSafeProperties, objectMapper));
+		    .addFilterBefore(this.jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
+		    .authorizeHttpRequests((authz) -> authz
+					.requestMatchers("/api/v1/user/**")
+					.hasAnyRole("USER", "MANAGER", "ADMIN")
+					.requestMatchers("/api/v1/manager/**")
+					.hasAnyRole("MANAGER", "ADMIN")
+					.requestMatchers("/api/v1/admin/**")
+					.hasRole("ADMIN")
+					.anyRequest().permitAll());
 		return http.build();
 	}
 }

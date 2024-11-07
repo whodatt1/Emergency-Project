@@ -5,7 +5,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * 
@@ -20,10 +23,11 @@ import lombok.Data;
 * 2024.10.16        KHK                최초 생성
  */
 
-@Data
-public class User {
+@Getter
+@Builder
+public class Auth {
 	
-	private String id; // PRIMARY KEY
+	private String userId; // PRIMARY KEY
 	private String password;
 	private String email; // UNIQUE KEY
 	private String hp;
@@ -39,4 +43,5 @@ public class User {
 		}
 		return new ArrayList<>();
 	}
+	
 }

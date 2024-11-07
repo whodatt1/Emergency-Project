@@ -26,7 +26,8 @@ import lombok.Setter;
 public class TypeSafeProperties {
 	// JWT
 	private String jwtSecretCd;
-	private int jwtExpirationTime;
+	private int jwtAccessExpirationTime;
+	private int jwtRefreshExpirationTime;
 	private String tokenPrefix;
 	private String headerString;
 }

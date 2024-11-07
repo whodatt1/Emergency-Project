@@ -7,7 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.emergency.web.model.User;
+import com.emergency.web.model.Auth;
 
 import lombok.Data;
 
@@ -27,9 +27,9 @@ import lombok.Data;
 @Data
 public class PrincipalDetails implements UserDetails {
 	
-	private User user;
+	private Auth user;
 	
-	public PrincipalDetails(User user) {
+	public PrincipalDetails(Auth user) {
 		this.user = user;
 	}
 	
@@ -49,7 +49,7 @@ public class PrincipalDetails implements UserDetails {
 
 	@Override
 	public String getUsername() {
-		return user.getId();
+		return user.getUserId();
 	}
 
 	@Override

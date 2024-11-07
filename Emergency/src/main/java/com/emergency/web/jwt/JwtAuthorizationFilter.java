@@ -48,42 +48,27 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter  {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		
-		try {
-			// 토큰 파싱
-			String jwtToken = parseJwt(request);
+		// 토큰 파싱
+		String jwtToken = parseJwt(request);
+		
+		if (jwtToken != null && jwtUtils.validateJwtToken(jwtToken)) {
+			// 유저 ID 추출
+			String userId = jwtUtils.getUserNameFromJwtToken(jwtToken);
 			
-			if (jwtToken != null && jwtUtils.validateJwtToken(jwtToken)) {
-				// 유저 ID 추출
-				String userId = jwtUtils.getUserNameFromJwtToken(jwtToken);
-				
-				// userDetail 객체 가져오기
-				UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
-				
-				// 토큰 생성
-				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-				
-				// 인증 정보를 설정할 때 추가적인 상세정보를 추가해 줌 이걸 사용하여 보안 관련 처리 가능
-				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-				
-				// 권한을 시큐리티에서 관리하도록 하기 위해 SecurityContextHolder에 athentication 저장 (인증 정보가 스레드 로컬에 저장되는 방식)
-				SecurityContextHolder.getContext().setAuthentication(authentication);
-			}
-		} catch (MalformedJwtException e) {
-			log.error("유효하지 않은 JWT 토큰입니다.");
-	        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않은 JWT 토큰입니다.");
-	    } catch (ExpiredJwtException e) {
-	    	log.error("JWT 토큰이 만료되었습니다.");
-	        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT 토큰이 만료되었습니다.");
-	    } catch (UnsupportedJwtException e) {
-	    	log.error("지원되지 않는 JWT 토큰입니다.");
-	        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "지원되지 않는 JWT 토큰입니다.");
-	    } catch (IllegalArgumentException e) {
-	    	log.error("JWT Claims string이 비어있습니다.");
-	        response.sendError(HttpServletResponse.SC_BAD_REQUEST, "JWT Claims string이 비어있습니다.");
-	    } catch (Exception e) {
-	    	log.error("서버 오류가 발생했습니다.");
-	        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
-	    }
+			// userDetail 객체 가져오기
+			UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
+			
+			// 토큰 생성
+			UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+			
+			// 인증 정보를 설정할 때 추가적인 상세정보를 추가해 줌 이걸 사용하여 보안 관련 처리 가능
+			authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+			
+			// 권한을 시큐리티에서 관리하도록 하기 위해 SecurityContextHolder에 athentication 저장 (인증 정보가 스레드 로컬에 저장되는 방식)
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+		}
+		
+		filterChain.doFilter(request, response);
 	}
 	
 	private String parseJwt(HttpServletRequest request) {
