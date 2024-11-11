@@ -1,14 +1,17 @@
 package com.emergency.web.ctrl;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
 
+import org.apache.ibatis.javassist.bytecode.DuplicateMemberException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +25,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.emergency.web.dto.request.JoinRequestDto;
+import com.emergency.web.exception.GlobalException;
 import com.emergency.web.service.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -91,9 +95,23 @@ public class AuthControllerTest {
 	}
 	
 	@Test
-	@DisplayName("회원가입 실패 시")
+	@DisplayName("회원가입 실패 시 (아이디 중복)")
 	@WithMockUser
 	void join_fail() throws Exception {
 		
+		// given
+		doThrow(new GlobalException("아이디가 중복되었습니다.", "DUPLICATE_USER_ID")).when(authService).signUp(any());
+		
+		// when
+		mockMvc.perform(post("/api/v1/auth/signup")
+						.with(csrf())
+				        .contentType(MediaType.APPLICATION_JSON_VALUE)
+				        .content(objectMapper.writeValueAsBytes(joinRequestDto)))
+		       .andExpect(status().isBadRequest())
+		       .andExpect(jsonPath("$.message").value("아이디가 중복되었습니다."))
+			   .andExpect(jsonPath("$.errorCd").value("DUPLICATE_USER_ID"));
+				
+		// then
+		verify(authService).signUp(any());
 	}
 }
