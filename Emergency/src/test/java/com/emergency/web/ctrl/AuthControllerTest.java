@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -25,6 +26,8 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.emergency.web.dto.request.JoinRequestDto;
+import com.emergency.web.dto.request.LoginRequestDto;
+import com.emergency.web.dto.response.LoginResponseDto;
 import com.emergency.web.exception.GlobalException;
 import com.emergency.web.service.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -88,6 +91,7 @@ public class AuthControllerTest {
 						.with(csrf())
 				        .contentType(MediaType.APPLICATION_JSON_VALUE)
 				        .content(objectMapper.writeValueAsBytes(joinRequestDto)))
+			   .andDo(print())
 		       .andExpect(status().isOk());
 		
 		// then
@@ -107,11 +111,90 @@ public class AuthControllerTest {
 						.with(csrf())
 				        .contentType(MediaType.APPLICATION_JSON_VALUE)
 				        .content(objectMapper.writeValueAsBytes(joinRequestDto)))
+			   .andDo(print())
 		       .andExpect(status().isBadRequest())
 		       .andExpect(jsonPath("$.message").value("아이디가 중복되었습니다."))
 			   .andExpect(jsonPath("$.errorCd").value("DUPLICATE_USER_ID"));
 				
 		// then
 		verify(authService).signUp(any());
+	}
+	
+	@Test
+	@DisplayName("로그인 실패 시 (아이디 없음)")
+	@WithMockUser
+	void login_fail_id_not_found() throws Exception {
+		
+		// given
+		doThrow(new GlobalException("아이디가 존재하지 않습니다.", "USER_ID_NOT_FOUND")).when(authService).login(any());
+		
+		// when
+		mockMvc.perform(post("/api/v1/auth/login")
+						.with(csrf())
+						.contentType(MediaType.APPLICATION_JSON_VALUE)
+						.content(objectMapper.writeValueAsBytes(LoginRequestDto.builder()
+																			   .userId(joinRequestDto.getUserId())
+																			   .password(joinRequestDto.getPassword())
+																			   .build())))
+			   .andDo(print())
+			   .andExpect(status().isBadRequest())
+			   .andExpect(jsonPath("$.message").value("아이디가 존재하지 않습니다."))
+			   .andExpect(jsonPath("$.errorCd").value("USER_ID_NOT_FOUND"));
+		
+		// then
+		verify(authService).login(any());
+	}
+	
+	@Test
+	@DisplayName("로그인 실패 시 (패스워드 틀림)")
+	@WithMockUser
+	void login_fail_invalid_password() throws Exception {
+		
+		// given
+		doThrow(new GlobalException("패스워드가 일치하지 않습니다.", "INVALID_PASSWORD")).when(authService).login(any());
+		
+		// when
+		mockMvc.perform(post("/api/v1/auth/login")
+			           .with(csrf())
+			           .contentType(MediaType.APPLICATION_JSON_VALUE)
+			           .content(objectMapper.writeValueAsBytes(LoginRequestDto.builder()
+			        		   												  .userId(joinRequestDto.getUserId())
+			        		   												  .password(joinRequestDto.getPassword())
+			        		   												  .build())))
+					   .andDo(print())
+					   .andExpect(status().isBadRequest())
+					   .andExpect(jsonPath("$.message").value("패스워드가 일치하지 않습니다."))
+					   .andExpect(jsonPath("$.errorCd").value("INVALID_PASSWORD"));
+		
+		// then
+		verify(authService).login(any());
+	}
+	
+	@Test
+	@DisplayName("로그인 성공 시")
+	@WithMockUser
+	void login_success() throws Exception {
+		
+		// given
+		when(authService.login(any())).thenReturn(LoginResponseDto.builder()
+																  .accessToken("token")
+																  .type("Bearer ")
+																  .build());
+		
+		// when
+		mockMvc.perform(post("/api/v1/auth/login")
+		           	   .with(csrf())
+		           	   .contentType(MediaType.APPLICATION_JSON_VALUE)
+			           .content(objectMapper.writeValueAsBytes(LoginRequestDto.builder()
+			        		   												  .userId(joinRequestDto.getUserId())
+			        		   												  .password(joinRequestDto.getPassword())
+			        		   												  .build())))
+					   .andDo(print())
+					   .andExpect(status().isOk())
+					   .andExpect(jsonPath("$.accessToken").value("token"))
+					   .andExpect(jsonPath("$.type").value("Bearer "));
+		
+		// then
+		verify(authService).login(any());
 	}
 }

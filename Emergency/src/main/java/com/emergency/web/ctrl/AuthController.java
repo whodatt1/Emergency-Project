@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.emergency.web.dto.request.JoinRequestDto;
 import com.emergency.web.dto.request.LoginRequestDto;
+import com.emergency.web.dto.response.LoginResponseDto;
 import com.emergency.web.service.AuthService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,8 +32,10 @@ public class AuthController {
 	private final AuthService authService;
 	
 	@PostMapping("/api/v1/auth/login")
-	public ResponseEntity<?> login(@RequestBody LoginRequestDto authRequestDto) {
-		return null;
+	public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto) {
+		// 테스트 위해 서비스 호출
+		LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
+		return ResponseEntity.ok(loginResponseDto);
 	}
 	
 	@PostMapping("/api/v1/auth/signup")
