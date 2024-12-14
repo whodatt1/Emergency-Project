@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
-public class Auth {
+public class User {
 	
 	private String userId; // PRIMARY KEY
 	private String password;

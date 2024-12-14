@@ -1,34 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.emergency.web.mapper.UserMapper">
 	
 	<select id="findById" resultType="com.emergency.web.model.User">
-		SELECT  id
+		SELECT  user_id
 		      , password
 		      , email
 		      , hp
 		      , address
-		      , regAt
-		      , modAt
-		      , lastLogin
+		      , reg_at
+		      , mod_at
+		      , last_login
 		      , roles
-		   FROM tbUser
-		  WHERE id = #{id}
+		   FROM tb_user
+		  WHERE user_id = #{userId}
 	</select>
 	
-	<insert id="saveUser" parameterType="com.emergency.web.model.User" resultType="com.emergency.web.model.User">
-		INSERT INTO tbUser
+	<insert id="saveUser" parameterType="com.emergency.web.model.User">
+		INSERT INTO tb_user
 		(
-			id,
+			user_id,
 			password,
 			email,
 			hp,
 			address,
-			regAt,
-			modAt,
+			reg_at,
+			mod_at,
 			roles
 		)
 		VALUES
 		(
-			#{id},
+			#{userId},
 			#{password},
 			#{email},
 			#{hp},

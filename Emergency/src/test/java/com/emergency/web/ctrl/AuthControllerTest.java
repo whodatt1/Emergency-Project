@@ -65,8 +65,6 @@ public class AuthControllerTest {
 	
 	@BeforeEach // 테스트 이전 실행
 	public void init() {
-		// 고정된 시간 설정
-	    LocalDateTime fixedTime = LocalDateTime.of(2024, 10, 23, 0, 0, 0, 0);
 	    
 	    // JoinRequestDto 초기화
 	    joinRequestDto = JoinRequestDto.builder()
@@ -75,9 +73,6 @@ public class AuthControllerTest {
 	                                   .email("abc@abc.com")
 	                                   .hp("010-1111-1111")
 	                                   .address("seoul")
-	                                   .regAt(fixedTime)
-	                                   .modAt(fixedTime)
-	                                   .roles("ROLE_USER")
 	                                   .build();
 	}
 	

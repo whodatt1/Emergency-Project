@@ -2,7 +2,7 @@ package com.emergency.web.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import com.emergency.web.model.Auth;
+import com.emergency.web.model.User;
 
 /**
  * 
@@ -19,6 +19,6 @@ import com.emergency.web.model.Auth;
 
 @Mapper
 public interface UserMapper {
-	Auth findById(String id);
-	int saveUser(Auth user);
+	User findById(String id);
+	int saveUser(User user);
 }

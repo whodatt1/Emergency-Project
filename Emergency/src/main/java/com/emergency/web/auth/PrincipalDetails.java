@@ -7,7 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.emergency.web.model.Auth;
+import com.emergency.web.model.User;
 
 import lombok.Data;
 
@@ -27,9 +27,9 @@ import lombok.Data;
 @Data
 public class PrincipalDetails implements UserDetails {
 	
-	private Auth user;
+	private User user;
 	
-	public PrincipalDetails(Auth user) {
+	public PrincipalDetails(User user) {
 		this.user = user;
 	}
 	
