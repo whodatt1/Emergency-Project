@@ -1,12 +1,10 @@
 package com.emergency.web.dto.request;
 
-import java.time.LocalDateTime;
-
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * 
@@ -27,6 +25,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class LoginRequestDto {
 	
+	@NotEmpty(message = "아이디는 필수 입력 사항입니다.")
 	private String userId;
+	
+	@NotEmpty(message = "비밀번호는 필수 입력 사항입니다.")
 	private String password;
 }

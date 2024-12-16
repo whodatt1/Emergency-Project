@@ -1,4 +1,4 @@
-package com.emergency.web.mapper;
+package com.emergency.web.mapper.user;
 
 import org.apache.ibatis.annotations.Mapper;
 

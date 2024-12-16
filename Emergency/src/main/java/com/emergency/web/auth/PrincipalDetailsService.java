@@ -5,7 +5,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.emergency.web.mapper.UserMapper;
+import com.emergency.web.mapper.user.UserMapper;
 import com.emergency.web.model.User;
 
 import lombok.RequiredArgsConstructor;

@@ -34,10 +34,14 @@ public class AuthController {
 	private final AuthService authService;
 	
 	@PostMapping("/api/v1/auth/login")
-	public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
-		// 테스트 위해 서비스 호출
+	public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto loginRequestDto, Errors errors) {
+		
+		if (errors.hasErrors()) {
+			return ResponseEntity.badRequest().body(authService.validHandle(errors));
+		}
+		
 		LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
-		return ResponseEntity.ok(loginResponseDto);
+		return ResponseEntity.ok(null);
 	}
 	
 	@PostMapping("/api/v1/auth/signup")

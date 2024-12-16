@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.emergency.web.exception.GlobalException;
 
+import lombok.extern.log4j.Log4j2;
+
 /**
  * 
 * @packageName     : com.emergency.web.ctrl
@@ -23,6 +25,7 @@ import com.emergency.web.exception.GlobalException;
 * 2024.12.09        KHK                최초 생성
  */
 
+@Log4j2
 @ControllerAdvice
 public class GlobalExceptionHandler {
 	
@@ -32,6 +35,9 @@ public class GlobalExceptionHandler {
 		Map<String, String> errorResponse = new HashMap<>();
 		errorResponse.put("message", ex.getMessage());
 		errorResponse.put("errorCd", ex.getErrorCd());
+		
+		// 로그 찍어두기
+		log.error("GlobalException 발생 - 메시지: {}, 오류 코드: {}", ex.getMessage(), ex.getErrorCd(), ex);
 		
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
 	}
