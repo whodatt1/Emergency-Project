@@ -39,6 +39,7 @@ public class PrincipalDetailsService implements UserDetailsService {
 		if (user == null) {
 			new UsernameNotFoundException("해당 ID 계정이 존재하지 않습니다.");
 		}
+		
 		return new PrincipalDetails(user);
 	}
 	

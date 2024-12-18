@@ -30,4 +30,5 @@ public class TypeSafeProperties {
 	private int jwtRefreshExpirationTime;
 	private String tokenPrefix;
 	private String headerString;
+	private String refreshTokenName;
 }

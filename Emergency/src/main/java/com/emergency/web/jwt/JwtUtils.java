@@ -45,69 +45,101 @@ public class JwtUtils {
 	
 	private final TypeSafeProperties typeSafeProperties;
 	
-	public String createAccessToken(Authentication authentication) throws Exception {
-		
-			PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-			Date expiryDate = new Date(new Date().getTime() + typeSafeProperties.getJwtAccessExpirationTime());
-			byte[] secretByteKey = typeSafeProperties.getJwtSecretCd().getBytes(StandardCharsets.UTF_8);
-			Key signKey = new SecretKeySpec(secretByteKey, "HmacSHA512");
-			return Jwts.builder()
-					   .setSubject(principalDetails.getUsername())
-					   .claim("user-email", principalDetails.getUser().getEmail())
-					   .setIssuedAt(new Date())
-					   .setExpiration(expiryDate)
-					   .signWith(signKey, SignatureAlgorithm.HS512)
-					   .compact();
-		
+	public String createAccessToken(Authentication authentication) {
+	    try {
+	        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+	        Date expiryDate = new Date(new Date().getTime() + typeSafeProperties.getJwtAccessExpirationTime());
+	        byte[] secretByteKey = typeSafeProperties.getJwtSecretCd().getBytes(StandardCharsets.UTF_8);
+	        Key signKey = new SecretKeySpec(secretByteKey, "HmacSHA512");
+
+	        return Jwts.builder()
+	                   .setSubject(principalDetails.getUsername())
+	                   .claim("user-email", principalDetails.getUser().getEmail())
+	                   .setIssuedAt(new Date())
+	                   .setExpiration(expiryDate)
+	                   .signWith(signKey, SignatureAlgorithm.HS512)
+	                   .compact();
+	    } catch (JwtException e) {
+	        // JWT 관련 오류 발생 시 처리
+	        throw new GlobalException("JWT 생성 중 오류가 발생했습니다.", "ACCESS_TOKEN_CREATION_ERROR");
+	    } catch (Exception e) {
+	        // 다른 일반적인 예외 처리
+	        throw new GlobalException("토큰 생성 중 오류가 발생했습니다.", "ACCESS_TOKEN_CREATION_ERROR");
+	    }
 	}
-	
-	public String createRefreshToken(Authentication authentication) throws Exception {
-		
-			PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-			Date expiryDate = new Date(new Date().getTime() + typeSafeProperties.getJwtRefreshExpirationTime());
-			byte[] secretByteKey = typeSafeProperties.getJwtSecretCd().getBytes(StandardCharsets.UTF_8);
-			Key signKey = new SecretKeySpec(secretByteKey, "HmacSHA512");
-			return Jwts.builder()
-					   .setSubject(principalDetails.getUsername())
-					   .setIssuedAt(new Date())
-					   .setExpiration(expiryDate)
-					   .signWith(signKey, SignatureAlgorithm.HS512)
-					   .compact();
+
+	public String createRefreshToken(Authentication authentication) {
+	    try {
+	        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+	        Date expiryDate = new Date(new Date().getTime() + typeSafeProperties.getJwtRefreshExpirationTime());
+	        byte[] secretByteKey = typeSafeProperties.getJwtSecretCd().getBytes(StandardCharsets.UTF_8);
+	        Key signKey = new SecretKeySpec(secretByteKey, "HmacSHA512");
+
+	        return Jwts.builder()
+	                   .setSubject(principalDetails.getUsername())
+	                   .setIssuedAt(new Date())
+	                   .setExpiration(expiryDate)
+	                   .signWith(signKey, SignatureAlgorithm.HS512)
+	                   .compact();
+	    } catch (JwtException e) {
+	        // JWT 관련 오류 발생 시 처리
+	        throw new GlobalException("리프레쉬 토큰 생성 중 오류가 발생했습니다.", "REFRESH_TOKEN_CREATION_ERROR");
+	    } catch (Exception e) {
+	        // 다른 일반적인 예외 처리
+	        throw new GlobalException("토큰 생성 중 오류가 발생했습니다.", "REFRESH_TOKEN_CREATION_ERROR");
+	    }
 	}
-	
-	// 토큰에서 유저 ID 추출
+
 	public String getUserNameFromJwtToken(String token) {
-		// 비밀 키를 UTF-8 문자열로 변환 후 HMAC512에 사용할 키로 지정
-		byte[] secretByteKey = typeSafeProperties.getJwtSecretCd().getBytes(StandardCharsets.UTF_8);
-		Key signKey = new SecretKeySpec(secretByteKey, "HmacSHA512");
-		
-		// 토큰 파싱 후 subject 추출
-		return Jwts.parserBuilder()
-				   .setSigningKey(signKey)
-				   .build()
-				   .parseClaimsJwt(token)
-				   .getBody()
-				   .getSubject();
+	    try {
+	        // 비밀 키를 UTF-8 문자열로 변환 후 HMAC512에 사용할 키로 지정
+	        byte[] secretByteKey = typeSafeProperties.getJwtSecretCd().getBytes(StandardCharsets.UTF_8);
+	        Key signKey = new SecretKeySpec(secretByteKey, "HmacSHA512");
+
+	        // 토큰 파싱 후 subject 추출
+	        return Jwts.parserBuilder()
+	                   .setSigningKey(signKey)
+	                   .build()
+	                   .parseClaimsJws(token)
+	                   .getBody()
+	                   .getSubject();
+	    } catch (JwtException e) {
+	        // JWT 파싱 오류 또는 서명 검증 실패 시 처리
+	        throw new GlobalException("유효하지 않은 토큰입니다.", "INVALID_TOKEN");
+	    } catch (Exception e) {
+	        // 다른 일반적인 예외 처리
+	        throw new GlobalException("토큰 처리 중 오류가 발생했습니다.", "TOKEN_PROCESSING_ERROR");
+	    }
 	}
+
 	
-	// 토큰에서 유저 ID 추출
-		public LocalDateTime getExpirationFromJwtToken(String token) {
-			// 비밀 키를 UTF-8 문자열로 변환 후 HMAC512에 사용할 키로 지정
-			byte[] secretByteKey = typeSafeProperties.getJwtSecretCd().getBytes(StandardCharsets.UTF_8);
-			Key signKey = new SecretKeySpec(secretByteKey, "HmacSHA512");
-			
-			Date expiration = Jwts.parserBuilder()
-								  .setSigningKey(signKey)
-								  .build()
-								  .parseClaimsJwt(token)
-								  .getBody()
-								  .getExpiration();
-			
-			// LocalDateTime으로 반환
-			return expiration.toInstant()
-							 .atZone(ZoneId.systemDefault()) // 시스템 기본 시간대 사용
-							 .toLocalDateTime();
-		}
+	// 토큰에서 만료기간 추출
+	public LocalDateTime getExpirationFromJwtToken(String token) {
+	    try {
+	        // 비밀 키를 UTF-8 문자열로 변환 후 HMAC512에 사용할 키로 지정
+	        byte[] secretByteKey = typeSafeProperties.getJwtSecretCd().getBytes(StandardCharsets.UTF_8);
+	        Key signKey = new SecretKeySpec(secretByteKey, "HmacSHA512");
+
+	        // JWT 파싱 및 만료일 추출
+	        Date expiration = Jwts.parserBuilder()
+	                              .setSigningKey(signKey)
+	                              .build()
+	                              .parseClaimsJws(token)
+	                              .getBody()
+	                              .getExpiration();
+
+	        // LocalDateTime으로 변환하여 반환
+	        return expiration.toInstant()
+	                         .atZone(ZoneId.systemDefault()) // 시스템 기본 시간대 사용
+	                         .toLocalDateTime();
+	    } catch (JwtException e) {
+	        // JWT 파싱 오류 또는 서명 검증 실패 시 처리
+	        throw new GlobalException("유효하지 않은 토큰입니다.", "INVALID_TOKEN");
+	    } catch (Exception e) {
+	        // 다른 일반적인 예외 처리
+	        throw new GlobalException("토큰 처리 중 오류가 발생했습니다.", "TOKEN_PROCESSING_ERROR");
+	    }
+	}
 	
 	// 토큰 검증 메서드
 	public boolean validateJwtToken(String token) throws MalformedJwtException, ExpiredJwtException, UnsupportedJwtException, IllegalArgumentException {

@@ -1,16 +1,19 @@
 package com.emergency.web.ctrl;
 
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.emergency.web.config.TypeSafeProperties;
 import com.emergency.web.dto.request.JoinRequestDto;
 import com.emergency.web.dto.request.LoginRequestDto;
 import com.emergency.web.dto.response.LoginResponseDto;
 import com.emergency.web.service.AuthService;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -33,14 +36,35 @@ public class AuthController {
 	
 	private final AuthService authService;
 	
+	private final TypeSafeProperties typeSafeProperties;
+	
 	@PostMapping("/api/v1/auth/login")
-	public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto loginRequestDto, Errors errors) {
+	public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto loginRequestDto, Errors errors, HttpServletResponse response) {
 		
 		if (errors.hasErrors()) {
 			return ResponseEntity.badRequest().body(authService.validHandle(errors));
 		}
 		
 		LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
+		
+		System.out.println(typeSafeProperties.getTokenPrefix());
+		System.out.println(typeSafeProperties.getTokenPrefix().length());
+		
+		// AccessToken은 다양한 클라이언트에서 사용하기 쉬운 헤더에 담기
+		response.setHeader(typeSafeProperties.getHeaderString(), typeSafeProperties.getTokenPrefix() + loginResponseDto.getAccessToken());
+		
+		// RefreshToken은 장기간 존재하기에 XSS 공격으로의 보호, 자동으로 요청에 담아 보냄의 이점을 활용하고자 HttpOnly 쿠키를 사용
+		ResponseCookie refreshTokenCookie = ResponseCookie.from(typeSafeProperties.getRefreshTokenName(), loginResponseDto.getRefreshToken())
+														  .httpOnly(true) // 클라이언트 javascript에서 접근 불가 XSS 방지
+														  //.secure(true) // HTTPS 가 아닌 환경에선 반환 안함
+														  .path("/")
+														  .maxAge(typeSafeProperties.getJwtRefreshExpirationTime())
+														  .sameSite("Strict") // 쿠키가 동일한 도메인에서 발생한 요청에 대해서만 전송 CSRF 방지
+														  .build();
+		
+		// Set-Cookie 헤더로 쿠키를 추가
+		response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+		
 		return ResponseEntity.ok(null);
 	}
 	

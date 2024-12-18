@@ -50,12 +50,23 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter  {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		
+		// 로그인할때도 해당 요청을 타는데 로그인일 경우 해당 필터를 넘어가게끔
+		if (request.getRequestURI().contains("/login")) {
+			filterChain.doFilter(request, response);
+			return;
+		}
+		
 		// 토큰 파싱
 		String jwtToken = parseJwt(request);
 		
 		if (jwtToken != null && jwtUtils.validateJwtToken(jwtToken)) {
 			// 유저 ID 추출
-			String userId = jwtUtils.getUserNameFromJwtToken(jwtToken);
+			String userId = "";
+			try {
+				userId = jwtUtils.getUserNameFromJwtToken(jwtToken);
+			} catch (Exception e) {
+				log.error(e.getMessage());
+			}
 			
 			// userDetail 객체 가져오기
 			UserDetails userDetails = userDetailsService.loadUserByUsername(userId);

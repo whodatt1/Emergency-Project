@@ -7,13 +7,13 @@
 		(
 			user_id,
 			token,
-			expiry_date,
+			expiry_date
 		)
 		VALUES
 		(
 			#{userId},
 			#{token},
-			#{expiry_date}
+			#{expiryDate}
 		)
 	</insert>
 	

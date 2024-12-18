@@ -15,11 +15,13 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 
 import com.emergency.web.auth.PrincipalDetails;
+import com.emergency.web.config.TypeSafeProperties;
 import com.emergency.web.dto.request.JoinRequestDto;
 import com.emergency.web.dto.request.LoginRequestDto;
 import com.emergency.web.dto.response.LoginResponseDto;
 import com.emergency.web.exception.GlobalException;
 import com.emergency.web.jwt.JwtUtils;
+import com.emergency.web.mapper.token.TokenMapper;
 import com.emergency.web.mapper.user.UserMapper;
 import com.emergency.web.model.RefreshToken;
 import com.emergency.web.model.User;
@@ -45,9 +47,11 @@ public class AuthService {
 	
 	private final UserMapper userMapper;
 	
+	private final TokenMapper tokenMapper;
+	
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	
-	private final AuthenticationManager authenticationManager;
+	private final TypeSafeProperties typeSafeProperties;
 	
 	private final JwtUtils jwtUtils;
 	
@@ -61,30 +65,30 @@ public class AuthService {
 		PrincipalDetails principalDetails = new PrincipalDetails(user);
 		
 		// 인증 객체 생성 (권한 관리를 스프링에게 위임)
-		Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(principalDetails, null, principalDetails.getAuthorities()));
+		Authentication authentication = new UsernamePasswordAuthenticationToken(principalDetails, null, principalDetails.getAuthorities());
 		
 		// SecurityContextHolder에 저장
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		
-		// AccessToken은 다양한 클라이언트에서 사용하기 쉬운 헤더에 담기
-		try {
-			String accessToken = jwtUtils.createAccessToken(authentication);
-		} catch (Exception e) {
-			throw new GlobalException("액세스 토큰 생성에 실패하였습니다.", "AT_CREATE_FAIL");
-		}
+		String accessToken = jwtUtils.createAccessToken(authentication);
+		String refreshToken = jwtUtils.createRefreshToken(authentication);
 		
-		// RefreshToken은 장기간 존재하기에 XSS 공격으로의 보호, 자동으로 요청에 담아 보냄의 이점을 활용하고자 HttpOnly 쿠키를 사용
-		try {
-			String refreshToken = jwtUtils.createRefreshToken(authentication);
-		} catch (Exception e) {
-			throw new GlobalException("리프레쉬 토큰 생성에 실패하였습니다.", "RT_CREATE_FAIL");
-		}
+		RefreshToken rt = RefreshToken.builder()
+				.userId(jwtUtils.getUserNameFromJwtToken(refreshToken))
+				.token(refreshToken)
+				.expiryDate(jwtUtils.getExpirationFromJwtToken(refreshToken))
+				.build();
 		
-//		RefreshToken refreshToken = RefreshToken.builder()
-//												.userId(jwtUtils.getUserNameFromJwtToken(refreshToken))
-//												.
+		// db에 저장
+		tokenMapper.saveRefreshToken(rt);
 		
-		return null;
+		LoginResponseDto loginResponseDto = LoginResponseDto.builder()
+															.accessToken(accessToken)
+															.refreshToken(refreshToken)
+															.type(typeSafeProperties.getTokenPrefix())
+															.build();
+		
+		return loginResponseDto;
 	}
 	
 	@Transactional
