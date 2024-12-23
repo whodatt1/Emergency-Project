@@ -41,4 +41,10 @@
 		)
 	</insert>
 	
+	<update id="updateLastLogin" parameterType="string">
+		UPDATE tb_user
+		   SET last_login = NOW()
+		 WHERE user_id = #{userId}
+	</update>
+	
 </mapper>

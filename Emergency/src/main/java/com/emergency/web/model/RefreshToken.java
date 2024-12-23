@@ -22,8 +22,7 @@ import lombok.Getter;
 @Builder
 public class RefreshToken {
 	
-	private long id; // PRIMARY KEY
-	private String userId;
+	private String userId; // PrimaryKey
 	private String token;
 	private LocalDateTime expiryDate;
 	

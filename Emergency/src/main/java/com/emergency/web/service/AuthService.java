@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +18,7 @@ import com.emergency.web.config.TypeSafeProperties;
 import com.emergency.web.dto.request.JoinRequestDto;
 import com.emergency.web.dto.request.LoginRequestDto;
 import com.emergency.web.dto.response.LoginResponseDto;
+import com.emergency.web.dto.response.RefreshResponseDto;
 import com.emergency.web.exception.GlobalException;
 import com.emergency.web.jwt.JwtUtils;
 import com.emergency.web.mapper.token.TokenMapper;
@@ -26,6 +26,8 @@ import com.emergency.web.mapper.user.UserMapper;
 import com.emergency.web.model.RefreshToken;
 import com.emergency.web.model.User;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -61,6 +63,10 @@ public class AuthService {
 		// PrincipalDetails 객체를 만들기 위해 User 객체 가져오기
 		User user = userMapper.findById(loginRequestDto.getUserId());
 		
+		if (user != null) {
+			throw new GlobalException("존재하지 않는 아이디입니다. 아이디를 확인해주세요.", "DUPLICATE_USER_ID");
+		}
+		
 		// PrincipalDetails 객체 생성
 		PrincipalDetails principalDetails = new PrincipalDetails(user);
 		
@@ -71,16 +77,37 @@ public class AuthService {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		
 		String accessToken = jwtUtils.createAccessToken(authentication);
-		String refreshToken = jwtUtils.createRefreshToken(authentication);
 		
-		RefreshToken rt = RefreshToken.builder()
-				.userId(jwtUtils.getUserNameFromJwtToken(refreshToken))
-				.token(refreshToken)
-				.expiryDate(jwtUtils.getExpirationFromJwtToken(refreshToken))
-				.build();
+		RefreshToken existingToken = tokenMapper.getRefreshTokenByUserId(loginRequestDto.getUserId());
 		
-		// db에 저장
-		tokenMapper.saveRefreshToken(rt);
+		String refreshToken;
+		
+		// 유효한 토큰이 이미 존재하는지 검증
+		if (existingToken != null && jwtUtils.validateJwtToken(existingToken.getToken())) {
+			refreshToken = existingToken.getToken();
+		} else {
+			refreshToken = jwtUtils.createRefreshToken(authentication);
+			
+			RefreshToken rt = RefreshToken.builder()
+					.userId(jwtUtils.getUserNameFromJwtToken(refreshToken))
+					.token(refreshToken)
+					.expiryDate(jwtUtils.getExpirationFromJwtToken(refreshToken))
+					.build();
+			
+			// db에 저장 여기서 이미 존재하는 refreshToken이 있다면 삭제 후 생성하도록 하는 로직을 추가해야함
+			int tokenResult = tokenMapper.saveRefreshToken(rt);
+			
+			if (tokenResult < 1) {
+				throw new GlobalException("토큰 저장에 실패하였습니다.", "REFRESH_TOKEN_SAVE_FAIL");
+			}
+		}
+		
+		// 최종 로그인 업데이트 작업
+		int lastLoginResult = userMapper.updateLastLogin(loginRequestDto.getUserId());
+		
+		if (lastLoginResult < 1) {
+			throw new GlobalException("최종 로그인 업데이트에 실패하였습니다.", "LAST_LOGIN_UPDATE_FAIL");
+		}
 		
 		LoginResponseDto loginResponseDto = LoginResponseDto.builder()
 															.accessToken(accessToken)
@@ -89,6 +116,28 @@ public class AuthService {
 															.build();
 		
 		return loginResponseDto;
+	}
+	
+	@Transactional
+	public RefreshResponseDto refresh(HttpServletRequest request) {
+		
+		// 쿠키에서 refreshToken 추출
+		String refreshToken = getRefreshTokenFromCookie(request);
+		
+		return null;
+	}
+	
+	@Transactional
+	public void logout(HttpServletRequest request) {
+		
+		// 쿠키에서 refreshToken 추출
+		String refreshToken = getRefreshTokenFromCookie(request);
+		
+		if (refreshToken != null && jwtUtils.validateJwtToken(refreshToken)) {
+			tokenMapper.deleteRefreshTokenByUserId(jwtUtils.getUserNameFromJwtToken(refreshToken));
+		}
+		
+		SecurityContextHolder.clearContext();
 	}
 	
 	@Transactional
@@ -130,5 +179,19 @@ public class AuthService {
 		}
 		
 		return validResult;
+	}
+	
+	// 쿠키로부터 리프레쉬 토큰 추출
+	public String getRefreshTokenFromCookie(HttpServletRequest request) {
+		Cookie[] cookies = request.getCookies();
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (cookie.getName().equals(typeSafeProperties.getRefreshTokenName())) {
+					return cookie.getValue();
+				}
+			}
+		}
+		
+		return null;
 	}
 }

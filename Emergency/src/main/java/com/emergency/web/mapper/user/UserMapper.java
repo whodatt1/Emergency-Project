@@ -21,4 +21,5 @@ import com.emergency.web.model.User;
 public interface UserMapper {
 	User findById(String id);
 	int saveUser(User user);
+	int updateLastLogin(String id);
 }

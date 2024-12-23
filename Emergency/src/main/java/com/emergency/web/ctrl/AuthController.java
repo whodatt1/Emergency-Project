@@ -11,8 +11,10 @@ import com.emergency.web.config.TypeSafeProperties;
 import com.emergency.web.dto.request.JoinRequestDto;
 import com.emergency.web.dto.request.LoginRequestDto;
 import com.emergency.web.dto.response.LoginResponseDto;
+import com.emergency.web.dto.response.RefreshResponseDto;
 import com.emergency.web.service.AuthService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -47,9 +49,6 @@ public class AuthController {
 		
 		LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
 		
-		System.out.println(typeSafeProperties.getTokenPrefix());
-		System.out.println(typeSafeProperties.getTokenPrefix().length());
-		
 		// AccessToken은 다양한 클라이언트에서 사용하기 쉬운 헤더에 담기
 		response.setHeader(typeSafeProperties.getHeaderString(), typeSafeProperties.getTokenPrefix() + loginResponseDto.getAccessToken());
 		
@@ -64,6 +63,32 @@ public class AuthController {
 		
 		// Set-Cookie 헤더로 쿠키를 추가
 		response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+		
+		return ResponseEntity.ok(null);
+	}
+	
+	@PostMapping("/api/v1/auth/refresh")
+	public ResponseEntity<?> refresh(HttpServletRequest request, HttpServletResponse response) {
+		
+		RefreshResponseDto refreshResponseDto = authService.refresh(request);
+		
+		return ResponseEntity.ok(null);
+	}
+	
+	@PostMapping("/api/v1/auth/logout")
+	public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+		
+		authService.logout(request);
+		
+		ResponseCookie delRefreshTokenCookie = ResponseCookie.from(typeSafeProperties.getRefreshTokenName(), "")
+															 .httpOnly(true)
+															 //.secure(true)
+															 .path("/")
+															 .maxAge(0)
+															 .sameSite("Strict")
+															 .build();
+		
+		response.addHeader("Set-Cookie", delRefreshTokenCookie.toString());
 		
 		return ResponseEntity.ok(null);
 	}
