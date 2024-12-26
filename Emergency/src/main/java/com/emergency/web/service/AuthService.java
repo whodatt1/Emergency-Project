@@ -109,13 +109,12 @@ public class AuthService {
 			throw new GlobalException("최종 로그인 업데이트에 실패하였습니다.", "LAST_LOGIN_UPDATE_FAIL");
 		}
 		
-		LoginResponseDto loginResponseDto = LoginResponseDto.builder()
-															.accessToken(accessToken)
-															.refreshToken(refreshToken)
-															.type(typeSafeProperties.getTokenPrefix())
-															.build();
 		
-		return loginResponseDto;
+		return LoginResponseDto.builder()
+							   .accessToken(accessToken)
+							   .refreshToken(refreshToken)
+							   .type(typeSafeProperties.getTokenPrefix())
+							   .build();
 	}
 	
 	@Transactional
@@ -123,6 +122,24 @@ public class AuthService {
 		
 		// 쿠키에서 refreshToken 추출
 		String refreshToken = getRefreshTokenFromCookie(request);
+		
+		if (refreshToken != null && jwtUtils.validateJwtToken(refreshToken)) {
+			// SecurityContextHolder에서 인증객체를 가져오기
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			
+			if (authentication != null && authentication.isAuthenticated()) {
+				
+				// 새로운 accessToken 생성
+				String accessToken = jwtUtils.createAccessToken(authentication);
+				
+				return RefreshResponseDto.builder()
+										 .accessToken(accessToken)
+										 .type(typeSafeProperties.getTokenPrefix())
+										 .build();
+			} else {
+				throw new GlobalException("SecurityContext에 인증 정보가 존재하지 않습니다.", "REFRESH_ERROR");
+			}
+		}
 		
 		return null;
 	}

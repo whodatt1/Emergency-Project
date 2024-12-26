@@ -151,6 +151,8 @@ public class JwtUtils {
 			
 			// JWT 토큰을 검증
 			Jwts.parserBuilder().setSigningKey(signKey).build().parseClaimsJws(token);
+			
+			return true;
 		} catch (MalformedJwtException e) {
 			log.error("유효하지 JWT 토큰 : {}", e.getMessage());
 		} catch (ExpiredJwtException e) {
