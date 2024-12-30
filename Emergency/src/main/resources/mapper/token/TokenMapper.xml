@@ -31,4 +31,10 @@
 		 WHERE user_id = #{userId}
 	</delete>
 	
+	<delete id="deleteExpiredRefreshToken">
+		DELETE
+		  FROM tb_refresh_token
+		 WHERE expiry_date <![CDATA[<]]> NOW()
+	</delete>
+	
 </mapper>
