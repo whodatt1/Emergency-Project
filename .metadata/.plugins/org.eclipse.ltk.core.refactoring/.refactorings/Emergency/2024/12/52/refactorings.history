@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy element &apos;LoginResponseDto.java&apos; to &apos;Emergency/src/main/java/com.emergency.web.dto.response&apos;&#x0D;&#x0A;- Original project: &apos;Emergency&apos;&#x0D;&#x0A;- Destination element: &apos;Emergency/src/main/java/com.emergency.web.dto.response&apos;&#x0D;&#x0A;- Original element: &apos;com.emergency.web.dto.response.LoginResponseDto.java&apos;" description="Copy compilation unit" destination="/src\/main\/java=/gradle_scope=/main=/=/gradle_used_by_scope=/main,test=/&lt;com.emergency.web.dto.response" element1="/src\/main\/java=/gradle_scope=/main=/=/gradle_used_by_scope=/main,test=/&lt;com.emergency.web.dto.response{LoginResponseDto.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1734956905881" units="1" version="1.0"/>
+</session>
