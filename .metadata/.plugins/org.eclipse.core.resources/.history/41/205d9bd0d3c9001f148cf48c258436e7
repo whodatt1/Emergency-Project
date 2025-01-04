@@ -68,7 +68,7 @@ public class AuthService {
 		}
 		
 		if (!bCryptPasswordEncoder.matches(loginRequestDto.getPassword(), user.getPassword())) {
-	        throw new GlobalException("비밀번호가 틀렸습니다. 비밀번호를 확인해주세요.", "INVALID_PASSWORD");
+	        throw new GlobalException("비밀번호가 틀렸습니다. 다시 확인해주세요.", "INVALID_PASSWORD");
 	    }
 		
 		// PrincipalDetails 객체 생성
@@ -194,8 +194,6 @@ public class AuthService {
 	public Map<String, String> validHandle(Errors errors) {
 		
 		Map<String, String> validResult = new HashMap<>();
-		
-		validResult.put("errorCd", "INVALID_FORM");
 		
 		for (FieldError error : errors.getFieldErrors()) {
 			validResult.put(error.getField(), error.getDefaultMessage());

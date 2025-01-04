@@ -195,8 +195,6 @@ public class AuthService {
 		
 		Map<String, String> validResult = new HashMap<>();
 		
-		validResult.put("errorCd", "INVALID_FORM");
-		
 		for (FieldError error : errors.getFieldErrors()) {
 			validResult.put(error.getField(), error.getDefaultMessage());
 		}

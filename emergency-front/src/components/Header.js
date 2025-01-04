@@ -1,79 +1,62 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Container, Form, FormControl, Nav, Navbar } from 'react-bootstrap';
 
 const Header = () => {
   return (
     <div>
-      <nav className="py-2 bg-body-tertiary border-bottom">
-        <div className="container d-flex flex-wrap">
-          <ul className="nav me-auto">
-            <li className="nav-item">
-              <Link
-                href="#"
-                className="nav-link link-body-emphasis px-2 active"
-                aria-current="page"
-              >
+      {/* Top Navigation */}
+      <Navbar bg="light" expand="lg" className="border-bottom">
+        <Container fluid>
+          <Navbar.Brand href="/" className="fs-4">
+            EMERGENCY
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="me-auto">
+              <Nav.Link as={Link} to="/" className="px-2">
                 Home
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link href="#" className="nav-link link-body-emphasis px-2">
+              </Nav.Link>
+              <Nav.Link as={Link} to="/features" className="px-2">
                 Features
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link href="#" className="nav-link link-body-emphasis px-2">
+              </Nav.Link>
+              <Nav.Link as={Link} to="/pricing" className="px-2">
                 Pricing
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link href="#" className="nav-link link-body-emphasis px-2">
+              </Nav.Link>
+              <Nav.Link as={Link} to="/faqs" className="px-2">
                 FAQs
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link href="#" className="nav-link link-body-emphasis px-2">
+              </Nav.Link>
+              <Nav.Link as={Link} to="/about" className="px-2">
                 About
-              </Link>
-            </li>
-          </ul>
-          <ul className="nav">
-            <li className="nav-item">
-              <Link
-                to={'/userJoin'}
-                className="nav-link link-body-emphasis px-2"
-              >
+              </Nav.Link>
+            </Nav>
+            <Nav>
+              <Nav.Link as={Link} to="/userLogin" className="px-2">
                 Login
-              </Link>
-            </li>
-            <li class="nav-item">
-              <Link href="#" className="nav-link link-body-emphasis px-2">
+              </Nav.Link>
+              <Nav.Link as={Link} to="/signup" className="px-2">
                 Sign up
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </nav>
-      <header className="py-3 mb-4 border-bottom">
-        <div className="container d-flex flex-wrap justify-content-center">
-          <Link
-            href="/"
-            className="d-flex align-items-center mb-3 mb-lg-0 me-lg-auto link-body-emphasis text-decoration-none"
-          >
-            <svg className="bi me-2" width="40" height="32">
-              <use href="#bootstrap" />
-            </svg>
-            <span className="fs-4">EMERGENCY</span>
-          </Link>
-          <form className="col-12 col-lg-auto mb-3 mb-lg-0" role="search">
-            <input
+              </Nav.Link>
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
+
+      {/* Search Section */}
+      <header className="py-3 border-bottom">
+        <Container
+          fluid
+          className="d-flex justify-content-between align-items-center"
+        >
+          <Form className="d-flex" role="search">
+            <FormControl
               type="search"
-              className="form-control"
               placeholder="Search..."
               aria-label="Search"
+              className="me-2"
             />
-          </form>
-        </div>
+          </Form>
+        </Container>
       </header>
     </div>
   );

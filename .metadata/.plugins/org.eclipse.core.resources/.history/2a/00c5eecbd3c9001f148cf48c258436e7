@@ -67,10 +67,6 @@ public class AuthService {
 			throw new GlobalException("존재하지 않는 아이디입니다. 아이디를 확인해주세요.", "DUPLICATE_USER_ID");
 		}
 		
-		if (!bCryptPasswordEncoder.matches(loginRequestDto.getPassword(), user.getPassword())) {
-	        throw new GlobalException("비밀번호가 틀렸습니다. 비밀번호를 확인해주세요.", "INVALID_PASSWORD");
-	    }
-		
 		// PrincipalDetails 객체 생성
 		PrincipalDetails principalDetails = new PrincipalDetails(user);
 		
@@ -194,8 +190,6 @@ public class AuthService {
 	public Map<String, String> validHandle(Errors errors) {
 		
 		Map<String, String> validResult = new HashMap<>();
-		
-		validResult.put("errorCd", "INVALID_FORM");
 		
 		for (FieldError error : errors.getFieldErrors()) {
 			validResult.put(error.getField(), error.getDefaultMessage());

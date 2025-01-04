@@ -1,45 +1,118 @@
-import React from 'react';
+import axios from 'axios';
+import React, { useState } from 'react';
+import { Button, FloatingLabel, Form } from 'react-bootstrap';
 
 const LoginForm = () => {
+  const [user, setUser] = useState({
+    userId: '',
+    password: '',
+  });
+  const [errorMessage, setErrorMessage] = useState({
+    errorCd: '',
+    message: '',
+  });
+  const [validMessage, setValidMessage] = useState({
+    errorCd: '',
+    userId: '',
+    password: '',
+  });
+
+  const changeValue = (e) => {
+    setUser({
+      ...user, // 기존 user 객체 정보
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const loginUser = (e) => {
+    e.preventDefault();
+    // 기존 데이터 초기화
+    setValidMessage({
+      errorCd: '',
+      userId: '',
+      password: '',
+    });
+    setErrorMessage({
+      errorCd: '',
+      message: '',
+    });
+
+    axios
+      .post(`${process.env.REACT_APP_API_URL}/api/v1/auth/login`, user, {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+        },
+        withCredentials: true, // 쿠키와 자격증명 포함
+      })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((error) => {
+        if (error.response) {
+          const data = error.response.data;
+
+          if (data.errorCd === 'INVALID_FORM') {
+            setValidMessage({
+              errorCd: data.errorCd || '',
+              userId: data.userId || '',
+              password: data.password || '',
+            });
+          } else {
+            setErrorMessage({
+              errorCd: data.errorCd || '',
+              message: data.message || '',
+            });
+          }
+        }
+      });
+  };
+
   return (
-    <div>
-      <form>
-        <h1 className="h3 mb-3 fw-normal">Please sign in</h1>
+    <div className="container mt-5">
+      <Form onSubmit={loginUser}>
+        <h1 className="h3 mb-3 fw-normal text-center">로그인</h1>
 
-        <div className="form-floating">
-          <input
-            type="email"
-            className="form-control"
-            id="floatingInput"
-            placeholder="name@example.com"
+        <FloatingLabel controlId="floatingInput" label="ID" className="mb-3">
+          <Form.Control
+            type="text"
+            name="userId"
+            placeholder="아이디를 입력하세요."
+            value={user.userId}
+            onChange={changeValue}
+            isInvalid={!!validMessage.userId} // validMessage가 있을 경우 invalid 상태로 설정
           />
-          <label for="floatingInput">Email address</label>
-        </div>
-        <div className="form-floating">
-          <input
+          <Form.Control.Feedback type="invalid">
+            {validMessage.userId} {/* validMessage에 들어있는 메시지를 출력 */}
+          </Form.Control.Feedback>
+        </FloatingLabel>
+
+        <FloatingLabel
+          controlId="floatingPassword"
+          label="Password"
+          className="mb-3"
+        >
+          <Form.Control
             type="password"
-            className="form-control"
-            id="floatingPassword"
-            placeholder="Password"
+            name="password"
+            placeholder="비밀번호를 입력하세요."
+            value={user.password}
+            onChange={changeValue}
+            isInvalid={!!validMessage.password} // validMessage가 있을 경우 invalid 상태로 설정
           />
-          <label for="floatingPassword">Password</label>
-        </div>
+          <Form.Control.Feedback type="invalid">
+            {validMessage.password}
+            {/* validMessage에 들어있는 메시지를 출력 */}
+          </Form.Control.Feedback>
+        </FloatingLabel>
+        {/* 통신 에러 메시지가 있을 경우만 렌더링 */}
+        {errorMessage && (
+          <Form.Text className="text-danger">{errorMessage.message}</Form.Text>
+        )}
 
-        <div className="form-check text-start my-3">
-          <input
-            className="form-check-input"
-            type="checkbox"
-            value="remember-me"
-            id="flexCheckDefault"
-          />
-          <label className="form-check-label" for="flexCheckDefault">
-            Remember me
-          </label>
-        </div>
-        <button className="btn btn-primary w-100 py-2" type="submit">
-          Sign in
-        </button>
-      </form>
+        <Button variant="primary" type="submit" className="w-100 py-2">
+          로그인
+        </Button>
+      </Form>
     </div>
   );
 };

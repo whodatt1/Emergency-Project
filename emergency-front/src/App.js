@@ -3,16 +3,17 @@ import { Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import UserLogin from './pages/user/UserLogin';
+import { Container } from 'react-bootstrap';
 
 const App = () => {
   return (
-    <div className="container">
+    <Container fluid>
       <Header />
       <Routes>
-        <Route path="/userJoin" exact={true} element={<UserLogin />} />
+        <Route path="/userLogin" exact={true} element={<UserLogin />} />
       </Routes>
       <Footer />
-    </div>
+    </Container>
   );
 };
 
