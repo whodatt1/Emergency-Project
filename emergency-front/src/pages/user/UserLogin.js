@@ -1,8 +1,12 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 import { Button, FloatingLabel, Form } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom'; // useNavigate 훅 임포트
+import AlertDialog from '../../components/AlertDialog';
 
 const LoginForm = () => {
+  const navigate = useNavigate();
+
   const [user, setUser] = useState({
     userId: '',
     password: '',
@@ -16,6 +20,9 @@ const LoginForm = () => {
     userId: '',
     password: '',
   });
+  const [openDialog, setOpenDialog] = useState(false); // 모달 상태 추가
+  const [dialogMessage, setDialogMessage] = useState(''); // 모달 메시지 상태
+  const [dialogType, setDialogType] = useState(''); // 모달 타입 상태 ('success' or 'error')
 
   const changeValue = (e) => {
     setUser({
@@ -46,6 +53,27 @@ const LoginForm = () => {
       })
       .then((res) => {
         console.log(res);
+
+        const accessToken = res.headers['authorization'] || '';
+
+        if (accessToken.startsWith('Bearer ')) {
+          localStorage.setItem(
+            'accessToken',
+            accessToken.replace('Bearer ', ''),
+          );
+
+          // 로그인 성공시 모달 표시
+          setDialogMessage('로그인에 성공하였습니다.');
+          setDialogType('success');
+          setOpenDialog(true);
+        } else {
+          console.log('AccessToken format is invalid');
+
+          // 로그인 실패시 모달 표시
+          setDialogMessage('로그인에 실패하였습니다.');
+          setDialogType('error');
+          setOpenDialog(true);
+        }
       })
       .catch((error) => {
         if (error.response) {
@@ -65,6 +93,14 @@ const LoginForm = () => {
           }
         }
       });
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+
+    if (dialogType === 'success') {
+      navigate('/');
+    }
   };
 
   return (
@@ -113,6 +149,14 @@ const LoginForm = () => {
           로그인
         </Button>
       </Form>
+
+      <AlertDialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        message={dialogMessage}
+        onConfirm={handleCloseDialog}
+        type={dialogType} // 'success' 또는 'error'로 알림 타입 전달
+      />
     </div>
   );
 };

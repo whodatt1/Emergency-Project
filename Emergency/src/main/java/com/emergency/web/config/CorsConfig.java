@@ -30,6 +30,9 @@ public class CorsConfig {
 		config.addAllowedOrigin("http://localhost:3000");
 		config.addAllowedHeader("*");
 		config.addAllowedMethod("*");
+		
+		// Authorization 헤더를 클라이언트에서 읽을 수 있도록 노출 설정
+		config.addExposedHeader("Authorization");
 		source.registerCorsConfiguration("/api/**", config);
 		return new CorsFilter(source);
 	}
