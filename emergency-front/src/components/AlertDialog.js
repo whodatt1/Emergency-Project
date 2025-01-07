@@ -25,9 +25,11 @@ const AlertDialog = ({ open, onClose, message, onConfirm, type }) => {
       <DialogTitle>알림</DialogTitle>
       <DialogContent>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <IconComponent
-            style={{ color: iconColor, marginRight: 10, fontSize: 30 }}
-          />
+          {IconComponent && (
+            <IconComponent
+              style={{ color: iconColor, marginRight: 10, fontSize: 30 }}
+            />
+          )}
           <p>{message}</p>
         </div>
       </DialogContent>

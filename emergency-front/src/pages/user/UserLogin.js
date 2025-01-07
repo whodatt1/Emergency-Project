@@ -75,9 +75,9 @@ const LoginForm = () => {
           setOpenDialog(true);
         }
       })
-      .catch((error) => {
-        if (error.response) {
-          const data = error.response.data;
+      .catch((err) => {
+        if (err.response) {
+          const data = err.response.data;
 
           if (data.errorCd === 'INVALID_FORM') {
             setValidMessage({

@@ -32,7 +32,6 @@ public class User {
 	private String email; // UNIQUE KEY
 	private String hp;
 	private String address;
-	private String postCd;
 	private LocalDateTime regAt;
 	private LocalDateTime modAt;
 	private LocalDateTime lastLogin;

@@ -7,7 +7,7 @@
 		      , password
 		      , email
 		      , hp
-		      , post_cd
+		      , postCd
 		      , address
 		      , reg_at
 		      , mod_at
@@ -24,7 +24,7 @@
 			password,
 			email,
 			hp,
-			post_cd,
+			postCd,
 			address,
 			reg_at,
 			mod_at,

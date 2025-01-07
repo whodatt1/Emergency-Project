@@ -177,7 +177,6 @@ public class AuthService {
 						.email(userRequestDto.getEmail())
 						.hp(userRequestDto.getHp())
 						.address(userRequestDto.getAddress())
-						.postCd(userRequestDto.getPostCd())
 						.regAt(LocalDateTime.now())
 						.modAt(LocalDateTime.now())
 						.roles("ROLE_USER") // default

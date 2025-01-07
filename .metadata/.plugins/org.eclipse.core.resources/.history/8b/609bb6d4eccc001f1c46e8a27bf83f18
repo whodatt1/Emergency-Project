@@ -28,7 +28,7 @@ public class JoinRequestDto {
 	private String hp;
 	
 	@NotEmpty(message = "우편 번호는 필수 입력 사항입니다.")
-	private String postCd;
+	private String postNo;
 	
 	@NotEmpty(message = "주소는 필수 입력 사항입니다.")
 	private String address;

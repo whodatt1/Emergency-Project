@@ -99,6 +99,7 @@ public class AuthController {
 		if (errors.hasErrors()) {
 			return ResponseEntity.badRequest().body(authService.validHandle(errors));
 		}
+		
 		authService.signUp(joinRequestDto);
 		return ResponseEntity.ok().body(null);
 	}
