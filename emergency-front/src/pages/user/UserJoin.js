@@ -1,9 +1,9 @@
-import axios from 'axios';
 import React, { useState } from 'react';
 import { Button, FloatingLabel, Form } from 'react-bootstrap';
 import AlertDialog from '../../components/AlertDialog';
 import DaumPC from '../../components/DaumPC';
 import { useNavigate } from 'react-router-dom'; // useNavigate 훅 임포트
+import { signUp } from '../../apis/auth';
 
 const UserJoin = () => {
   const navigate = useNavigate();
@@ -84,7 +84,6 @@ const UserJoin = () => {
 
   const joinUser = (e) => {
     e.preventDefault();
-    console.log('User Data Before Sending: ', user); // 서버로 보내는 데이터 확인
     // 기존 데이터 초기화
     setValidMessage({
       errorCd: '',
@@ -101,12 +100,7 @@ const UserJoin = () => {
       message: '',
     });
 
-    axios
-      .post(`${process.env.REACT_APP_API_URL}/api/v1/auth/signup`, user, {
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-        },
-      })
+    signUp(user)
       .then((res) => {
         console.log(res);
 

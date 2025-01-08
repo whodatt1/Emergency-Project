@@ -1,8 +1,8 @@
-import axios from 'axios';
 import React, { useState } from 'react';
 import { Button, FloatingLabel, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom'; // useNavigate 훅 임포트
 import AlertDialog from '../../components/AlertDialog';
+import { login } from '../../apis/auth';
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -44,19 +44,14 @@ const LoginForm = () => {
       message: '',
     });
 
-    axios
-      .post(`${process.env.REACT_APP_API_URL}/api/v1/auth/login`, user, {
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-        },
-        withCredentials: true, // 쿠키와 자격증명 포함
-      })
+    login(user)
       .then((res) => {
         console.log(res);
 
         const accessToken = res.headers['authorization'] || '';
 
         if (accessToken.startsWith('Bearer ')) {
+          // LoginContext 이용 예정 수정할 것
           localStorage.setItem(
             'accessToken',
             accessToken.replace('Bearer ', ''),
