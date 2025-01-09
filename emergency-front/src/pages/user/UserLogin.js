@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Button, FloatingLabel, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom'; // useNavigate 훅 임포트
 import AlertDialog from '../../components/AlertDialog';
 import { login } from '../../apis/auth';
+import { LoginContext } from '../../context/LoginContextProvider';
 
 const LoginForm = () => {
   const navigate = useNavigate();
+  const { loginCheck } = useContext(LoginContext);
 
   const [user, setUser] = useState({
     userId: '',
@@ -31,8 +33,9 @@ const LoginForm = () => {
     });
   };
 
-  const loginUser = (e) => {
+  const loginUser = async (e) => {
     e.preventDefault();
+
     // 기존 데이터 초기화
     setValidMessage({
       errorCd: '',
@@ -44,50 +47,43 @@ const LoginForm = () => {
       message: '',
     });
 
-    login(user)
-      .then((res) => {
-        console.log(res);
+    try {
+      const res = await login(user);
+      console.log(res);
 
-        const accessToken = res.headers['authorization'] || '';
+      const accessToken = res.headers['authorization'] || '';
 
-        if (accessToken.startsWith('Bearer ')) {
-          // LoginContext 이용 예정 수정할 것
-          localStorage.setItem(
-            'accessToken',
-            accessToken.replace('Bearer ', ''),
-          );
+      if (accessToken.startsWith('Bearer ')) {
+        loginCheck(accessToken);
 
-          // 로그인 성공시 모달 표시
-          setDialogMessage('로그인에 성공하였습니다.');
-          setDialogType('success');
-          setOpenDialog(true);
+        // 로그인 성공시 모달 표시
+        setDialogMessage('로그인에 성공하였습니다.');
+        setDialogType('success');
+        setOpenDialog(true);
+      } else {
+        // 로그인 실패시 모달 표시
+        setDialogMessage('토큰이 유효하지 않습니다. 다시 시도해주세요.');
+        setDialogType('error');
+        setOpenDialog(true);
+      }
+    } catch (err) {
+      if (err.response) {
+        const data = err.response.data;
+
+        if (data.errorCd === 'INVALID_FORM') {
+          setValidMessage({
+            errorCd: data.errorCd || '',
+            userId: data.userId || '',
+            password: data.password || '',
+          });
         } else {
-          console.log('AccessToken format is invalid');
-
-          // 로그인 실패시 모달 표시
-          setDialogMessage('로그인에 실패하였습니다.');
-          setDialogType('error');
-          setOpenDialog(true);
+          setErrorMessage({
+            errorCd: data.errorCd || '',
+            message: data.message || '',
+          });
         }
-      })
-      .catch((err) => {
-        if (err.response) {
-          const data = err.response.data;
-
-          if (data.errorCd === 'INVALID_FORM') {
-            setValidMessage({
-              errorCd: data.errorCd || '',
-              userId: data.userId || '',
-              password: data.password || '',
-            });
-          } else {
-            setErrorMessage({
-              errorCd: data.errorCd || '',
-              message: data.message || '',
-            });
-          }
-        }
-      });
+      }
+    }
   };
 
   const handleCloseDialog = () => {

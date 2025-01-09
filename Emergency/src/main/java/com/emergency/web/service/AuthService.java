@@ -82,29 +82,7 @@ public class AuthService {
 		
 		String accessToken = jwtUtils.createAccessToken(authentication);
 		
-		RefreshToken existingToken = tokenMapper.getRefreshTokenByUserId(loginRequestDto.getUserId());
-		
-		String refreshToken;
-		
-		// 유효한 토큰이 이미 존재하는지 검증
-		if (existingToken != null && jwtUtils.validateJwtToken(existingToken.getToken())) {
-			refreshToken = existingToken.getToken();
-		} else {
-			refreshToken = jwtUtils.createRefreshToken(authentication);
-			
-			RefreshToken rt = RefreshToken.builder()
-					.userId(jwtUtils.getUserNameFromJwtToken(refreshToken))
-					.token(refreshToken)
-					.expiryDate(jwtUtils.getExpirationFromJwtToken(refreshToken))
-					.build();
-			
-			// db에 저장 여기서 이미 존재하는 refreshToken이 있다면 삭제 후 생성하도록 하는 로직을 추가해야함
-			int tokenResult = tokenMapper.saveRefreshToken(rt);
-			
-			if (tokenResult < 1) {
-				throw new GlobalException("토큰 저장에 실패하였습니다.", "REFRESH_TOKEN_SAVE_FAIL");
-			}
-		}
+		String refreshToken = handleRefreshToken(principalDetails.getUser().getUserId(), authentication);
 		
 		// 최종 로그인 업데이트 작업
 		int lastLoginResult = userMapper.updateLastLogin(loginRequestDto.getUserId());
@@ -189,6 +167,41 @@ public class AuthService {
 		if (res < 1) {
 			throw new GlobalException("회원가입에 실패하였습니다. 고객센터에 문의해주세요.", "USER_SAVE_FAILED");
 		}
+	}
+	
+	// 로그인 시 리프레쉬토큰 핸들링
+	public String handleRefreshToken(String userId, Authentication authentication) {
+		
+		RefreshToken existingToken = tokenMapper.getRefreshTokenByUserId(userId);
+		
+		if (existingToken != null) {
+			if (jwtUtils.validateJwtToken(existingToken.getToken())) {
+				return existingToken.getToken();
+			} else {
+				int delResult = tokenMapper.deleteRefreshTokenByUserId(userId);
+				
+				if (delResult < 1) {
+					throw new GlobalException("만료된 토큰 삭제에 실패하였습니다.", "REFRESH_TOKEN_DELETE_FAIL");
+				}
+			}
+		}
+		
+		String refreshToken = jwtUtils.createRefreshToken(authentication);
+		
+		RefreshToken rt = RefreshToken.builder()
+				.userId(userId)
+				.token(refreshToken)
+				.expiryDate(jwtUtils.getExpirationFromJwtToken(refreshToken))
+				.build();
+		
+		// db에 저장 여기서 이미 존재하는 refreshToken이 있다면 삭제 후 생성하도록 하는 로직을 추가해야함
+		int tokenResult = tokenMapper.saveRefreshToken(rt);
+		
+		if (tokenResult < 1) {
+			throw new GlobalException("토큰 저장에 실패하였습니다.", "REFRESH_TOKEN_SAVE_FAIL");
+		}
+		
+		return refreshToken;
 	}
 	
 	// 밸리데이션 핸들링

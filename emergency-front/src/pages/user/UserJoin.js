@@ -82,7 +82,7 @@ const UserJoin = () => {
     setShowPostCode(true);
   };
 
-  const joinUser = (e) => {
+  const joinUser = async (e) => {
     e.preventDefault();
     // 기존 데이터 초기화
     setValidMessage({
@@ -100,39 +100,40 @@ const UserJoin = () => {
       message: '',
     });
 
-    signUp(user)
-      .then((res) => {
-        console.log(res);
+    try {
+      // 회원가입 요청
+      const res = await signUp(user);
 
-        if (res.status === 200) {
-          setDialogMessage('회원가입에 성공하였습니다.');
-          setDialogType('success');
-          setOpenDialog(true);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        if (err.response) {
-          const data = err.response.data;
+      console.log(res);
 
-          if (data.errorCd === 'INVALID_FORM') {
-            setValidMessage({
-              errorCd: data.errorCd || '',
-              userId: data.userId || '',
-              password: data.password || '',
-              email: data.email || '',
-              hp: data.hp || '',
-              postCd: data.postCd || '',
-              address: data.address || '',
-            });
-          } else {
-            setErrorMessage({
-              errorCd: data.errorCd || '',
-              message: data.message || '',
-            });
-          }
+      if (res.status === 200) {
+        setDialogMessage('회원가입에 성공하였습니다.');
+        setDialogType('success');
+        setOpenDialog(true);
+      }
+    } catch (err) {
+      console.log(err);
+      if (err.response) {
+        const data = err.response.data;
+
+        if (data.errorCd === 'INVALID_FORM') {
+          setValidMessage({
+            errorCd: data.errorCd || '',
+            userId: data.userId || '',
+            password: data.password || '',
+            email: data.email || '',
+            hp: data.hp || '',
+            postCd: data.postCd || '',
+            address: data.address || '',
+          });
+        } else {
+          setErrorMessage({
+            errorCd: data.errorCd || '',
+            message: data.message || '',
+          });
         }
-      });
+      }
+    }
   };
 
   const handleCloseDialog = () => {
