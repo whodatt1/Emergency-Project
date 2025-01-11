@@ -142,7 +142,7 @@ public class JwtUtils {
 	}
 	
 	// 토큰 검증 메서드
-	public boolean validateJwtToken(String token) throws MalformedJwtException, ExpiredJwtException, UnsupportedJwtException, IllegalArgumentException {
+	public boolean validateJwtToken(String token) {
 		
 		try {
 			// 비밀 키를 UTF-8 문자열로 변환 후 HMAC512에 사용할 키로 지정

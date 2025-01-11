@@ -5,6 +5,4 @@ export const login = (user) =>
     withCredentials: true,
   });
 
-export const getUserInfoFromToken = (accessToken) => {};
-
 export const signUp = (user) => api.post('/api/v1/auth/signup', user);

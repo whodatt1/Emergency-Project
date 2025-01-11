@@ -1,5 +1,6 @@
 import React, { createContext, useState } from 'react';
 import api from '../apis/api';
+import { getUserInfo } from '../apis/auth';
 
 export const LoginContext = createContext();
 
@@ -12,13 +13,8 @@ const LoginContextProvider = ({ children }) => {
     userId: '',
   });
 
-  const loginCheck = (accessToken) => {};
-
   // 로그인 세팅
-  const loginSetting = (userId, accessToken) => {
-    // axios 객체의 header에 토큰 설정
-    api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-
+  const loginSetting = (userId) => {
     // 로그인 정보 세팅
     setLoggedIn(true);
 

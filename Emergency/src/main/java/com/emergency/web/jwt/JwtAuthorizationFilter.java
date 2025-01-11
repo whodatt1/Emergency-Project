@@ -50,35 +50,40 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter  {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		
+		// 이거 체크한번 해보기
 		// 로그인할때도 해당 요청을 타는데 로그인일 경우 해당 필터를 넘어가게끔
 		if (request.getRequestURI().contains("/login")) {
 			filterChain.doFilter(request, response);
 			return;
 		}
 		
-		// 토큰 파싱
-		String jwtToken = parseJwt(request);
-		
-		if (jwtToken != null && jwtUtils.validateJwtToken(jwtToken)) {
-			// 유저 ID 추출
-			String userId = "";
-			try {
-				userId = jwtUtils.getUserNameFromJwtToken(jwtToken);
-			} catch (Exception e) {
-				log.error(e.getMessage());
+		try {
+			// 토큰 파싱
+			String jwtToken = parseJwt(request);
+			
+			if (jwtToken != null && jwtUtils.validateJwtToken(jwtToken)) {
+				// 유저 ID 추출
+				String userId = "";
+				try {
+					userId = jwtUtils.getUserNameFromJwtToken(jwtToken);
+				} catch (Exception e) {
+					log.error(e.getMessage());
+				}
+				
+				// userDetail 객체 가져오기
+				UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
+				
+				// 토큰 생성
+				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+				
+				// 인증 정보를 설정할 때 추가적인 상세정보를 추가해 줌 이걸 사용하여 보안 관련 처리 가능
+				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+				
+				// 권한을 시큐리티에서 관리하도록 하기 위해 SecurityContextHolder에 athentication 저장 (인증 정보가 스레드 로컬에 저장되는 방식)
+				SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
-			
-			// userDetail 객체 가져오기
-			UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
-			
-			// 토큰 생성
-			UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-			
-			// 인증 정보를 설정할 때 추가적인 상세정보를 추가해 줌 이걸 사용하여 보안 관련 처리 가능
-			authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-			
-			// 권한을 시큐리티에서 관리하도록 하기 위해 SecurityContextHolder에 athentication 저장 (인증 정보가 스레드 로컬에 저장되는 방식)
-			SecurityContextHolder.getContext().setAuthentication(authentication);
+		} catch (Exception e) {
+			log.error("JwtAuthorizationFilter에서 사용자 인증을 설정할 수 없습니다: {}", e);
 		}
 		
 		filterChain.doFilter(request, response);

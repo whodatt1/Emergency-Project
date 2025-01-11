@@ -1,0 +1,18 @@
+package com.emergency.web.dto.request.user;
+
+/**
+ * 
+* @packageName     : com.emergency.web.dto.request.user
+* @fileName        : UserInfoRequestDto.java
+* @author          : KHK
+* @date            : 2025.01.11
+* @description     : UserInfo 요청 객체
+* ===========================================================
+* DATE              AUTHOR             NOTE
+* -----------------------------------------------------------
+* 2025.01.11        KHK                최초 생성
+ */
+
+public class UserInfoRequestDto {
+
+}

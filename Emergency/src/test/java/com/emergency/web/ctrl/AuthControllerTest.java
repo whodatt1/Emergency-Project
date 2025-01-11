@@ -25,11 +25,11 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.emergency.web.dto.request.JoinRequestDto;
-import com.emergency.web.dto.request.LoginRequestDto;
-import com.emergency.web.dto.response.LoginResponseDto;
+import com.emergency.web.dto.request.auth.JoinRequestDto;
+import com.emergency.web.dto.request.auth.LoginRequestDto;
+import com.emergency.web.dto.response.auth.LoginResponseDto;
 import com.emergency.web.exception.GlobalException;
-import com.emergency.web.service.AuthService;
+import com.emergency.web.service.auth.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**

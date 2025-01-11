@@ -1,0 +1,24 @@
+package com.emergency.web.service.user;
+
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+
+/**
+ * 
+* @packageName     : com.emergency.web.service.user
+* @fileName        : UserService.java
+* @author          : KHK
+* @date            : 2025.01.11
+* @description     :
+* ===========================================================
+* DATE              AUTHOR             NOTE
+* -----------------------------------------------------------
+* 2025.01.11        KHK                최초 생성
+ */
+
+@Service
+@RequiredArgsConstructor
+public class UserService {
+
+}

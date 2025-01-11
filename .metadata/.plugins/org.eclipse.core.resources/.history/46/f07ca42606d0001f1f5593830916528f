@@ -1,0 +1,5 @@
+package com.emergency.web.service.user;
+
+public class UserService {
+
+}

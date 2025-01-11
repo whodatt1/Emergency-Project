@@ -1,0 +1,18 @@
+package com.emergency.web.ctrl;
+
+/**
+ * 
+* @packageName     : com.emergency.web.ctrl
+* @fileName        : UserController.java
+* @author          : KHK
+* @date            : 2025.01.11
+* @description     : 유저정보 관리 컨트롤러
+* ===========================================================
+* DATE              AUTHOR             NOTE
+* -----------------------------------------------------------
+* 2025.01.11        KHK                최초 생성
+ */
+
+public class UserController {
+
+}

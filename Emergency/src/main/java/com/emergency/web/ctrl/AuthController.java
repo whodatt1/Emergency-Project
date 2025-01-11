@@ -1,7 +1,5 @@
 package com.emergency.web.ctrl;
 
-import java.util.HashMap;
-import java.util.Map;
 
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -11,11 +9,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.emergency.web.config.TypeSafeProperties;
-import com.emergency.web.dto.request.JoinRequestDto;
-import com.emergency.web.dto.request.LoginRequestDto;
-import com.emergency.web.dto.response.LoginResponseDto;
-import com.emergency.web.dto.response.RefreshResponseDto;
-import com.emergency.web.service.AuthService;
+import com.emergency.web.dto.request.auth.JoinRequestDto;
+import com.emergency.web.dto.request.auth.LoginRequestDto;
+import com.emergency.web.dto.response.auth.LoginResponseDto;
+import com.emergency.web.dto.response.auth.RefreshResponseDto;
+import com.emergency.web.service.auth.AuthService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -74,13 +72,6 @@ public class AuthController {
 	public ResponseEntity<?> refresh(HttpServletRequest request, HttpServletResponse response) {
 		
 		RefreshResponseDto refreshResponseDto = authService.refresh(request);
-		
-		return ResponseEntity.ok(null);
-	}
-	
-	// 로그인 이후 로그인 체크 과정 유저정보 전달
-	@PostMapping("/api/v1/auth/userInfo")
-	public ResponseEntity<?> getUserInfoFromToken(String accessToken) {
 		
 		return ResponseEntity.ok(null);
 	}

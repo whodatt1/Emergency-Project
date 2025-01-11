@@ -3,11 +3,12 @@ import { Button, FloatingLabel, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom'; // useNavigate 훅 임포트
 import AlertDialog from '../../components/AlertDialog';
 import { login } from '../../apis/auth';
+import api from '../../apis/api';
 import { LoginContext } from '../../context/LoginContextProvider';
 
 const LoginForm = () => {
   const navigate = useNavigate();
-  const { loginCheck } = useContext(LoginContext);
+  const {} = useContext(LoginContext);
 
   const [user, setUser] = useState({
     userId: '',
@@ -31,6 +32,14 @@ const LoginForm = () => {
       ...user, // 기존 user 객체 정보
       [e.target.name]: e.target.value,
     });
+  };
+
+  const loginCheck = async (accessToken) => {
+    // 로그인 직후 axios 객체의 header에 토큰 설정
+    api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+
+    try {
+    } catch (err) {}
   };
 
   const loginUser = async (e) => {

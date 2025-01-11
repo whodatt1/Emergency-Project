@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.filter.CorsFilter;
 
 import com.emergency.web.jwt.JwtAuthorizationFilter;
+import com.emergency.web.jwt.JwtEntryPoint;
 
 import lombok.RequiredArgsConstructor;
 
@@ -57,6 +58,8 @@ public class SecurityConfig {
 		    .formLogin(form -> form.disable()) // 폼로그인 미사용
 		    .httpBasic(HttpBasicConfigurer::disable) // HTTP 로그인 방식 미사용
 		    .addFilterBefore(this.jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
+		    .exceptionHandling(exceptionHandling -> 
+		    	exceptionHandling.authenticationEntryPoint(new JwtEntryPoint()))
 		    .authorizeHttpRequests((authz) -> authz
 					.requestMatchers("/api/v1/user/**")
 					.hasAnyRole("USER", "MANAGER", "ADMIN")
