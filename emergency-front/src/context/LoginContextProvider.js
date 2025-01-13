@@ -1,6 +1,5 @@
 import React, { createContext, useState } from 'react';
-import api from '../apis/api';
-import { getUserInfo } from '../apis/auth';
+import { getMe } from '../apis/user';
 
 export const LoginContext = createContext();
 
@@ -13,6 +12,16 @@ const LoginContextProvider = ({ children }) => {
     userId: '',
   });
 
+  const loginCheck = async (accessToken) => {
+    localStorage.setItem('accessToken', accessToken);
+
+    try {
+      const res = await getMe();
+
+      console.log(res);
+    } catch (err) {}
+  };
+
   // 로그인 세팅
   const loginSetting = (userId) => {
     // 로그인 정보 세팅
@@ -23,9 +32,6 @@ const LoginContextProvider = ({ children }) => {
   };
 
   const logoutSetting = () => {
-    // axios 객체의 header 초기화
-    api.defaults.headers.common.Authorization = undefined;
-
     // 로그인 정보 세팅
     setLoggedIn(false);
 

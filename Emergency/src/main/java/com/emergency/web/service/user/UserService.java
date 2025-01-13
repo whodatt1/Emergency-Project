@@ -34,21 +34,20 @@ public class UserService {
 		// SecurityContext에서 인증된 사용자 정보 추출
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		
-		if (authentication != null || authentication.isAuthenticated()) {
+		if (authentication != null && authentication.isAuthenticated()) {
+			throw new GlobalException("인증되지 않은 사용자입니다.", "UNAUTHORIZED");
+		}
 			
-			String userId = authentication.getName();
-			
-			User user = userMapper.findById(userId);
-			
-			if (user == null) {
-				throw new GlobalException("존재하지 않는 아이디입니다. 아이디를 확인해주세요.", "USER_ID_NOT_FOUND");
-			}
-			
-			return UserInfoResponseDto.builder()
-									  .userId(user.getUserId())
-									  .build();
+		String userId = authentication.getName();
+		
+		User user = userMapper.findById(userId);
+		
+		if (user == null) {
+			throw new GlobalException("존재하지 않는 아이디입니다. 아이디를 확인해주세요.", "USER_ID_NOT_FOUND");
 		}
 		
-		return null;
+		return UserInfoResponseDto.builder()
+								  .userId(user.getUserId())
+								  .build();
 	}
 }

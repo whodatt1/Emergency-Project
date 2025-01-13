@@ -3,12 +3,11 @@ import { Button, FloatingLabel, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom'; // useNavigate 훅 임포트
 import AlertDialog from '../../components/AlertDialog';
 import { login } from '../../apis/auth';
-import api from '../../apis/api';
 import { LoginContext } from '../../context/LoginContextProvider';
 
 const LoginForm = () => {
   const navigate = useNavigate();
-  const {} = useContext(LoginContext);
+  const { loginChk } = useContext(LoginContext);
 
   const [user, setUser] = useState({
     userId: '',
@@ -34,14 +33,6 @@ const LoginForm = () => {
     });
   };
 
-  const loginCheck = async (accessToken) => {
-    // 로그인 직후 axios 객체의 header에 토큰 설정
-    api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-
-    try {
-    } catch (err) {}
-  };
-
   const loginUser = async (e) => {
     e.preventDefault();
 
@@ -63,7 +54,7 @@ const LoginForm = () => {
       const accessToken = res.headers['authorization'] || '';
 
       if (accessToken.startsWith('Bearer ')) {
-        loginCheck(accessToken);
+        loginChk(accessToken);
 
         // 로그인 성공시 모달 표시
         setDialogMessage('로그인에 성공하였습니다.');
