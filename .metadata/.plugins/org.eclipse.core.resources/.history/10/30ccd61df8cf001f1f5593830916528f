@@ -1,5 +1,0 @@
-package com.emergency.web.dto.response.auth;
-
-public class UserInfoResponseDto {
-
-}

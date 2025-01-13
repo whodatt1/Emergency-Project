@@ -1,8 +1,0 @@
-package com.emergency.web.jwt;
-
-import org.springframework.stereotype.Component;
-
-@Component
-public class JwtEntryPoint {
-
-}

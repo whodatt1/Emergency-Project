@@ -1,5 +1,0 @@
-package com.emergency.web.dto.request.user;
-
-public class UserInfoRequestDto {
-
-}
