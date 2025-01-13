@@ -1,5 +1,0 @@
-package com.emergency.web.jwt;
-
-public class JwtEntryPoint {
-
-}
