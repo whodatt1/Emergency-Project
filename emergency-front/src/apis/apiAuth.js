@@ -3,8 +3,9 @@ import axios from 'axios';
 const apiAuth = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
   headers: {
-    'Content-Type': 'application/json; chatset=utf-8',
+    'Content-Type': 'application/json; charset=utf-8',
   },
+  withCredentials: true,
 });
 
 apiAuth.interceptors.request.use(

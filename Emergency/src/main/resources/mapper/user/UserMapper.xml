@@ -4,7 +4,7 @@
 	
 	<select id="findById" parameterType="string" resultType="com.emergency.web.model.User">
 		SELECT  user_id
-		      , password
+			  , password
 		      , email
 		      , hp
 		      , post_cd

@@ -134,7 +134,7 @@ public class AuthService {
 		// 쿠키에서 refreshToken 추출
 		String refreshToken = getRefreshTokenFromCookie(request);
 		
-		if (refreshToken != null && jwtUtils.validateJwtToken(refreshToken)) {
+		if (refreshToken != null) {
 			tokenMapper.deleteRefreshTokenByUserId(jwtUtils.getUserNameFromJwtToken(refreshToken));
 		}
 		

@@ -1,5 +1,6 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import { getMe } from '../apis/user';
+import { login, logout } from '../apis/auth';
 
 export const LoginContext = createContext();
 
@@ -12,14 +13,98 @@ const LoginContextProvider = ({ children }) => {
     userId: '',
   });
 
-  const loginCheck = async (accessToken) => {
-    localStorage.setItem('accessToken', accessToken);
+  // 에러 메시지
+  const [errorMessage, setErrorMessage] = useState({
+    errorCd: '',
+    message: '',
+  });
+
+  // valid 메시지 (로그인 화면에서 사용)
+  const [validMessage, setValidMessage] = useState({
+    errorCd: '',
+    userId: '',
+    password: '',
+  });
+
+  // dialog 상태 관리
+  const [dialogState, setDialogState] = useState({
+    open: false,
+    message: '', // 모달 메시지 상태
+    type: '', // 모달 타입 상태 ('success' or 'error')
+    cd: '',
+  });
+
+  const showDialog = (message, type, cd) => {
+    setDialogState({
+      open: true,
+      message: message,
+      type: type,
+      cd: cd,
+    });
+  };
+
+  const loginUser = async (user) => {
+    // 기존 데이터 초기화
+    setValidMessage({
+      errorCd: '',
+      userId: '',
+      password: '',
+    });
+    setErrorMessage({
+      errorCd: '',
+      message: '',
+    });
 
     try {
-      const res = await getMe();
-
+      const res = await login(user);
       console.log(res);
-    } catch (err) {}
+
+      const accessToken = res.headers['authorization'] || '';
+
+      if (accessToken.startsWith('Bearer ')) {
+        loginCheck(accessToken);
+      } else {
+        // 로그인 실패시 모달 표시
+        showDialog('토큰이 유효하지 않습니다. 다시 시도해주세요.', 'error');
+      }
+    } catch (err) {
+      if (err.response) {
+        const data = err.response.data;
+
+        if (data.errorCd === 'INVALID_FORM') {
+          setValidMessage({
+            errorCd: data.errorCd || '',
+            userId: data.userId || '',
+            password: data.password || '',
+          });
+        } else {
+          setErrorMessage({
+            errorCd: data.errorCd || '',
+            message: data.message || '',
+          });
+        }
+      }
+    }
+  };
+
+  const loginCheck = async (accessToken) => {
+    const splitToken = accessToken.split(' ')[1]; // Bearer 제거거
+    localStorage.setItem('accessToken', splitToken);
+    try {
+      const res = await getMe(); // 리턴되는 값이 있어야 await가 작동
+
+      console.log(res.data);
+
+      if (res.data) {
+        loginSetting(res.data.userId);
+      } else {
+        logoutUser();
+      }
+    } catch (err) {
+      if (err.response) {
+        logoutUser();
+      }
+    }
   };
 
   // 로그인 세팅
@@ -29,9 +114,18 @@ const LoginContextProvider = ({ children }) => {
 
     // 유저정보 세팅
     setUserInfo({ userId: userId });
+
+    // 로그인 성공시 모달 표시
+    showDialog('로그인에 성공하였습니다.', 'success', 'login_success');
   };
 
+  // 로그아웃
+  const logoutUser = async () => {};
+
   const logoutSetting = () => {
+    // localStorage에서 accessToken 삭제
+    localStorage.removeItem('accessToken');
+
     // 로그인 정보 세팅
     setLoggedIn(false);
 
@@ -39,9 +133,26 @@ const LoginContextProvider = ({ children }) => {
     setUserInfo(null);
   };
 
+  useEffect(() => {
+    loginCheck(localStorage.getItem('accessToken'));
+  }, []); // 컴포넌트가 마운트 될때 한번만 실행
+
   return (
     <div>
-      <LoginContext.Provider value={{ isLoggedIn }}>
+      <LoginContext.Provider
+        value={{
+          isLoggedIn,
+          userInfo,
+          validMessage,
+          errorMessage,
+          dialogState,
+          setDialogState,
+          loginUser,
+          loginCheck,
+          loginSetting,
+          logoutSetting,
+        }}
+      >
         {children}
       </LoginContext.Provider>
     </div>

@@ -1,30 +1,16 @@
 import React, { useContext, useState } from 'react';
 import { Button, FloatingLabel, Form } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom'; // useNavigate 훅 임포트
-import AlertDialog from '../../components/AlertDialog';
-import { login } from '../../apis/auth';
+import AlertDialog from '../components/AlertDialog';
 import { LoginContext } from '../../context/LoginContextProvider';
 
 const LoginForm = () => {
-  const navigate = useNavigate();
-  const { loginChk } = useContext(LoginContext);
+  const { loginUser, validMessage, errorMessage, dialogState, setDialogState } =
+    useContext(LoginContext);
 
   const [user, setUser] = useState({
     userId: '',
     password: '',
   });
-  const [errorMessage, setErrorMessage] = useState({
-    errorCd: '',
-    message: '',
-  });
-  const [validMessage, setValidMessage] = useState({
-    errorCd: '',
-    userId: '',
-    password: '',
-  });
-  const [openDialog, setOpenDialog] = useState(false); // 모달 상태 추가
-  const [dialogMessage, setDialogMessage] = useState(''); // 모달 메시지 상태
-  const [dialogType, setDialogType] = useState(''); // 모달 타입 상태 ('success' or 'error')
 
   const changeValue = (e) => {
     setUser({
@@ -33,70 +19,23 @@ const LoginForm = () => {
     });
   };
 
-  const loginUser = async (e) => {
+  // context의 로그인 함수 호출
+  const callLoginUser = async (e) => {
     e.preventDefault();
-
-    // 기존 데이터 초기화
-    setValidMessage({
-      errorCd: '',
-      userId: '',
-      password: '',
-    });
-    setErrorMessage({
-      errorCd: '',
-      message: '',
-    });
-
-    try {
-      const res = await login(user);
-      console.log(res);
-
-      const accessToken = res.headers['authorization'] || '';
-
-      if (accessToken.startsWith('Bearer ')) {
-        loginChk(accessToken);
-
-        // 로그인 성공시 모달 표시
-        setDialogMessage('로그인에 성공하였습니다.');
-        setDialogType('success');
-        setOpenDialog(true);
-      } else {
-        // 로그인 실패시 모달 표시
-        setDialogMessage('토큰이 유효하지 않습니다. 다시 시도해주세요.');
-        setDialogType('error');
-        setOpenDialog(true);
-      }
-    } catch (err) {
-      if (err.response) {
-        const data = err.response.data;
-
-        if (data.errorCd === 'INVALID_FORM') {
-          setValidMessage({
-            errorCd: data.errorCd || '',
-            userId: data.userId || '',
-            password: data.password || '',
-          });
-        } else {
-          setErrorMessage({
-            errorCd: data.errorCd || '',
-            message: data.message || '',
-          });
-        }
-      }
-    }
+    await loginUser(user);
   };
 
+  // 모달 닫기 핸들러
   const handleCloseDialog = () => {
-    setOpenDialog(false);
-
-    if (dialogType === 'success') {
-      navigate('/');
-    }
+    setDialogState({
+      ...dialogState,
+      open: false,
+    });
   };
 
   return (
     <div className="container mt-5">
-      <Form onSubmit={loginUser}>
+      <Form onSubmit={callLoginUser}>
         <h1 className="h3 mb-3 fw-normal text-center">로그인</h1>
 
         <FloatingLabel controlId="floatingInput" label="ID" className="mb-3">
@@ -139,15 +78,15 @@ const LoginForm = () => {
         <Button variant="primary" type="submit" className="w-100 py-2">
           로그인
         </Button>
-      </Form>
 
-      <AlertDialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        message={dialogMessage}
-        onConfirm={handleCloseDialog}
-        type={dialogType} // 'success' 또는 'error'로 알림 타입 전달
-      />
+        <AlertDialog
+          open={dialogState.open}
+          onClose={handleCloseDialog}
+          message={dialogState.message}
+          onConfirm={handleCloseDialog}
+          type={dialogState.type} // 'success' 또는 'error'로 알림 타입 전달
+        />
+      </Form>
     </div>
   );
 };

@@ -34,7 +34,7 @@ public class UserService {
 		// SecurityContext에서 인증된 사용자 정보 추출
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		
-		if (authentication != null && authentication.isAuthenticated()) {
+		if (authentication == null || !authentication.isAuthenticated()) {
 			throw new GlobalException("인증되지 않은 사용자입니다.", "UNAUTHORIZED");
 		}
 			
