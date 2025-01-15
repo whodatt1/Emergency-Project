@@ -2,15 +2,30 @@ import React, { useContext, useState } from 'react';
 import { Button, FloatingLabel, Form } from 'react-bootstrap';
 import AlertDialog from '../components/AlertDialog';
 import { LoginContext } from '../../context/LoginContextProvider';
+import { useNavigate } from 'react-router-dom';
 
 const LoginForm = () => {
-  const { loginUser, validMessage, errorMessage, dialogState, setDialogState } =
-    useContext(LoginContext);
-
+  const { loginUser, validMessage, errorMessage } = useContext(LoginContext);
+  const navigate = useNavigate();
   const [user, setUser] = useState({
     userId: '',
     password: '',
   });
+
+  // dialog 상태 관리 (현재 페이지)
+  const [dialogState, setDialogState] = useState({
+    open: false,
+    message: '', // 모달 메시지 상태
+    type: '', // 모달 타입 상태 ('success' or 'error')
+  });
+
+  const showDialog = (message, type) => {
+    setDialogState({
+      open: true,
+      message: message,
+      type: type,
+    });
+  };
 
   const changeValue = (e) => {
     setUser({
@@ -22,7 +37,15 @@ const LoginForm = () => {
   // context의 로그인 함수 호출
   const callLoginUser = async (e) => {
     e.preventDefault();
-    await loginUser(user);
+
+    const res = await loginUser(user);
+
+    if (res) {
+      showDialog('로그인에 성공하였습니다.', 'success');
+      navigate('/');
+    } else {
+      showDialog('로그인에 실패하였습니다.', 'error');
+    }
   };
 
   // 모달 닫기 핸들러

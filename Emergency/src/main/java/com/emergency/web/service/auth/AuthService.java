@@ -135,7 +135,11 @@ public class AuthService {
 		String refreshToken = getRefreshTokenFromCookie(request);
 		
 		if (refreshToken != null) {
-			tokenMapper.deleteRefreshTokenByUserId(jwtUtils.getUserNameFromJwtToken(refreshToken));
+			int delResult = tokenMapper.deleteRefreshTokenByUserId(jwtUtils.getUserNameFromJwtToken(refreshToken));
+			
+			if (delResult < 1) {
+				throw new GlobalException("만료된 토큰 삭제에 실패하였습니다.", "REFRESH_TOKEN_DELETE_FAIL");
+			}
 		}
 		
 		SecurityContextHolder.clearContext();

@@ -1,6 +1,8 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { getMe } from '../apis/user';
 import { login, logout } from '../apis/auth';
+import AlertDialog from '../components/AlertDialog';
+import { useNavigate } from 'react-router-dom';
 
 export const LoginContext = createContext();
 
@@ -26,7 +28,7 @@ const LoginContextProvider = ({ children }) => {
     password: '',
   });
 
-  // dialog 상태 관리
+  // dialog 상태 관리 (현재 페이지)
   const [dialogState, setDialogState] = useState({
     open: false,
     message: '', // 모달 메시지 상태
@@ -34,12 +36,11 @@ const LoginContextProvider = ({ children }) => {
     cd: '',
   });
 
-  const showDialog = (message, type, cd) => {
+  const showDialog = (message, type) => {
     setDialogState({
       open: true,
       message: message,
       type: type,
-      cd: cd,
     });
   };
 
@@ -63,9 +64,9 @@ const LoginContextProvider = ({ children }) => {
 
       if (accessToken.startsWith('Bearer ')) {
         loginCheck(accessToken);
+        return true;
       } else {
-        // 로그인 실패시 모달 표시
-        showDialog('토큰이 유효하지 않습니다. 다시 시도해주세요.', 'error');
+        return false;
       }
     } catch (err) {
       if (err.response) {
@@ -84,6 +85,8 @@ const LoginContextProvider = ({ children }) => {
           });
         }
       }
+
+      return false;
     }
   };
 
@@ -114,13 +117,22 @@ const LoginContextProvider = ({ children }) => {
 
     // 유저정보 세팅
     setUserInfo({ userId: userId });
-
-    // 로그인 성공시 모달 표시
-    showDialog('로그인에 성공하였습니다.', 'success', 'login_success');
   };
 
   // 로그아웃
-  const logoutUser = async () => {};
+  const logoutUser = async () => {
+    try {
+      const res = await logout();
+      console.log(res);
+
+      if (res.status === 200) {
+        logoutSetting();
+        showDialog('로그아웃 되었습니다.', 'success');
+      }
+    } catch (err) {
+      showDialog('로그아웃에 실패하였습니다.', 'error');
+    }
+  };
 
   const logoutSetting = () => {
     // localStorage에서 accessToken 삭제
@@ -137,6 +149,14 @@ const LoginContextProvider = ({ children }) => {
     loginCheck(localStorage.getItem('accessToken'));
   }, []); // 컴포넌트가 마운트 될때 한번만 실행
 
+  // 모달 닫기 핸들러
+  const handleCloseDialog = () => {
+    setDialogState({
+      ...dialogState,
+      open: false,
+    });
+  };
+
   return (
     <div>
       <LoginContext.Provider
@@ -145,8 +165,6 @@ const LoginContextProvider = ({ children }) => {
           userInfo,
           validMessage,
           errorMessage,
-          dialogState,
-          setDialogState,
           loginUser,
           loginCheck,
           loginSetting,
@@ -155,6 +173,14 @@ const LoginContextProvider = ({ children }) => {
       >
         {children}
       </LoginContext.Provider>
+
+      <AlertDialog
+        open={dialogState.open}
+        onClose={handleCloseDialog}
+        message={dialogState.message}
+        onConfirm={handleCloseDialog}
+        type={dialogState.type} // 'success' 또는 'error'로 알림 타입 전달
+      />
     </div>
   );
 };

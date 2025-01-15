@@ -32,9 +32,20 @@ const UserJoin = () => {
     address: '',
   });
 
-  const [openDialog, setOpenDialog] = useState(false); // 모달 상태
-  const [dialogMessage, setDialogMessage] = useState(''); // 모달 메시지
-  const [dialogType, setDialogType] = useState(''); // 모달 타입
+  // dialog 상태 관리 (현재 페이지)
+  const [dialogState, setDialogState] = useState({
+    open: false,
+    message: '', // 모달 메시지 상태
+    type: '', // 모달 타입 상태 ('success' or 'error')
+  });
+
+  const showDialog = (message, type) => {
+    setDialogState({
+      open: true,
+      message: message,
+      type: type,
+    });
+  };
   const [showPostCode, setShowPostCode] = useState(false);
 
   const changeValue = (e) => {
@@ -107,9 +118,7 @@ const UserJoin = () => {
       console.log(res);
 
       if (res.status === 200) {
-        setDialogMessage('회원가입에 성공하였습니다.');
-        setDialogType('success');
-        setOpenDialog(true);
+        showDialog('회원가입에 성공하였습니다.', 'success');
       }
     } catch (err) {
       console.log(err);
@@ -137,9 +146,12 @@ const UserJoin = () => {
   };
 
   const handleCloseDialog = () => {
-    setOpenDialog(false);
+    setDialogState({
+      ...dialogState,
+      open: false,
+    });
 
-    if (dialogType === 'success') {
+    if (dialogState.type === 'success') {
       navigate('/userLogin');
     }
   };
@@ -278,11 +290,11 @@ const UserJoin = () => {
 
       {/* 모달 알림 */}
       <AlertDialog
-        open={openDialog}
+        open={dialogState.open}
         onClose={handleCloseDialog}
-        message={dialogMessage}
+        message={dialogState.message}
         onConfirm={handleCloseDialog}
-        type={dialogType} // 'success' 또는 'error'로 알림 타입 전달
+        type={dialogState.type} // 'success' 또는 'error'로 알림 타입 전달
       />
     </div>
   );
