@@ -51,7 +51,7 @@ public class AuthController {
 		LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
 		
 		// AccessToken은 다양한 클라이언트에서 사용하기 쉬운 헤더에 담기
-		response.setHeader(typeSafeProperties.getHeaderString(), typeSafeProperties.getTokenPrefix() + loginResponseDto.getAccessToken());
+		response.setHeader(typeSafeProperties.getHeaderString(), loginResponseDto.getType() + loginResponseDto.getAccessToken());
 		
 		// RefreshToken은 장기간 존재하기에 XSS 공격으로의 보호, 자동으로 요청에 담아 보냄의 이점을 활용하고자 HttpOnly 쿠키를 사용
 		ResponseCookie refreshTokenCookie = ResponseCookie.from(typeSafeProperties.getRefreshTokenName(), loginResponseDto.getRefreshToken())
@@ -72,6 +72,11 @@ public class AuthController {
 	public ResponseEntity<?> refresh(HttpServletRequest request, HttpServletResponse response) {
 		
 		RefreshResponseDto refreshResponseDto = authService.refresh(request);
+		
+		if (refreshResponseDto != null) {
+			// AccessToken은 다양한 클라이언트에서 사용하기 쉬운 헤더에 담기
+			response.setHeader(typeSafeProperties.getHeaderString(), refreshResponseDto.getType() + refreshResponseDto.getAccessToken());
+		}
 		
 		return ResponseEntity.ok(null);
 	}

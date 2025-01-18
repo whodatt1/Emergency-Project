@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Button, FloatingLabel, Form } from 'react-bootstrap';
-import AlertDialog from '../components/AlertDialog';
+import AlertDialog from '../../components/AlertDialog';
 import { LoginContext } from '../../context/LoginContextProvider';
 import { useNavigate } from 'react-router-dom';
 

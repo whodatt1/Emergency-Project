@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { Container, Form, FormControl, Nav, Navbar } from 'react-bootstrap';
+import { LoginContext } from '../context/LoginContextProvider';
 
 const Header = () => {
+  const { isLoggedIn, userInfo, logoutUser } = useContext(LoginContext);
+
+  const handleLogout = async () => {
+    await logoutUser();
+  };
+
   return (
     <div>
       {/* Top Navigation */}
@@ -30,14 +37,25 @@ const Header = () => {
                 About
               </Nav.Link>
             </Nav>
-            <Nav>
-              <Nav.Link as={Link} to="/userLogin" className="px-2">
-                Login
-              </Nav.Link>
-              <Nav.Link as={Link} to="/userJoin" className="px-2">
-                Sign up
-              </Nav.Link>
-            </Nav>
+            {isLoggedIn ? (
+              <Nav>
+                <Nav.Link as={Link} to="/" className="px-2">
+                  {userInfo.userId}
+                </Nav.Link>
+                <Nav.Link onClick={handleLogout} className="px-2">
+                  Logout
+                </Nav.Link>
+              </Nav>
+            ) : (
+              <Nav>
+                <Nav.Link as={Link} to="/userLogin" className="px-2">
+                  Login
+                </Nav.Link>
+                <Nav.Link as={Link} to="/userJoin" className="px-2">
+                  Sign up
+                </Nav.Link>
+              </Nav>
+            )}
           </Navbar.Collapse>
         </Container>
       </Navbar>

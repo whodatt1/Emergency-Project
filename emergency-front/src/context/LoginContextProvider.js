@@ -2,7 +2,7 @@ import React, { createContext, useEffect, useState } from 'react';
 import { getMe } from '../apis/user';
 import { login, logout } from '../apis/auth';
 import AlertDialog from '../components/AlertDialog';
-import { useNavigate } from 'react-router-dom';
+import { setAuthMethods } from '../apis/apiAuth';
 
 export const LoginContext = createContext();
 
@@ -63,7 +63,9 @@ const LoginContextProvider = ({ children }) => {
       const accessToken = res.headers['authorization'] || '';
 
       if (accessToken.startsWith('Bearer ')) {
-        loginCheck(accessToken);
+        const splitToken = accessToken.split(' ')[1]; // Bearer 제거거
+
+        loginCheck(splitToken);
         return true;
       } else {
         return false;
@@ -91,8 +93,7 @@ const LoginContextProvider = ({ children }) => {
   };
 
   const loginCheck = async (accessToken) => {
-    const splitToken = accessToken.split(' ')[1]; // Bearer 제거거
-    localStorage.setItem('accessToken', splitToken);
+    localStorage.setItem('accessToken', accessToken);
     try {
       const res = await getMe(); // 리턴되는 값이 있어야 await가 작동
 
@@ -130,7 +131,7 @@ const LoginContextProvider = ({ children }) => {
         showDialog('로그아웃 되었습니다.', 'success');
       }
     } catch (err) {
-      showDialog('로그아웃에 실패하였습니다.', 'error');
+      console.log(err);
     }
   };
 
@@ -146,8 +147,10 @@ const LoginContextProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    // apiAuth에 메서드 주입
+    setAuthMethods(loginCheck, logoutUser);
     loginCheck(localStorage.getItem('accessToken'));
-  }, []); // 컴포넌트가 마운트 될때 한번만 실행
+  }, []);
 
   // 모달 닫기 핸들러
   const handleCloseDialog = () => {
@@ -167,6 +170,7 @@ const LoginContextProvider = ({ children }) => {
           errorMessage,
           loginUser,
           loginCheck,
+          logoutUser,
           loginSetting,
           logoutSetting,
         }}

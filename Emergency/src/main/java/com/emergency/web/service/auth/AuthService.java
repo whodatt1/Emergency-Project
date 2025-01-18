@@ -111,18 +111,18 @@ public class AuthService {
 			// SecurityContextHolder에서 인증객체를 가져오기
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 			
-			if (authentication != null && authentication.isAuthenticated()) {
-				
-				// 새로운 accessToken 생성
-				String accessToken = jwtUtils.createAccessToken(authentication);
-				
-				return RefreshResponseDto.builder()
-										 .accessToken(accessToken)
-										 .type(typeSafeProperties.getTokenPrefix())
-										 .build();
-			} else {
-				throw new GlobalException("SecurityContext에 인증 정보가 존재하지 않습니다.", "REFRESH_ERROR");
+			if (authentication == null || !authentication.isAuthenticated()) {
+				throw new GlobalException("인증되지 않은 사용자입니다.", "UNAUTHORIZED");
 			}
+			
+				
+			// 새로운 accessToken 생성
+			String accessToken = jwtUtils.createAccessToken(authentication);
+			
+			return RefreshResponseDto.builder()
+									 .accessToken(accessToken)
+									 .type(typeSafeProperties.getTokenPrefix())
+									 .build();
 		}
 		
 		return null;
