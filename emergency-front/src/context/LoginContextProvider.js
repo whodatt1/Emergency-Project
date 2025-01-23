@@ -128,7 +128,6 @@ const LoginContextProvider = ({ children }) => {
 
       if (res.status === 200) {
         logoutSetting();
-        showDialog('로그아웃 되었습니다.', 'success');
       }
     } catch (err) {
       console.log(err);

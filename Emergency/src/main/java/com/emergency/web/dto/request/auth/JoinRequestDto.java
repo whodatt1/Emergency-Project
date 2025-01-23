@@ -7,6 +7,19 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 
+* @packageName     : com.emergency.web.dto.request
+* @fileName        : JoinRequestDto.java
+* @author          : KHK
+* @date            : 2024.10.20
+* @description     : Join 요청 객체
+* ===========================================================
+* DATE              AUTHOR             NOTE
+* -----------------------------------------------------------
+* 2024.10.20        KHK                최초 생성
+ */
+
 @Getter
 @Builder
 @NoArgsConstructor

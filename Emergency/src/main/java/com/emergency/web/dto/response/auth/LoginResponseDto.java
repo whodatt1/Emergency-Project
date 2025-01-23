@@ -8,10 +8,10 @@ import lombok.NoArgsConstructor;
 /**
  * 
 * @packageName     : com.emergency.web.dto.response
-* @fileName        : AuthResonseDto.java
+* @fileName        : LoginResponseDto.java
 * @author          : KHK
 * @date            : 2024.10.20
-* @description     : Auth 응답 객체
+* @description     : Login 응답 객체
 * ===========================================================
 * DATE              AUTHOR             NOTE
 * -----------------------------------------------------------
