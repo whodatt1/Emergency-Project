@@ -38,4 +38,9 @@ public class EmergencyScheduler {
 		
 		log.info("expiredRefreshTokensCleaner complete");
 	}
+	
+	@Scheduled(cron = "0 */1 * * * ?")
+	public void excuteEmergencyRealTimeJob() {
+		
+	}
 }
