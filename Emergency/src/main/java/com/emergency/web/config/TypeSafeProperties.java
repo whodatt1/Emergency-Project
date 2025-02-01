@@ -33,4 +33,6 @@ public class TypeSafeProperties {
 	private String refreshTokenName;
 	// API
 	private String apiNormalEncoding;
+	private String apiHost;
+	private String apiRltmPath;
 }

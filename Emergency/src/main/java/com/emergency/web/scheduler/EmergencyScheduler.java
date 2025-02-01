@@ -43,4 +43,9 @@ public class EmergencyScheduler {
 	public void excuteEmergencyRealTimeJob() {
 		
 	}
+	
+	@Scheduled(cron = "0 */1 * * * ?")
+	public void excuteEmergencyBaseInfoJob() {
+		
+	}
 }
