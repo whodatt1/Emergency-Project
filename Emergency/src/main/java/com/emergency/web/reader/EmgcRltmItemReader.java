@@ -8,23 +8,30 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.NonTransientResourceException;
 import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.emergency.web.config.TypeSafeProperties;
 import com.emergency.web.dto.response.emgc.EmgcRltmResponseDto;
 
-import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import reactor.core.publisher.Mono;
 
-@RequiredArgsConstructor
+@Log4j2
+@Component
 public class EmgcRltmItemReader implements ItemReader<List<EmgcRltmResponseDto>> {
 	
-	private final WebClient webClient;
+	// 이 부분 잘못됨 Config에서 설정이 필요하다
+	// WebClient는 기본적으로 빈으로 등록되지 않기때문에 수동으로 등록해주어야함
+	@Autowired
+	private WebClient webClient;
 	
-	private final TypeSafeProperties typeSafeProperties;
+	@Autowired
+	private TypeSafeProperties typeSafeProperties;
 	
-	private final ModelMapper modelMapper;
+	@Autowired
+	private ModelMapper modelMapper;
 	
 	private int currPage = 1;
 	
@@ -32,20 +39,21 @@ public class EmgcRltmItemReader implements ItemReader<List<EmgcRltmResponseDto>>
 	public List<EmgcRltmResponseDto> read()
 			throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
 		
-		EmgcRltmResponseDto.ApiResponse result = getRltmList(currPage);
+		EmgcRltmResponseDto.ApiResponse resp = getRltmList(currPage);
 		
 		// 호출이 실패한 경우는 익셉션 반환
-		if (!result.requestSuccess()) {
-			throw new Exception("");
+		if (!resp.requestSuccess()) {
+			log.error("RltmApi call fail : " + resp.getHeader().getResultMsg());
+			return null;
 		}
 		
-		if (!result.isLastPage()) {
+		if (!resp.isLastPage()) {
 			currPage++;
 		} else {
 			return null;
 		}
 		
-		return result.getBody().getItemList().stream().map(rltmInfo -> {
+		return resp.getBody().getItemList().stream().map(rltmInfo -> {
 			EmgcRltmResponseDto responseDto = modelMapper.map(rltmInfo, EmgcRltmResponseDto.class);
 			
 			return responseDto;
@@ -55,12 +63,11 @@ public class EmgcRltmItemReader implements ItemReader<List<EmgcRltmResponseDto>>
 	public EmgcRltmResponseDto.ApiResponse getRltmList(int currPage) throws Exception {
 		return webClient
 				.get()
-				.uri(uriBuilder -> uriBuilder.scheme("https")
-						.host(typeSafeProperties.getApiHost()) // API 서버의 호스트 주소
+				.uri(uriBuilder -> uriBuilder
 						.path(typeSafeProperties.getApiRltmPath()) // 엔드포인트 경로
 						.queryParam("serviceKey", typeSafeProperties.getApiNormalEncoding()) // API 서비스키 전달
 						.queryParam("pageNo", currPage)
-						.queryParam("numOfRows", 10)
+						.queryParam("numOfRows", 100)
 						.build())
 				.retrieve() // API로부터 데이터를 가져옴
 				.onStatus(status -> status.isError(), clientResponse -> Mono.error(new Exception())) // API로부터 오류가 있을때 오류 반환
