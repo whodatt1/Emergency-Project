@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -36,6 +37,8 @@ public class EmergencyScheduler {
 	private final TokenMapper tokenMapper;
 	
 	private final JobLauncher jobLauncher;
+	private final JobExplorer jobExplorer;
+	
 	private final EmgcApiJobConfig emgcApiJob;
 	
 	// 로그인 후 로그인 혹은 로그아웃 과정을 거치지 않아 DB에 남아있는 리프레쉬 토큰 삭제처리
@@ -49,8 +52,13 @@ public class EmergencyScheduler {
 		log.info("expiredRefreshTokensCleaner complete");
 	}
 	
-	// @Scheduled(cron = "0 */1 * * * ?")
+	@Scheduled(fixedRate = 60000)
 	public void excuteEmergencyRealTimeJob() {
+		if (isJobRunning("rltmApiJob")) {
+			log.warn("이전 배치가 실행 중입니다. 현재 배치를 건너뜁니다.");
+			return;
+		}
+		
 		try {
 			log.info("excuteEmergencyRealTimeJob start");
 			
@@ -69,5 +77,9 @@ public class EmergencyScheduler {
 	@Scheduled(cron = "0 */1 * * * ?")
 	public void excuteEmergencyBaseInfoJob() {
 		
+	}
+	
+	private boolean isJobRunning(String jobName) {
+		return jobExplorer.findRunningJobExecutions(jobName).size() > 0; // BATCH_JOB_EXECUTION 테이블에서 STATUS = 'STARTED' 또는 STATUS = 'STARTING'인 데이터를 조회
 	}
 }

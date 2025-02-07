@@ -36,7 +36,9 @@ public class EmgcApiJobConfig {
 	
 	@Bean
 	public Job bslfApiJob() {
+		
 		return null;
+		
 	}
 	
 	@Bean

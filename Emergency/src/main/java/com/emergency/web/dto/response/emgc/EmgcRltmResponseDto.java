@@ -43,7 +43,7 @@ public class EmgcRltmResponseDto {
 	@Getter
 	@Setter
 	public static class Body {
-		private List<Item> itemList;
+		private List<Item> items;
 		private int numOfRows;
 		private int pageNo;
 		private int totalCount;
@@ -179,7 +179,7 @@ public class EmgcRltmResponseDto {
 		// 리퀘스트 성공 여부 반환
 		public boolean requestSuccess() {
 			
-			List<Item> itemList = body.getItemList();
+			List<Item> itemList = body.getItems();
 			
 			if (itemList != null && itemList.size() != 0) {
 				return true;
