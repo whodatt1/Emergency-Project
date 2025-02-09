@@ -36,6 +36,7 @@ public class EmgcRltm {
 	private String hvmriayn; // MRI 가용 여부
 	private String hvangioayn; // 혈관촬영기 가용 여부
 	private String hvventiayn; // 인공호흡기 가용 여부
+	private String hvventisoayn; // 인공호흡기 조산아 가용 여부
 	private String hvincuayn; // 인큐베이터 가용 여부
 	private String hvcrrtayn; // CRRT 가용 여부
 	private String hvecmoayn; // ECMO 가용 여부
@@ -46,9 +47,9 @@ public class EmgcRltm {
 	private int hv2; // [중환자실] 내과 인원
 	private int hv3; // [중환자실] 외과 인원
 	private int hv4; // 외과입원실 (정형외과) 인원
-	private int hv5; // 신경과입원실 인원
+	private String hv5; // 신경과입원실
 	private int hv6; // [중환자실] 신경외과 인원
-	private int hv7; // 약물 중환자 인원
+	private String hv7; // 약물 중환자
 	private int hv8; // [중환자실] 화상 인원
 	private int hv9; // [중환자실] 외상 인원
 	private String hv10; // VENTI(소아) 여부
@@ -82,9 +83,10 @@ public class EmgcRltm {
 	private int hv39; // [기타] 외상전용 수술실 인원
 	private int hv40; // [입원실] 정신과 폐쇄병동 인원
 	private int hv41; // [입원실] 음압격리 인원
-	private int hv42; // [기타] 분만실 인원
-	private int hv43; // [기타] 화상전용처치실 인원
-	private String dutyname; // 기관명
+	private String hv42; // [기타] 분만실
+	private String hv43; // [기타] 화상전용처치실
+	private String dutyName; // 기관명
+	private String dutyTel3;
 	private int hvs01; // 일반_기준 인원
 	private int hvs02; // 소아_기준 인원
 	private int hvs03; // 응급실 음압 격리 병상_기준 인원

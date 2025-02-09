@@ -11,7 +11,6 @@ import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import com.emergency.web.config.TypeSafeProperties;
 import com.emergency.web.dto.response.emgc.EmgcRltmResponseDto;
@@ -19,6 +18,19 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 import lombok.extern.log4j.Log4j2;
 import reactor.core.publisher.Mono;
+
+/**
+ * 
+* @packageName     : com.emergency.web.config
+* @fileName        : EmgcRltmItemReader.java
+* @author          : KHK
+* @date            : 2025.01.31
+* @description     : 배치 작업에서 읽어오는 과정을 처리
+* ===========================================================
+* DATE              AUTHOR             NOTE
+* -----------------------------------------------------------
+* 2025.01.31        KHK                최초 생성
+ */
 
 @Log4j2
 @Component
@@ -65,14 +77,8 @@ public class EmgcRltmItemReader implements ItemReader<List<EmgcRltmResponseDto>>
 	 
 	public EmgcRltmResponseDto.ApiResponse getRltmList(int currPage) throws Exception {
 		
-		
-		
 		log.info("API Host: {}", typeSafeProperties.getApiHost());
 		log.info("API Path: {}", typeSafeProperties.getApiRltmPath());
-//		WebClient webClient = webClientBuilder
-//				.uriBuilderFactory(factory) // URI 인코딩 설정 적용
-//				.baseUrl(typeSafeProperties.getApiHost())
-//				.build();
 		
 		// String으로 XML 응답을 받음
 		String xmlResponse = webClient

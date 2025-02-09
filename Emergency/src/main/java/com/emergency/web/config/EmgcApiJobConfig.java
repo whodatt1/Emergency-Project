@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.emergency.web.dto.response.emgc.EmgcRltmResponseDto;
+import com.emergency.web.model.EmgcRltm;
+import com.emergency.web.processor.EmgcRltmItemProcessor;
 import com.emergency.web.reader.EmgcRltmItemReader;
 
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ public class EmgcApiJobConfig {
 	private final PlatformTransactionManager transactionManager;
 	
 	private final EmgcRltmItemReader emgcRltmItemReader;
+	private final EmgcRltmItemProcessor emgcRltmItemProcessor;
 	
 	@Bean
 	public Job rltmApiJob() {
@@ -44,9 +47,10 @@ public class EmgcApiJobConfig {
 	@Bean
 	Step rltmApiStep(JobRepository jobRepository) {
 		return new StepBuilder("rltmApiStep", jobRepository)
-				.<List<EmgcRltmResponseDto>, List<EmgcRltmResponseDto>>chunk(1, transactionManager)
+				.<List<EmgcRltmResponseDto>, List<EmgcRltm>>chunk(1, transactionManager)
 				.reader(emgcRltmItemReader)
-				.writer(items -> items.forEach(item -> item.toString()))
+				.processor(emgcRltmItemProcessor)
+				.writer(items -> items.forEach(item -> System.out.println("테스트!! : " + item.toString())))
 				.build();
 	}
 	
