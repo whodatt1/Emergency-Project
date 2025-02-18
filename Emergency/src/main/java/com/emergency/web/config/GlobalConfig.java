@@ -3,16 +3,20 @@ package com.emergency.web.config;
 
 import java.time.Duration;
 
+import javax.sql.DataSource;
+
 import org.modelmapper.ModelMapper;
+import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
-import com.emergency.web.reader.EmgcRltmItemReader;
+import com.emergency.web.model.EmgcRltm;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 import io.netty.channel.ChannelOption;
@@ -58,4 +62,5 @@ public class GlobalConfig {
 	public XmlMapper xmlMapper() {
 		return new XmlMapper();
 	}
+	
 }

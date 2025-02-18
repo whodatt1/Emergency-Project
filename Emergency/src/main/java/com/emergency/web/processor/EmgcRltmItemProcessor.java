@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.stereotype.Component;
 
 import com.emergency.web.dto.response.emgc.EmgcRltmResponseDto;
 import com.emergency.web.model.EmgcRltm;
@@ -21,6 +22,7 @@ import com.emergency.web.model.EmgcRltm;
 * 2025.02.09        KHK                최초 생성
  */
 
+@Component
 public class EmgcRltmItemProcessor implements ItemProcessor<List<EmgcRltmResponseDto>, List<EmgcRltm>> {
 
 	@Override
