@@ -15,10 +15,10 @@ import lombok.Setter;
 /**
  * 
 * @packageName     : com.emergency.web.config
-* @fileName        : EmgcRltmResponse.java
+* @fileName        : EmgcBsIfResponseDto.java
 * @author          : KHK
 * @date            : 2025.01.31
-* @description     : 응급 가용 인원 API 응답 객체
+* @description     : 응급 병원 기본 정보 API 응답 객체
 * ===========================================================
 * DATE              AUTHOR             NOTE
 * -----------------------------------------------------------
@@ -31,8 +31,16 @@ import lombok.Setter;
 @AllArgsConstructor
 public class EmgcBsIfResponseDto {
 	
-	private Header header;
-	private Body body;
+	private String hpid; // 기관 ID
+	private String dutyName; // 기관명
+	private String postCdn1; // 우편번호1
+	private String postCdn2; // 우편번호2
+	private String dutyAddr; // 주소
+	private String dutyTel1; // 대표전화1
+	private String dutyInf; // 기관설명상세
+	private String wgs84Lon; // 병원 경도
+	private String wgs84Lat; // 병원 위도
+	private String dgidIdName; // 진료 과목
 	
 	@Getter
 	@Setter
@@ -44,7 +52,7 @@ public class EmgcBsIfResponseDto {
 	@Getter
 	@Setter
 	public static class Body {
-		private List<Item> itemList;
+		private List<Item> items;
 		private int numOfRows;
 		private int pageNo;
 		private int totalCount;
@@ -60,24 +68,9 @@ public class EmgcBsIfResponseDto {
 		private String dutyAddr; // 주소
 		private String dutyTel1; // 대표전화1
 		private String dutyInf; // 기관설명상세
-		private String dutyTime1s; // 진료시간 (월요일) start
-		private String dutyTime1c; // 진료시간 (월요일) close
-		private String dutyTime2s; // 진료시간 (화요일) start
-		private String dutyTime2c; // 진료시간 (화요일) close
-		private String dutyTime3s; // 진료시간 (수요일) start
-		private String dutyTime3c; // 진료시간 (수요일) close
-		private String dutyTime4s; // 진료시간 (목요일) start
-		private String dutyTime4c; // 진료시간 (목요일) close
-		private String dutyTime5s; // 진료시간 (금요일) start
-		private String dutyTime5c; // 진료시간 (금요일) close
-		private String dutyTime6s; // 진료시간 (토요일) start
-		private String dutyTime6c; // 진료시간 (토요일) close
-		private String dutyTime7s; // 진료시간 (일요일) start
-		private String dutyTime7c; // 진료시간 (일요일) close
-		private String dutyTime8s; // 진료시간 (공휴일) start
-		private String dutyTime8c; // 진료시간 (공휴일) close
 		private String wgs84Lon; // 병원 경도
 		private String wgs84Lat; // 병원 위도
+		private String dgidIdName; // 진료 과목
 	}
 	
 	@Data
@@ -88,7 +81,7 @@ public class EmgcBsIfResponseDto {
 		// 리퀘스트 성공 여부 반환
 		public boolean requestSuccess() {
 			
-			List<Item> itemList = body.getItemList();
+			List<Item> itemList = body.getItems();
 			
 			if (itemList != null && itemList.size() != 0) {
 				return true;

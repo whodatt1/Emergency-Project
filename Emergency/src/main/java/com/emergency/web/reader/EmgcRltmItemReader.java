@@ -21,7 +21,7 @@ import reactor.core.publisher.Mono;
 
 /**
  * 
-* @packageName     : com.emergency.web.config
+* @packageName     : com.emergency.web.reader
 * @fileName        : EmgcRltmItemReader.java
 * @author          : KHK
 * @date            : 2025.01.31
