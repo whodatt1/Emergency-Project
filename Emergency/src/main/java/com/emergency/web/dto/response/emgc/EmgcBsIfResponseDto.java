@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.emergency.web.dto.response.emgc.EmgcRltmResponseDto.Body;
 import com.emergency.web.dto.response.emgc.EmgcRltmResponseDto.Header;
+import com.emergency.web.model.EmgcBsIf;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -73,12 +74,28 @@ public class EmgcBsIfResponseDto {
 		private String dgidIdName; // 진료 과목
 	}
 	
+	public EmgcBsIf toEntity() {
+		
+		return EmgcBsIf.builder()
+				.hpid(hpid)
+				.dutyName(dutyName)
+				.postCdn1(postCdn1)
+				.postCdn2(postCdn2)
+				.dutyAddr(dutyAddr)
+				.dutyTel(dutyTel1)
+				.dutyInf(dutyInf)
+				.dutyLon(dgidIdName)
+				.dutyLat(dgidIdName)
+				.dgidIdName(dgidIdName)
+				.build();
+	}
+	
 	@Data
 	public static class ApiResponse {
 		private Header header;
 		private Body body;
 		
-		// 리퀘스트 성공 여부 반환
+		// 리퀘스트 성공 여부 반환 (개별건이라 미사용)
 		public boolean requestSuccess() {
 			
 			List<Item> itemList = body.getItems();

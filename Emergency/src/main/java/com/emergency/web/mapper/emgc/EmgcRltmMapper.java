@@ -22,5 +22,5 @@ import com.emergency.web.model.EmgcRltm;
 @Mapper
 public interface EmgcRltmMapper {
 	
-	List<EmgcRltm> getEmgcRltmIdAndUpddate();
+	List<String> getEmgcRltmHpIdListBeforeBatch(int offset);
 }

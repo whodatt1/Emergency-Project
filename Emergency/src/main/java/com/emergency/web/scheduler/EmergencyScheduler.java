@@ -52,7 +52,7 @@ public class EmergencyScheduler {
 		log.info("expiredRefreshTokensCleaner complete");
 	}
 	
-	@Scheduled(fixedRate = 60000)
+//	@Scheduled(fixedRate = 60000)
 	public void excuteEmergencyRealTimeJob() {
 		if (isJobRunning("rltmApiJob")) {
 			log.warn("이전 배치가 실행 중입니다. 현재 배치를 건너뜁니다.");
@@ -74,9 +74,27 @@ public class EmergencyScheduler {
 		}
 	}
 	
-	@Scheduled(cron = "0 */1 * * * ?")
+//	@Scheduled(cron = "0 */1 * * * ?")
+	@Scheduled(fixedRate = 60000) // 테스트
 	public void excuteEmergencyBaseInfoJob() {
+		if (isJobRunning("bsIfApiJob")) {
+			log.warn("이전 배치가 실행 중입니다. 현재 배치를 건너뜁니다.");
+			return;
+		}
 		
+		try {
+			log.info("excuteEmergencyBaseInfoJob start");
+			
+			jobLauncher.run(emgcApiJob.bsIfApiJob()
+					,new JobParametersBuilder() // 실행 추적
+					.addString("datetime", LocalDateTime.now().toString()) // 배치 처리 기준 시간
+					.toJobParameters()
+					);
+			
+			log.info("excuteEmergencyBaseInfoJob complete");
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 	
 	private boolean isJobRunning(String jobName) {

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.emergency.web.mapper.emgc.EmgcRltmMapper">
+	
+	<select id="getEmgcRltmHpIdListBeforeBatch" parameterType="int">
+		SELECT hp_id
+		  FROM tb_emgc_rltm_detail
+	  ORDER BY hp_id
+	     LIMIT 100 OFFSET #{offset};
+	</select>
+	
+</mapper>

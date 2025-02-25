@@ -15,9 +15,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import com.emergency.web.dto.response.emgc.EmgcBsIfResponseDto;
 import com.emergency.web.dto.response.emgc.EmgcRltmResponseDto;
+import com.emergency.web.model.EmgcBsIf;
 import com.emergency.web.model.EmgcRltm;
+import com.emergency.web.processor.EmgcBsIfItemProcessor;
 import com.emergency.web.processor.EmgcRltmItemProcessor;
+import com.emergency.web.reader.EmgcBsIfItemReader;
 import com.emergency.web.reader.EmgcRltmItemReader;
 import com.emergency.web.writer.EmgcRltmItemWriter;
 
@@ -30,8 +34,13 @@ public class EmgcApiJobConfig {
 	private final JobRepository jobRepository;
 	private final PlatformTransactionManager transactionManager;
 	
+	// EmgcRltm
 	private final EmgcRltmItemReader emgcRltmItemReader;
 	private final EmgcRltmItemProcessor emgcRltmItemProcessor;
+	
+	// EmgcBsIf
+	private final EmgcBsIfItemReader emgcBsIfItemReader;
+	private final EmgcBsIfItemProcessor egmcBsIfItemProcessor;
 	
 	private final DataSource dataSource;
 	
@@ -45,9 +54,11 @@ public class EmgcApiJobConfig {
 	}
 	
 	@Bean
-	public Job bslfApiJob() {
+	public Job bsIfApiJob() {
 		
-		return null;
+		return new JobBuilder("bsIfApiJob", jobRepository)
+				.start(bsIfApiStep(jobRepository))
+				.build();
 		
 	}
 	
@@ -59,6 +70,17 @@ public class EmgcApiJobConfig {
 				.reader(emgcRltmItemReader)
 				.processor(emgcRltmItemProcessor)
 				.writer(emgcRltmItemWriter())
+				.build();
+	}
+	
+	@Bean
+	Step bsIfApiStep(JobRepository jobRepository) {
+		return new StepBuilder("bsIfApiJob", jobRepository)
+				// 입력타입과 출력타입
+				.<List<EmgcBsIfResponseDto>, List<EmgcBsIf>>chunk(1, transactionManager)
+				.reader(emgcBsIfItemReader)
+				.processor(egmcBsIfItemProcessor)
+				.writer(items -> items.forEach(item -> item.toString()))
 				.build();
 	}
 	

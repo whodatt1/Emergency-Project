@@ -15,7 +15,7 @@ import com.emergency.web.model.EmgcRltm;
 * @fileName        : EmgcRltmItemReader.java
 * @author          : KHK
 * @date            : 2025.02.09
-* @description     : 배치 작업에서 읽어온 데이터를 다른 형태로 변환
+* @description     : 배치 작업에서 읽어온 데이터를 다른 형태로 변환 (세부 정보)
 * ===========================================================
 * DATE              AUTHOR             NOTE
 * -----------------------------------------------------------

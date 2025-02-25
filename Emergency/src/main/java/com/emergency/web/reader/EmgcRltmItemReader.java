@@ -1,5 +1,6 @@
 package com.emergency.web.reader;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 import lombok.extern.log4j.Log4j2;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 /**
  * 
@@ -94,6 +96,7 @@ public class EmgcRltmItemReader implements ItemReader<List<EmgcRltmResponseDto>>
 				.retrieve() // API로부터 데이터를 가져옴
 				.onStatus(status -> status.isError(), clientResponse -> Mono.error(new Exception())) // API로부터 오류가 있을때 오류 반환
 				.bodyToMono(String.class) // XML 응답을 String으로 받음
+				.retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
 				.block(); // 비동기 요청을 동기적으로 기다리고 결과를 반환 (Mono의 단일 값 처리)
 		
 		log.info("XML Response: {}", xmlResponse);
