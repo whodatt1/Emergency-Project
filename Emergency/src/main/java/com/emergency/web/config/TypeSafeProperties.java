@@ -35,4 +35,5 @@ public class TypeSafeProperties {
 	private String apiNormalEncoding;
 	private String apiHost;
 	private String apiRltmPath;
+	private String apiBsIfPath;
 }

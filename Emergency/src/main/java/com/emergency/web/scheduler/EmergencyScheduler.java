@@ -65,6 +65,7 @@ public class EmergencyScheduler {
 			jobLauncher.run(emgcApiJob.rltmApiJob()
 					,new JobParametersBuilder() // 실행 추적
 					.addString("datetime", LocalDateTime.now().toString()) // 배치 처리 기준 시간
+					.addString("jobName", "rltmApiJob") // jobName 추가
 					.toJobParameters()
 					);
 			
@@ -88,6 +89,7 @@ public class EmergencyScheduler {
 			jobLauncher.run(emgcApiJob.bsIfApiJob()
 					,new JobParametersBuilder() // 실행 추적
 					.addString("datetime", LocalDateTime.now().toString()) // 배치 처리 기준 시간
+					.addString("jobName", "bsIfApiJob") // jobName 추가
 					.toJobParameters()
 					);
 			

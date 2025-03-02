@@ -75,12 +75,16 @@ public class EmgcApiJobConfig {
 	
 	@Bean
 	Step bsIfApiStep(JobRepository jobRepository) {
-		return new StepBuilder("bsIfApiJob", jobRepository)
+		return new StepBuilder("bsIfApiStep", jobRepository)
 				// 입력타입과 출력타입
 				.<List<EmgcBsIfResponseDto>, List<EmgcBsIf>>chunk(1, transactionManager)
 				.reader(emgcBsIfItemReader)
 				.processor(egmcBsIfItemProcessor)
-				.writer(items -> items.forEach(item -> item.toString()))
+				.writer(
+//						items -> items.forEach(item -> System.out.println("BSIFITEM : " + item.toString()))
+						items ->
+						System.out.println("test")
+						)
 				.build();
 	}
 	
