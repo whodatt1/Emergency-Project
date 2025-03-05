@@ -8,8 +8,7 @@ import lombok.ToString;
 @Builder
 @ToString
 public class EmgcBsIf {
-	
-	private String hpid; // 기관 ID
+	private String hpId; // 기관 ID
 	private String dutyName; // 기관명
 	private String postCdn1; // 우편번호1
 	private String postCdn2; // 우편번호2

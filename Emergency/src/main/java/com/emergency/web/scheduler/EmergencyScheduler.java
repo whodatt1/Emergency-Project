@@ -2,11 +2,10 @@ package com.emergency.web.scheduler;
 
 import java.time.LocalDateTime;
 
-import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -51,8 +50,9 @@ public class EmergencyScheduler {
 		
 		log.info("expiredRefreshTokensCleaner complete");
 	}
-	
-//	@Scheduled(fixedRate = 60000)
+	@Async
+	@Scheduled(fixedRate = 60000)
+//	@Scheduled(cron = "0 5 23 * * ?")
 	public void excuteEmergencyRealTimeJob() {
 		if (isJobRunning("rltmApiJob")) {
 			log.warn("이전 배치가 실행 중입니다. 현재 배치를 건너뜁니다.");
@@ -74,14 +74,10 @@ public class EmergencyScheduler {
 			// TODO: handle exception
 		}
 	}
-	
-//	@Scheduled(cron = "0 */1 * * * ?")
-	@Scheduled(fixedRate = 60000) // 테스트
+	@Async
+	//@Scheduled(cron = "0 0 1 * * ?")
+	@Scheduled(cron = "0 5 23 * * ?")
 	public void excuteEmergencyBaseInfoJob() {
-		if (isJobRunning("bsIfApiJob")) {
-			log.warn("이전 배치가 실행 중입니다. 현재 배치를 건너뜁니다.");
-			return;
-		}
 		
 		try {
 			log.info("excuteEmergencyBaseInfoJob start");

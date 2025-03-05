@@ -23,6 +23,7 @@ import com.emergency.web.processor.EmgcBsIfItemProcessor;
 import com.emergency.web.processor.EmgcRltmItemProcessor;
 import com.emergency.web.reader.EmgcBsIfItemReader;
 import com.emergency.web.reader.EmgcRltmItemReader;
+import com.emergency.web.writer.EmgcBsIfItemWriter;
 import com.emergency.web.writer.EmgcRltmItemWriter;
 
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class EmgcApiJobConfig {
 	// EmgcRltm
 	private final EmgcRltmItemReader emgcRltmItemReader;
 	private final EmgcRltmItemProcessor emgcRltmItemProcessor;
-	
+	 
 	// EmgcBsIf
 	private final EmgcBsIfItemReader emgcBsIfItemReader;
 	private final EmgcBsIfItemProcessor egmcBsIfItemProcessor;
@@ -80,11 +81,7 @@ public class EmgcApiJobConfig {
 				.<List<EmgcBsIfResponseDto>, List<EmgcBsIf>>chunk(1, transactionManager)
 				.reader(emgcBsIfItemReader)
 				.processor(egmcBsIfItemProcessor)
-				.writer(
-//						items -> items.forEach(item -> System.out.println("BSIFITEM : " + item.toString()))
-						items ->
-						System.out.println("test")
-						)
+				.writer(emgcBsIfItemWriter())
 				.build();
 	}
 	
@@ -93,5 +90,12 @@ public class EmgcApiJobConfig {
 		writer.setDataSource(dataSource);
 		writer.setJdbcTemplate(new NamedParameterJdbcTemplate(dataSource));
 		return new EmgcRltmItemWriter<>(writer);
+	}
+	
+	public EmgcBsIfItemWriter<EmgcBsIf> emgcBsIfItemWriter() {
+		JdbcBatchItemWriter<EmgcBsIf> writer = new JdbcBatchItemWriter<>();
+		writer.setDataSource(dataSource);
+		writer.setJdbcTemplate(new NamedParameterJdbcTemplate(dataSource));
+		return new EmgcBsIfItemWriter<>(writer);
 	}
 }

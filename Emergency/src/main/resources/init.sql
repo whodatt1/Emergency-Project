@@ -1,4 +1,17 @@
--- 응급 가용인원 디테일 테이블 정의
+-- 응급 가용인원 디테일/마스터 테이블 정의
+
+CREATE TABLE tb_Emgc_Rltm_Master (
+    hp_id VARCHAR(50) PRIMARY KEY, -- 기관 ID (Primary Key)
+    duty_name VARCHAR(255) NOT NULL, -- 기관명
+    post_cdn1 VARCHAR(10), -- 우편번호1
+    post_cdn2 VARCHAR(10), -- 우편번호2
+    duty_addr VARCHAR(255), -- 주소
+    duty_tel VARCHAR(50), -- 대표전화1
+    duty_inf TEXT, -- 기관설명상세
+    duty_lon DECIMAL(10, 7), -- 병원 경도
+    duty_lat DECIMAL(10, 7), -- 병원 위도
+    dgid_id_name VARCHAR(255) -- 진료 과목
+);
 
 CREATE TABLE tb_Emgc_Rltm_Detail (
     hp_id VARCHAR(50) PRIMARY key not null, -- 기관코드 (Primary Key)

@@ -91,7 +91,7 @@ public class EmgcRltmItemWriter<T> implements ItemWriter<List<T>> {
 				+ " :infecMdrateBedStddPsn, :chrtIsolStddCnt "
 				+ ") "
 				+ "ON DUPLICATE KEY UPDATE "
-				+ " old_hp_id = :oldHpId, upd_date = :updDate, emgc_ers_gen_bed_psn = :emgcErsGenBedPsn, "
+				+ " hp_id = :hpId, old_hp_id = :oldHpId, upd_date = :updDate, emgc_ers_gen_bed_psn = :emgcErsGenBedPsn, "
 				+ " op_psn = :opPsn, icu_neuro_psn = :icuNeuroPsn, icu_neo_psn = :icuNeoPsn, "
 				+ " icu_thor_surg_psn = :icuThorSurgPsn, icu_gen_psn = :icuGenPsn, ipt_gen_psn = :iptGenPsn, "
 				+ " duty_doc_nm = :dutyDocNm, ct_avail_yn = :ctAvailYn, mri_avail_yn = :mriAvailYn, "

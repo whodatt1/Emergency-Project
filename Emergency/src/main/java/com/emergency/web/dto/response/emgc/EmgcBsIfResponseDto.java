@@ -189,7 +189,7 @@ public class EmgcBsIfResponseDto {
 	public EmgcBsIf toEntity() {
 		
 		return EmgcBsIf.builder()
-				.hpid(hpid)
+				.hpId(hpid)
 				.dutyName(dutyName)
 				.postCdn1(postCdn1)
 				.postCdn2(postCdn2)
