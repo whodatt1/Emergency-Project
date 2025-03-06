@@ -61,7 +61,7 @@ public class EmgcRltmItemWriter<T> implements ItemWriter<List<T>> {
 				+ " isolarea_gen_press_stdd_psn, ped_neg_press_stdd_psn, ped_gen_press_stdd_psn, emgc_icu_neg_press_stdd_psn, "
 				+ " emgc_icu_gen_press_stdd_psn, emgc_ipt_neg_press_stdd_psn, emgc_ipt_gen_press_stdd_psn, infec_ddc_icu_stdd_psn, "
 				+ " infec_ddc_icu_neg_press_stdd_psn, infec_severe_bed_stdd_psn, infec_semi_severe_bed_stdd_psn, "
-				+ " infec_mdrate_bed_stdd_psn, chrt_isol_stdd_cnt "
+				+ " infec_mdrate_bed_stdd_psn, chrt_isol_stdd_cnt, trauma_resus_psn, trauma_area_psn, trauma_resus_sttd_psn, trauma_area_sttd_psn "
 				+ ") "
 				+ "VALUES "
 				+ "( "
@@ -88,7 +88,7 @@ public class EmgcRltmItemWriter<T> implements ItemWriter<List<T>> {
 				+ " :isolareaGenPressStddPsn, :pedNegPressStddPsn, :pedGenPressStddPsn, :emgcIcuNegPressStddPsn, "
 				+ " :emgcIcuGenPressStddPsn, :emgcIptNegPressStddPsn, :emgcIptGenPressStddPsn, :infecDdcIcuStddPsn, "
 				+ " :infecDdcIcuNegPressStddPsn, :infecSevereBedStddPsn, :infecSemiSevereBedStddPsn, "
-				+ " :infecMdrateBedStddPsn, :chrtIsolStddCnt "
+				+ " :infecMdrateBedStddPsn, :chrtIsolStddCnt, :traumaResusPsn, :traumaAreaPsn, :traumaResusSttdPsn, :traumaAreaSttdPsn "
 				+ ") "
 				+ "ON DUPLICATE KEY UPDATE "
 				+ " hp_id = :hpId, old_hp_id = :oldHpId, upd_date = :updDate, emgc_ers_gen_bed_psn = :emgcErsGenBedPsn, "
@@ -139,7 +139,8 @@ public class EmgcRltmItemWriter<T> implements ItemWriter<List<T>> {
 				+ " emgc_ipt_gen_press_stdd_psn = :emgcIptGenPressStddPsn, infec_ddc_icu_stdd_psn = :infecDdcIcuStddPsn, "
 				+ " infec_ddc_icu_neg_press_stdd_psn = :infecDdcIcuNegPressStddPsn, infec_severe_bed_stdd_psn = :infecSevereBedStddPsn, "
 				+ " infec_semi_severe_bed_stdd_psn = :infecSemiSevereBedStddPsn, infec_mdrate_bed_stdd_psn = :infecMdrateBedStddPsn, "
-				+ " chrt_isol_stdd_cnt = :chrtIsolStddCnt";
+				+ " chrt_isol_stdd_cnt = :chrtIsolStddCnt, trauma_resus_psn = :traumaResusPsn, trauma_area_psn = :traumaAreaPsn, "
+				+ " trauma_resus_sttd_psn = :traumaResusSttdPsn, trauma_area_sttd_psn = :traumaAreaSttdPsn ";
 
 		
 		jdbcBatchItemWriter.setSql(sql);

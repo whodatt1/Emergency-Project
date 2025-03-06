@@ -76,7 +76,7 @@ public class EmergencyScheduler {
 	}
 	@Async
 	//@Scheduled(cron = "0 0 1 * * ?")
-	@Scheduled(cron = "0 5 23 * * ?")
+	@Scheduled(cron = "0 0 1 * * ?")
 	public void excuteEmergencyBaseInfoJob() {
 		
 		try {

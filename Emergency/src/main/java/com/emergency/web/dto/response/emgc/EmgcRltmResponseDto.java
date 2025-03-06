@@ -98,6 +98,8 @@ public class EmgcRltmResponseDto {
 	private int hv41; // [입원실] 음압격리 인원
 	private String hv42; // [기타] 분만실
 	private String hv43; // [기타] 화상전용처치실
+	private int hv60; // 외상소생실 V4 추가
+	private int hv61; // 외상환자진료구역 V4 추가
 	private String dutyName; // 기관명
 	private String dutyTel3;
 	private int hvs01; // 일반_기준 인원
@@ -152,6 +154,8 @@ public class EmgcRltmResponseDto {
 	private int hvs57; // [감염] 준-중증 병상_기준 인원
 	private int hvs58; // [감염] 중등증 병상_기준 인원
 	private int hvs59; // 코호트 격리_기준 인원
+	private int hvs60; // 외상소생실_기준 인원
+	private int hvs61; // 외상환자진료구역_기준 인원
 	
 	@Getter
 	@Setter
@@ -237,6 +241,8 @@ public class EmgcRltmResponseDto {
 		private int hv41; // [입원실] 음압격리 인원
 		private String hv42; // [기타] 분만실
 		private String hv43; // [기타] 화상전용처치실
+		private int hv60; // 외상소생실 V4 추가
+		private int hv61; // 외상환자진료구역 V4 추가
 		private String dutyName; // 기관명
 		private String dutyTel3;
 		private int hvs01; // 일반_기준 인원
@@ -291,6 +297,8 @@ public class EmgcRltmResponseDto {
 		private int hvs57; // [감염] 준-중증 병상_기준 인원
 		private int hvs58; // [감염] 중등증 병상_기준 인원
 		private int hvs59; // 코호트 격리_기준 인원
+		private int hvs60; // 외상소생실_기준 인원
+		private int hvs61; // 외상환자진료구역_기준 인원
 	}
 	
 	public EmgcRltm toEntity() {

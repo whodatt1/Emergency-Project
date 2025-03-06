@@ -25,28 +25,28 @@ CREATE TABLE tb_Emgc_Rltm_Detail (
     icu_gen_psn INT, -- [중환자실] 일반 인원
     ipt_gen_psn INT, -- [입원실] 일반 인원
     duty_doc_nm VARCHAR(50), -- 당직의
-    ct_avail_yn CHAR(1), -- CT 가용 여부 (Y/N)
-    mri_avail_yn CHAR(1), -- MRI 가용 여부 (Y/N)
-    angio_avail_yn CHAR(1), -- 혈관촬영기 가용 여부 (Y/N)
-    venti_avail_yn CHAR(1), -- 인공호흡기 가용 여부 (Y/N)
-    venti_pret_avail_yn CHAR(1), -- 인공호흡기 조산아 가용 여부 (Y/N)
-    incu_avail_yn CHAR(1), -- 인큐베이터 가용 여부 (Y/N)
-    crrt_avail_yn CHAR(1), -- CRRT 가용 여부 (Y/N)
-    ecmo_avail_yn CHAR(1), -- ECMO 가용 여부 (Y/N)
-    oxy_avail_yn CHAR(1), -- 고압 산소 치료기 가용 여부 (Y/N)
-    hypo_avail_yn CHAR(1), -- 중심 체온 조절 유도기 가용 여부 (Y/N)
-    ambul_avail_yn CHAR(1), -- 구급차 가용 여부 (Y/N)
+    ct_avail_yn CHAR(2), -- CT 가용 여부 (Y/N)
+    mri_avail_yn CHAR(2), -- MRI 가용 여부 (Y/N)
+    angio_avail_yn CHAR(2), -- 혈관촬영기 가용 여부 (Y/N)
+    venti_avail_yn CHAR(2), -- 인공호흡기 가용 여부 (Y/N)
+    venti_pret_avail_yn CHAR(2), -- 인공호흡기 조산아 가용 여부 (Y/N)
+    incu_avail_yn CHAR(2), -- 인큐베이터 가용 여부 (Y/N)
+    crrt_avail_yn CHAR(2), -- CRRT 가용 여부 (Y/N)
+    ecmo_avail_yn CHAR(2), -- ECMO 가용 여부 (Y/N)
+    oxy_avail_yn CHAR(2), -- 고압 산소 치료기 가용 여부 (Y/N)
+    hypo_avail_yn CHAR(2), -- 중심 체온 조절 유도기 가용 여부 (Y/N)
+    ambul_avail_yn CHAR(2), -- 구급차 가용 여부 (Y/N)
     duty_doc_tel VARCHAR(50), -- 응급실 당직의 직통 연락처
     icu_med_psn INT, -- [중환자실] 내과 인원
     icu_surg_psn INT, -- [중환자실] 외과 인원
     ortho_ipt_psn INT, -- 외과입원실 (정형외과) 인원
-    neurol_inpt_yn CHAR(1), -- 신경과입원실 (Y/N)
+    neurol_inpt_yn CHAR(2), -- 신경과입원실 (Y/N)
     icu_neuro_surg_psn INT, -- [중환자실] 신경외과 인원
-    icu_drug_yn CHAR(1), -- 약물 중환자 (Y/N)
+    icu_drug_yn CHAR(2), -- 약물 중환자 (Y/N)
     icu_burn_psn INT, -- [중환자실] 화상 인원
     icu_trauma_psn INT, -- [중환자실] 외상 인원
-    venti_yn CHAR(1), -- VENTI(소아) 여부 (Y/N)
-    incu_yn CHAR(1), -- 인큐베이터(보육기) 여부 (Y/N)
+    venti_yn CHAR(2), -- VENTI(소아) 여부 (Y/N)
+    incu_yn CHAR(2), -- 인큐베이터(보육기) 여부 (Y/N)
     duty_ped_doc_tel VARCHAR(50), -- 소아당직의 직통 연락처
     isolarea_neg_press_bed_psn INT, -- 격리진료구역 음압격리병상
     isolarea_gen_press_bed_psn INT, -- 격리진료구역 일반격리병상
@@ -76,8 +76,10 @@ CREATE TABLE tb_Emgc_Rltm_Detail (
     etc_trauma_op_psn INT, -- [기타] 외상전용 수술실 인원
     ipt_psy_closed_psn INT, -- [입원실] 정신과 폐쇄병동 인원
     ipt_neg_press_psn INT, -- [입원실] 음압격리 인원
-    etc_dlvr_room_yn CHAR(1),                        -- [기타] 분만실 (Y/N)
-    etc_burn_spctrt_yn CHAR(1),                        -- [기타] 화상전용처치실 (Y/N)
+    etc_dlvr_room_yn CHAR(2),                        -- [기타] 분만실 (Y/N)
+    etc_burn_spctrt_yn CHAR(2),                        -- [기타] 화상전용처치실 (Y/N)
+    trauma_resus_psn INT, -- 외상 소샐실 인원 V4 추가
+    trauma_area_psn INT, -- 외상 환자 진료 구역 인원 V4 추가
     duty_name VARCHAR(100),                    -- 기관명
     duty_tel VARCHAR(50),                    -- 응급실 전화
     gen_stdd_psn  INT,                                -- 일반_기준 인원
@@ -131,6 +133,8 @@ CREATE TABLE tb_Emgc_Rltm_Detail (
     infec_severe_bed_stdd_psn  INT,                                -- [감염] 중증 병상_기준 인원
     infec_semi_severe_bed_stdd_psn  INT,                                -- [감염] 준-중증 병상_기준 인원
     infec_mdrate_bed_stdd_psn  INT,                                -- [감염] 중등증 병상_기준 인원
-    chrt_isol_stdd_cnt INT                                 -- 코호트 격리_기준 인원
+    chrt_isol_stdd_cnt INT  ,                               -- 코호트 격리_기준 인원
+    trauma_resus_sttd_psn INT, -- 외상 소생실 기준 인원 V4 추가
+    trauma_area_sttd_psn INT -- 외상 환자 진료 구역 기준 인원 V4 추가
 );
 

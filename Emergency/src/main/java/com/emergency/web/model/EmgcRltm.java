@@ -84,6 +84,8 @@ public class EmgcRltm {
 	private int iptNegPressPsn; // [입원실] 음압격리 인원
 	private String etcDlvrRoomYn; // [기타] 분만실 (Y/N)
 	private String etcBurnSpctrtYn; // [기타] 화상전용처치실 (Y/N)
+	private int traumaResusPsn; // 외상 소샐실 인원 V4 추가
+	private int traumaAreaPsn; // 외상 환자 진료 구역 인원 V4 추가
 	private String dutyName; // 기관명
 	private String dutyTel; // 응급실 전화
 	private int genStddPsn; // 일반_기준 인원
@@ -138,4 +140,6 @@ public class EmgcRltm {
 	private int infecSemiSevereBedStddPsn; // [감염] 준-중증 병상_기준 인원
 	private int infecMdrateBedStddPsn; // [감염] 중등증 병상_기준 인원
 	private int chrtIsolStddCnt; // 코호트 격리_기준 인원
+	private int traumaResusSttdPsn; // 외상 소생실 인원 V4 추가
+	private int traumaAreaSttdPsn; // 외상 환자 진료 구역 인원 V4 추가
 }
