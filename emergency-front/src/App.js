@@ -6,6 +6,7 @@ import UserLogin from './pages/user/UserLogin';
 import UserJoin from './pages/user/UserJoin';
 import { Container } from 'react-bootstrap';
 import LoginContextProvider from './context/LoginContextProvider';
+import EmgcRltmList from './pages/emgc/EmgcRltmList';
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
         <Routes>
           <Route path="/userLogin" exact={true} element={<UserLogin />} />
           <Route path="/userJoin" exact={true} element={<UserJoin />} />
+          <Route path="/emgcRltmList" exact={true} element={<EmgcRltmList />} />
         </Routes>
         <Footer />
       </LoginContextProvider>

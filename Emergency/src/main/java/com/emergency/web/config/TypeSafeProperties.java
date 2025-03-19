@@ -36,4 +36,8 @@ public class TypeSafeProperties {
 	private String apiHost;
 	private String apiRltmPath;
 	private String apiBsIfPath;
+	// BJD API
+	private String bjdApiNormarDecoding;
+	private String bjdApiHost;
+	private String bjdPath;
 }

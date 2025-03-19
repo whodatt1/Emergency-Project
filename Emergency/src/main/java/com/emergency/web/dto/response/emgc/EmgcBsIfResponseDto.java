@@ -16,7 +16,7 @@ import lombok.ToString;
 
 /**
  * 
-* @packageName     : com.emergency.web.config
+* @packageName     : com.emergency.web.dto.response.emgc
 * @fileName        : EmgcBsIfResponseDto.java
 * @author          : KHK
 * @date            : 2025.01.31

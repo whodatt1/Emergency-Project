@@ -21,20 +21,8 @@ const Header = () => {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
-              <Nav.Link as={Link} to="/" className="px-2">
-                Home
-              </Nav.Link>
-              <Nav.Link as={Link} to="/features" className="px-2">
-                Features
-              </Nav.Link>
-              <Nav.Link as={Link} to="/pricing" className="px-2">
-                Pricing
-              </Nav.Link>
-              <Nav.Link as={Link} to="/faqs" className="px-2">
-                FAQs
-              </Nav.Link>
-              <Nav.Link as={Link} to="/about" className="px-2">
-                About
+              <Nav.Link as={Link} to="/emgcRltmList" className="px-2">
+                응급기관 정보
               </Nav.Link>
             </Nav>
             {isLoggedIn ? (
@@ -61,7 +49,7 @@ const Header = () => {
       </Navbar>
 
       {/* Search Section */}
-      <header className="py-3 border-bottom">
+      {/* <header className="py-3 border-bottom">
         <Container
           fluid
           className="d-flex justify-content-between align-items-center"
@@ -75,7 +63,7 @@ const Header = () => {
             />
           </Form>
         </Container>
-      </header>
+      </header> */}
     </div>
   );
 };
