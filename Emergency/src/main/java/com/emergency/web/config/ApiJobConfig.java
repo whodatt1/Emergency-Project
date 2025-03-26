@@ -15,16 +15,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import com.emergency.web.dto.response.bjd.BJDResponseDto;
 import com.emergency.web.dto.response.emgc.EmgcBsIfResponseDto;
 import com.emergency.web.dto.response.emgc.EmgcRltmResponseDto;
 import com.emergency.web.model.BJD;
 import com.emergency.web.model.EmgcBsIf;
 import com.emergency.web.model.EmgcRltm;
-import com.emergency.web.processor.BJDItemProcessor;
 import com.emergency.web.processor.EmgcBsIfItemProcessor;
 import com.emergency.web.processor.EmgcRltmItemProcessor;
-import com.emergency.web.reader.BJDItemReader;
 import com.emergency.web.reader.EmgcBsIfItemReader;
 import com.emergency.web.reader.EmgcRltmItemReader;
 import com.emergency.web.writer.EmgcBsIfItemWriter;
@@ -34,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
-public class EmgcApiJobConfig {
+public class ApiJobConfig {
 	
 	private final JobRepository jobRepository;
 	private final PlatformTransactionManager transactionManager;
@@ -46,10 +43,6 @@ public class EmgcApiJobConfig {
 	// EmgcBsIf
 	private final EmgcBsIfItemReader emgcBsIfItemReader;
 	private final EmgcBsIfItemProcessor egmcBsIfItemProcessor;
-	
-	// BJD
-	private final BJDItemReader bjdItemReader;
-	private final BJDItemProcessor bjdItemProcessor;
 	
 	private final DataSource dataSource;
 	
@@ -69,26 +62,6 @@ public class EmgcApiJobConfig {
 				.start(bsIfApiStep(jobRepository))
 				.build();
 		
-	}
-	
-	// 법정동 코드
-	@Bean
-	public Job bjdApiJob() {
-		
-		return new JobBuilder("bjdApiJob", jobRepository)
-				.start(bjdApiStep(jobRepository))
-				.build();
-	}
-	
-	@Bean
-	Step bjdApiStep(JobRepository jobRepository) {
-		return new StepBuilder("bjdApiStep", jobRepository)
-				// 입력타입과 출력타입
-				.<List<BJDResponseDto>, List<BJD>>chunk(1, transactionManager)
-				.reader(bjdItemReader)
-				.processor(bjdItemProcessor)
-				.writer(str -> System.out.println())
-				.build();
 	}
 	
 	@Bean

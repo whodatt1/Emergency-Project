@@ -1,7 +1,11 @@
-import React from 'react';
-import { Container } from 'react-bootstrap';
-// https://api.odcloud.kr/api/15063424/v1/uddi:257e1510-0eeb-44de-8883-8295c94dadf7?page=1&perPage=10&serviceKey=mG%2BHPy5pERR%2FdhNs87oqXRmdptOaIhGIywSmGUUZXjlvjshDfx2vVHrsKWpNQH88UPZAd%2BFlcfkClf1IP%2Fjc4A%3D%3D
+import React, { useState } from 'react';
+import { Container, Form } from 'react-bootstrap';
+
 const EmgcRltmList = () => {
+  const [sido, setSido] = useState('');
+  const [gugun, setGugun] = useState('');
+  const [dong, setDong] = useState('');
+
   return (
     <Container fluid className="mt-5">
       <h1 className="h3 mb-3 fw-normal text-center">응급기관 목록</h1>
@@ -10,7 +14,19 @@ const EmgcRltmList = () => {
         className="p-3 rounded shadow"
         style={{ backgroundColor: '#cce8f4' }}
       >
-        테스트
+        <div className="d-flex gap-3">
+          <Form.Select value={sido} onChange={(e) => setSido(e.target.value)}>
+            <option value={''}>시도 선택</option>
+          </Form.Select>
+
+          <Form.Select value={gugun} onChange={(e) => setGugun(e.target.value)}>
+            <option value={''}>구군 선택</option>
+          </Form.Select>
+
+          <Form.Select value={dong} onChange={(e) => setDong(e.target.value)}>
+            <option value={''}>동 선택</option>
+          </Form.Select>
+        </div>
       </div>
     </Container>
   );

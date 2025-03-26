@@ -138,3 +138,15 @@ CREATE TABLE tb_Emgc_Rltm_Detail (
     trauma_area_sttd_psn INT -- 외상 환자 진료 구역 기준 인원 V4 추가
 );
 
+CREATE TABLE `tb_bjd` (
+  `past_cd` varchar(10) DEFAULT NULL,
+  `ri_nm` varchar(50) DEFAULT NULL,
+  `law_cd` varchar(10) NOT NULL,
+  `deleted_date` DATE DEFAULT NULL,
+  `created_date` DATE DEFAULT NULL,
+  `rank` int DEFAULT NULL,
+  `si_nm` varchar(50) DEFAULT NULL,
+  `sido_nm` varchar(50) DEFAULT NULL,
+  `dong_nm` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`law_cd`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

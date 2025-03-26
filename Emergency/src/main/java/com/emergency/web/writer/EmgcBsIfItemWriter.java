@@ -10,7 +10,7 @@ import org.springframework.batch.item.database.JdbcBatchItemWriter;
 
 /**
  * 
-* @packageName     : com.emergency.web.config
+* @packageName     : com.emergency.web.writer
 * @fileName        : EmgcBsIfItemWriter.java
 * @author          : KHK
 * @date            : 2025.03.05

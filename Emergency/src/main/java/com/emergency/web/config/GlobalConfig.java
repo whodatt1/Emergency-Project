@@ -16,7 +16,9 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
+import com.emergency.web.common.util.IntegerDeserializer;
 import com.emergency.web.model.EmgcRltm;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 import io.netty.channel.ChannelOption;
@@ -60,7 +62,14 @@ public class GlobalConfig {
 	
 	@Bean
 	public XmlMapper xmlMapper() {
-		return new XmlMapper();
+		XmlMapper mapper = new XmlMapper();
+		
+		SimpleModule module = new SimpleModule();
+		module.addDeserializer(Integer.class, new IntegerDeserializer());
+		
+		mapper.registerModule(module);
+		
+		return mapper;
 	}
 	
 }
