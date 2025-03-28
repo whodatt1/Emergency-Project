@@ -3,21 +3,18 @@ package com.emergency.web.config;
 
 import java.time.Duration;
 
-import javax.sql.DataSource;
-
 import org.modelmapper.ModelMapper;
-import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import com.emergency.web.common.util.IntegerDeserializer;
-import com.emergency.web.model.EmgcRltm;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
@@ -72,4 +69,12 @@ public class GlobalConfig {
 		return mapper;
 	}
 	
+	// 컨트롤러 응답시 XML로 처리되는 상황 발생
+	// ObjectMapper를 우선시하도록 설정함
+	@Bean
+	public MappingJackson2HttpMessageConverter jackson2HttpMessageConverter() {
+	    MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+	    converter.setObjectMapper(new ObjectMapper());
+	    return converter;
+	}
 }

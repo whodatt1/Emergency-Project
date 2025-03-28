@@ -23,6 +23,6 @@ import com.emergency.web.model.BJD;
 public interface BJDMapper {
 	
 	List<BJD> getSidoList();
-	List<BJD> getGugunList();
-	List<BJD> getDongList();
+	List<BJD> getGugunList(String sidoCd);
+	List<BJD> getDongList(String gugunCd);
 }

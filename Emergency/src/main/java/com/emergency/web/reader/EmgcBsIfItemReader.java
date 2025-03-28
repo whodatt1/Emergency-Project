@@ -14,7 +14,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.emergency.web.config.TypeSafeProperties;
 import com.emergency.web.dto.response.emgc.EmgcBsIfResponseDto;
-import com.emergency.web.dto.response.emgc.EmgcBsIfResponseDto.Item;
 import com.emergency.web.mapper.emgc.EmgcRltmMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 

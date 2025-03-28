@@ -2,7 +2,36 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.emergency.web.mapper.bjd.BJDMapper">
 	
-	<select id="getSidoList">
+	<select id="getSidoList" resultType="com.emergency.web.model.BJD">
+		SELECT RPAD(REGEXP_REPLACE(bjd_cd, '0+$', ''), 2, '0') AS bjd_cd,
+			   bjd_nm
+		  FROM tb_bjd
+		 WHERE LENGTH(REGEXP_REPLACE(bjd_cd, '0+$', '')) <![CDATA[<=]]> 2
+		   AND use_or_not = 'Y'
+		   
+	     UNION
+	     
+	    SELECT REGEXP_REPLACE(bjd_cd, '0+$', '') AS bjd_cd,
+	    	   bjd_nm
+		  FROM tb_bjd
+		 WHERE bjd_cd = '3611000000';
+	</select>
+	
+	<select id="getGugunList" parameterType="string">
+		SELECT *
+		  FROM tb_bjd
+		 WHERE LENGTH(REGEXP_REPLACE(bjd_cd, '0+$', '')) BETWEEN 3 AND 5
+		   AND bjd_cd LIKE CONCAT(#{sidoCd}, '%')
+		   AND bjd_cd <![CDATA[<>]]> '3611000000'
+		   AND use_or_not = 'Y';
+	</select>
+	
+	<select id="getDongList" parameterType="string">
+		SELECT *
+		  FROM tb_bjd
+		 WHERE LENGTH(REGEXP_REPLACE(bjd_cd, '0+$', '')) BETWEEN 6 AND 8
+		   AND bjd_cd LIKE CONCAT(#{gugunCd}, '%')
+		   AND use_or_not = 'Y';
 	</select>
 	
 </mapper>

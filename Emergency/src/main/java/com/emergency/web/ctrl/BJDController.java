@@ -1,9 +1,9 @@
 package com.emergency.web.ctrl;
 
-import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.emergency.web.service.bjd.BJDService;
@@ -34,13 +34,13 @@ public class BJDController {
 		return ResponseEntity.ok(bjdService.getSidoList());
 	}
 	
-	@GetMapping("/api/v1/bjd/gugun")
-	public ResponseEntity<?> getGugunList() {
-		return ResponseEntity.ok(bjdService.getGugunList());
+	@GetMapping("/api/v1/bjd/gugun/{sidoCd}")
+	public ResponseEntity<?> getGugunList(@PathVariable String sidoCd) {
+		return ResponseEntity.ok(bjdService.getGugunList(sidoCd));
 	}
 	
-	@GetMapping("/api/v1/bjd/dong")
-	public ResponseEntity<?> getDongList() {
-		return ResponseEntity.ok(bjdService.getDongList());
+	@GetMapping("/api/v1/bjd/dong{gugunCd}")
+	public ResponseEntity<?> getDongList(@PathVariable String gugunCd) {
+		return ResponseEntity.ok(bjdService.getDongList(gugunCd));
 	}
 }

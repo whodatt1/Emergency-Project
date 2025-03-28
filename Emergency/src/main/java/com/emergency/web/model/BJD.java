@@ -22,6 +22,5 @@ public class BJD {
 	
    private String bjdCd;
    private String bjdNm;
-   private String useOrNot;
    
 }

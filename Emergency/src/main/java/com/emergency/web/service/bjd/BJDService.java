@@ -29,17 +29,14 @@ public class BJDService {
 	private final BJDMapper bjdMapper;
 	
 	public List<BJD> getSidoList() {
-//		return bjdMapper.getSidoList();
-		return null;
+		return bjdMapper.getSidoList();
 	}
 	
-	public List<BJD> getGugunList() {
-//		return bjdMapper.getGugunList();
-		return null;
+	public List<BJD> getGugunList(String sidoCd) {
+		return bjdMapper.getGugunList(sidoCd);
 	}
 	
-	public List<BJD> getDongList() {
-//		return bjdMapper.getDongList();
-		return null;
+	public List<BJD> getDongList(String gugunCd) {
+		return bjdMapper.getDongList(gugunCd);
 	}
 }

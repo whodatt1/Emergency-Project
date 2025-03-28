@@ -148,7 +148,12 @@ const LoginContextProvider = ({ children }) => {
   useEffect(() => {
     // apiAuth에 메서드 주입
     setAuthMethods(loginCheck, logoutUser);
-    loginCheck(localStorage.getItem('accessToken'));
+
+    const localAccessToken = localStorage.getItem('accessToken');
+
+    if (localAccessToken) {
+      loginCheck(localAccessToken);
+    }
   }, []);
 
   // 모달 닫기 핸들러
