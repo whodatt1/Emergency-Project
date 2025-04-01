@@ -18,19 +18,42 @@
 	</select>
 	
 	<select id="getGugunList" parameterType="string">
-		SELECT *
+		SELECT RPAD(REGEXP_REPLACE(bjd_cd, '0+$', ''), 5, '0') AS bjd_cd,
+			   SUBSTRING_INDEX(SUBSTRING_INDEX(bjd_nm, ' ', 2), ' ', -1) AS bjd_nm
 		  FROM tb_bjd
 		 WHERE LENGTH(REGEXP_REPLACE(bjd_cd, '0+$', '')) BETWEEN 3 AND 5
 		   AND bjd_cd LIKE CONCAT(#{sidoCd}, '%')
-		   AND bjd_cd <![CDATA[<>]]> '3611000000'
+		   AND bjd_cd NOT LIKE '3611%'
+		   AND use_or_not = 'Y'
+		   
+		   UNION
+	     
+	    SELECT RPAD(REGEXP_REPLACE(bjd_cd, '0+$', ''), 8, '0') AS bjd_cd,
+	    	   SUBSTRING_INDEX(SUBSTRING_INDEX(bjd_nm, ' ', 2), ' ', -1) AS bjd_nm
+		  FROM tb_bjd
+		 WHERE LENGTH(REGEXP_REPLACE(bjd_cd, '0+$', '')) BETWEEN 5 AND 8
+		   AND bjd_cd LIKE CONCAT(#{sidoCd}, '%')
+		   AND bjd_cd LIKE '3611%'
 		   AND use_or_not = 'Y';
 	</select>
 	
 	<select id="getDongList" parameterType="string">
-		SELECT *
+		SELECT bjd_cd,
+			   SUBSTRING_INDEX(bjd_nm, ' ', -1) AS bjd_nm
 		  FROM tb_bjd
 		 WHERE LENGTH(REGEXP_REPLACE(bjd_cd, '0+$', '')) BETWEEN 6 AND 8
 		   AND bjd_cd LIKE CONCAT(#{gugunCd}, '%')
+		   AND bjd_cd NOT LIKE '3611%'
+		   AND use_or_not = 'Y'
+		   
+		 UNION  
+		   
+		SELECT bjd_cd,
+			   SUBSTRING_INDEX(bjd_nm, ' ', -1) AS bjd_nm
+		  FROM tb_bjd
+		 WHERE LENGTH(REGEXP_REPLACE(bjd_cd, '0+$', '')) BETWEEN 9 AND 10
+		   AND bjd_cd LIKE CONCAT(#{gugunCd}, '%')
+		   AND bjd_cd LIKE '3611%'
 		   AND use_or_not = 'Y';
 	</select>
 	

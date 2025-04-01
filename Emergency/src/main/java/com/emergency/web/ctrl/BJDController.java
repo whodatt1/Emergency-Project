@@ -35,12 +35,12 @@ public class BJDController {
 	}
 	
 	@GetMapping("/api/v1/bjd/gugun/{sidoCd}")
-	public ResponseEntity<?> getGugunList(@PathVariable String sidoCd) {
+	public ResponseEntity<?> getGugunList(@PathVariable("sidoCd") String sidoCd) {
 		return ResponseEntity.ok(bjdService.getGugunList(sidoCd));
 	}
 	
-	@GetMapping("/api/v1/bjd/dong{gugunCd}")
-	public ResponseEntity<?> getDongList(@PathVariable String gugunCd) {
+	@GetMapping("/api/v1/bjd/dong/{gugunCd}")
+	public ResponseEntity<?> getDongList(@PathVariable("gugunCd") String gugunCd) {
 		return ResponseEntity.ok(bjdService.getDongList(gugunCd));
 	}
 }

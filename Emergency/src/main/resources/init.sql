@@ -3,11 +3,29 @@
 CREATE TABLE tb_Emgc_Rltm_Master (
     hp_id VARCHAR(50) PRIMARY KEY, -- 기관 ID (Primary Key)
     duty_name VARCHAR(255) NOT NULL, -- 기관명
+    duty_ha_yn VARCHAR(2), -- 입원실 가용 여부
+    duty_er_yn VARCHAR(2), -- 응급실 운용 여부
     post_cdn1 VARCHAR(10), -- 우편번호1
     post_cdn2 VARCHAR(10), -- 우편번호2
     duty_addr VARCHAR(255), -- 주소
     duty_tel VARCHAR(50), -- 대표전화1
     duty_inf TEXT, -- 기관설명상세
+    duty_time_1c VARCHAR(5), -- 월요일 close 진료시간
+    duty_time_2c VARCHAR(5), -- 화요일 close 진료시간
+    duty_time_3c VARCHAR(5), -- 수요일 close 진료시간
+    duty_time_4c VARCHAR(5), -- 목요일 close 진료시간
+    duty_time_5c VARCHAR(5), -- 금요일 close 진료시간
+    duty_time_6c VARCHAR(5), -- 토요일 close 진료시간
+    duty_time_7c VARCHAR(5), -- 일요일 close 진료시간
+    duty_time_8c VARCHAR(5), -- 공휴일 close 진료시간
+    duty_time_1s VARCHAR(5), -- 월요일 start 진료시간
+    duty_time_2s VARCHAR(5), -- 화요일 start 진료시간
+    duty_time_3s VARCHAR(5), -- 수요일 start 진료시간
+    duty_time_4s VARCHAR(5), -- 목요일 start 진료시간
+    duty_time_5s VARCHAR(5), -- 금요일 start 진료시간
+    duty_time_6s VARCHAR(5), -- 토요일 start 진료시간
+    duty_time_7s VARCHAR(5), -- 일요일 start 진료시간
+    duty_time_8s VARCHAR(5), -- 공휴일 start 진료시간
     duty_lon DECIMAL(10, 7), -- 병원 경도
     duty_lat DECIMAL(10, 7), -- 병원 위도
     dgid_id_name VARCHAR(255) -- 진료 과목

@@ -49,11 +49,11 @@ public class EmgcBsIfResponseDto {
 	private int hvccc; // 흉부 중환자
 	private int hvicc; // 일반 중환자
 	private int hvgc; // 입원실
-	private String dutyHayn; // 입원실 가용 여부 1/""
+	private String dutyHayn; // 입원실 가용 여부 1/2
 	private int dutyHano; // 병상 수
 	private String dutyInf; // 기관설명상세
 	private String dutyMapimg; // 긴이약도
-	private String dutyEryn; // 응급실 운영 벼우 1/2
+	private String dutyEryn; // 응급실 운영 여부 1/2
 	private String dutyTime1c;
 	private String dutyTime2c;
 	private String dutyTime3c;
