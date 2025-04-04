@@ -1,15 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Form, Button } from 'react-bootstrap';
+import { Container, Form, Button, ListGroup } from 'react-bootstrap';
 import { getSidoList, getGugunList, getDongList } from '../../apis/bjd';
+import { getEmgcMstList } from '../../apis/emgc';
+import { Link } from 'react-router-dom';
 
 const EmgcRltmList = () => {
-  const [sidoCd, setSidoCd] = useState('');
-  const [gugunCd, setGugunCd] = useState('');
-  const [dongCd, setDongCd] = useState('');
-
   const [sidoList, setSidoList] = useState([]);
   const [gugunList, setGugunList] = useState([]);
   const [dongList, setDongList] = useState([]);
+
+  const [searchParams, setSearchParams] = useState({
+    pageNo: 0,
+    recordSize: '',
+    sidoCd: '',
+    gugunCd: '',
+    dongCd: '',
+  });
+
+  const [emgcMstList, setEmgcMstList] = useState([]);
 
   const fetchSidoList = async () => {
     try {
@@ -62,12 +70,12 @@ const EmgcRltmList = () => {
   }, []);
 
   useEffect(() => {
-    fetchGugunList(sidoCd);
-  }, [sidoCd]);
+    fetchGugunList(searchParams.sidoCd);
+  }, [searchParams.sidoCd]);
 
   useEffect(() => {
-    fetchDongList(gugunCd);
-  }, [gugunCd]);
+    fetchDongList(searchParams.gugunCd);
+  }, [searchParams.gugunCd]);
 
   return (
     <Container fluid className="mt-5">
@@ -81,8 +89,10 @@ const EmgcRltmList = () => {
       >
         <div className="d-flex gap-3 mb-3">
           <Form.Select
-            value={sidoCd}
-            onChange={(e) => setSidoCd(e.target.value)}
+            value={searchParams.sidoCd}
+            onChange={(e) =>
+              setSearchParams({ ...searchParams, sidoCd: e.target.value })
+            }
           >
             <option value={''}>시도 선택</option>
             {sidoList.map((sidoItem) => (
@@ -91,8 +101,10 @@ const EmgcRltmList = () => {
           </Form.Select>
 
           <Form.Select
-            value={gugunCd}
-            onChange={(e) => setGugunCd(e.target.value)}
+            value={searchParams.gugunCd}
+            onChange={(e) =>
+              setSearchParams({ ...searchParams, gugunCd: e.target.value })
+            }
           >
             <option value={''}>구군 선택</option>
             {gugunList.map((gugunItem) => (
@@ -101,8 +113,10 @@ const EmgcRltmList = () => {
           </Form.Select>
 
           <Form.Select
-            value={dongCd}
-            onChange={(e) => setDongCd(e.target.value)}
+            value={searchParams.dongCd}
+            onChange={(e) =>
+              setSearchParams({ ...searchParams, dongCd: e.target.value })
+            }
           >
             <option value={''}>동 선택</option>
             {dongList.map((dongItem) => (
@@ -115,8 +129,64 @@ const EmgcRltmList = () => {
           type="text"
           placeholder="병원명을 입력하세요."
         />
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            width: '100%',
+          }}
+        >
+          <Form.Select
+            value={searchParams.recordSize}
+            onChange={(e) =>
+              setSearchParams({ ...searchParams, recordSize: e.target.value })
+            }
+            style={{ flex: '1', maxWidth: '20%' }}
+          >
+            <option value={10}>10건 씩 조회</option>
+            <option value={20}>20건 씩 조회</option>
+            <option value={30}>30건 씩 조회</option>
+            <option value={40}>40건 씩 조회</option>
+            <option value={50}>50건 씩 조회</option>
+          </Form.Select>
+          <Button style={{ flex: '1', maxWidth: '5%' }}>검색</Button>
+        </div>
+      </div>
 
-        <Button>검색</Button>
+      <hr />
+
+      <div>
+        <ListGroup>
+          <ListGroup.Item>
+            <div className="p-2 d-flex justify-content-between align-items-center">
+              {/* 병원이름 */}
+              <h6 className="m-0">
+                <Link
+                  to="/hospital-detail"
+                  className="text-decoration-none text-dark"
+                >
+                  병원이름
+                  {/* 상세보기 버튼 */}
+                  <Button variant="primary" size="sm" className="ms-2">
+                    상세보기
+                  </Button>
+                </Link>
+                <p>032-1234-1234</p>
+                <p>
+                  <em className="me-2 border border-dark px-2 py-1">도로명</em>
+                  서울특별시 어쩌구저쩌구
+                </p>
+                <p className="text-danger">
+                  정보 여기 if문걸어서 없으면 안나오도록
+                </p>
+                <div>
+                  <p></p>
+                </div>
+              </h6>
+            </div>
+          </ListGroup.Item>
+        </ListGroup>
       </div>
     </Container>
   );

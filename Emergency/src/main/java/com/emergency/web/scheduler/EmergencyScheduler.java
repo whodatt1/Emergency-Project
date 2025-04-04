@@ -51,7 +51,7 @@ public class EmergencyScheduler {
 		log.info("expiredRefreshTokensCleaner complete");
 	}
 	@Async
-	@Scheduled(fixedRate = 60000)
+//	@Scheduled(fixedRate = 60000)
 //	@Scheduled(cron = "0 5 23 * * ?")
 	public void excuteEmergencyRealTimeJob() {
 		if (isJobRunning("rltmApiJob")) {
@@ -76,8 +76,8 @@ public class EmergencyScheduler {
 	}
 	
 	@Async
-	//@Scheduled(cron = "0 0 1 * * ?")
-	@Scheduled(cron = "0 0 1 * * ?")
+//	@Scheduled(fixedRate = 60000)
+//	@Scheduled(cron = "0 0 1 * * ?")
 	public void excuteEmergencyBaseInfoJob() {
 		
 		try {
