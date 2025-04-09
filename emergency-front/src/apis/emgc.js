@@ -1,4 +1,4 @@
 import apiAuth from './apiAuth';
 
 export const getEmgcMstList = (params) =>
-  apiAuth.get('/api/v1/emgc/mst', { params });
+  apiAuth.post('/api/v1/emgc/mst', { params });

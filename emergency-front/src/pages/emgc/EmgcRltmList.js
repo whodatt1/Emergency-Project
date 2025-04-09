@@ -19,6 +19,19 @@ const EmgcRltmList = () => {
 
   const [emgcMstList, setEmgcMstList] = useState([]);
 
+  const fetchEgmcMstList = async () => {
+    try {
+      const res = await getEmgcMstList(searchParams);
+
+      console.log(res);
+
+      if (res.status === 200) {
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const fetchSidoList = async () => {
     try {
       const res = await getSidoList();
