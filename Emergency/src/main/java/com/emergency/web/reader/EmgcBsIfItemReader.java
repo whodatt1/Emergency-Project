@@ -14,7 +14,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.emergency.web.config.TypeSafeProperties;
 import com.emergency.web.dto.response.emgc.EmgcBsIfResponseDto;
-import com.emergency.web.mapper.emgc.EmgcRltmMapper;
+import com.emergency.web.mapper.emgc.EmgcMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 import lombok.extern.log4j.Log4j2;
@@ -51,7 +51,7 @@ public class EmgcBsIfItemReader implements ItemReader<List<EmgcBsIfResponseDto>>
 	private XmlMapper xmlMapper;
 	
 	@Autowired
-	private EmgcRltmMapper emgcRltmMapper;
+	private EmgcMapper emgcRltmMapper;
 	
 	private int offset = 0;
 	

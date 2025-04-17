@@ -10,8 +10,9 @@ const EmgcRltmList = () => {
   const [dongList, setDongList] = useState([]);
 
   const [searchParams, setSearchParams] = useState({
-    pageNo: 0,
-    recordSize: '',
+    page: 0,
+    size: 10,
+    dutyNm: '',
     sidoCd: '',
     gugunCd: '',
     dongCd: '',
@@ -36,7 +37,7 @@ const EmgcRltmList = () => {
     try {
       const res = await getSidoList();
 
-      console.log(res);
+      // console.log(res);
 
       if (res.status === 200) {
         setSidoList(res.data);
@@ -48,11 +49,9 @@ const EmgcRltmList = () => {
 
   const fetchGugunList = async (sidoCd) => {
     try {
-      console.log('2222 : ' + sidoCd);
-
       const res = await getGugunList(sidoCd);
 
-      console.log(res);
+      // console.log(res);
 
       if (res.status === 200) {
         setGugunList(res.data);
@@ -64,11 +63,9 @@ const EmgcRltmList = () => {
 
   const fetchDongList = async (gugunCd) => {
     try {
-      console.log('1111 : ' + gugunCd);
-
       const res = await getDongList(gugunCd);
 
-      console.log(res);
+      // console.log(res);
 
       if (res.status === 200) {
         setDongList(res.data);
@@ -141,6 +138,10 @@ const EmgcRltmList = () => {
           className="mb-3"
           type="text"
           placeholder="병원명을 입력하세요."
+          value={searchParams.dutyNm}
+          onChange={(e) =>
+            setSearchParams({ ...searchParams, dutyNm: e.target.value })
+          }
         />
         <div
           style={{
@@ -151,9 +152,9 @@ const EmgcRltmList = () => {
           }}
         >
           <Form.Select
-            value={searchParams.recordSize}
+            value={searchParams.size}
             onChange={(e) =>
-              setSearchParams({ ...searchParams, recordSize: e.target.value })
+              setSearchParams({ ...searchParams, size: e.target.value })
             }
             style={{ flex: '1', maxWidth: '20%' }}
           >
@@ -163,7 +164,12 @@ const EmgcRltmList = () => {
             <option value={40}>40건 씩 조회</option>
             <option value={50}>50건 씩 조회</option>
           </Form.Select>
-          <Button style={{ flex: '1', maxWidth: '5%' }}>검색</Button>
+          <Button
+            style={{ flex: '1', maxWidth: '5%' }}
+            onClick={() => fetchEgmcMstList(searchParams)}
+          >
+            검색
+          </Button>
         </div>
       </div>
 

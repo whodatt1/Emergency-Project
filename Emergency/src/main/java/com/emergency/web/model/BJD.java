@@ -1,7 +1,9 @@
 package com.emergency.web.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * 
@@ -18,9 +20,12 @@ import lombok.Getter;
 
 @Getter
 @Builder
+@NoArgsConstructor  // ⭐ MyBatis가 객체 생성할 수 있게 해줌
+@AllArgsConstructor
 public class BJD {
 	
    private String bjdCd;
    private String bjdNm;
+   private String useOrNot;
    
 }

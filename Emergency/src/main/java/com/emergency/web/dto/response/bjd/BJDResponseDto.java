@@ -1,4 +1,4 @@
-package com.emergency.web.dto.request.emgc;
+package com.emergency.web.dto.response.bjd;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,15 +9,15 @@ import lombok.ToString;
 
 /**
  * 
-* @packageName     : com.emergency.web.dto.request
-* @fileName        : JoinRequestDto.java
+* @packageName     : com.emergency.web.dto.response.bjd
+* @fileName        : BJDResponseDto.java
 * @author          : KHK
-* @date            : 2024.10.20
-* @description     : 응급실 실시간 가용병상정보 요청 객체
+* @date            : 2025.04.09
+* @description     : 법정동 코드 응답 객체
 * ===========================================================
 * DATE              AUTHOR             NOTE
 * -----------------------------------------------------------
-* 2024.10.20        KHK                최초 생성
+* 2025.04.09        KHK                최초 생성
  */
 
 @Getter
@@ -26,9 +26,8 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class EmgcMstRequestDto {
-	private String sidoCd;
-	private String gugunCd;
-	private String dongCd;
-	private String dutyNm;
+public class BJDResponseDto {
+	
+	private String bjdCd;
+	private String bjdNm;
 }

@@ -60,6 +60,8 @@ dependencies {
     implementation 'javax.xml.bind:jaxb-api:2.3.1'
     // JAXB 구현체 의존성
     implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.5'
+    // Page 사용을 위해 추가
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	
 }
 

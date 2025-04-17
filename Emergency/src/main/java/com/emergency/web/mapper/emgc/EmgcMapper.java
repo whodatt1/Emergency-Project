@@ -1,9 +1,11 @@
 package com.emergency.web.mapper.emgc;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.emergency.web.model.EmgcBsIf;
 import com.emergency.web.model.EmgcRltm;
 
 /**
@@ -20,7 +22,9 @@ import com.emergency.web.model.EmgcRltm;
  */
 
 @Mapper
-public interface EmgcRltmMapper {
+public interface EmgcMapper {
 	
 	List<String> getEmgcRltmHpIdListBeforeBatch(int offset);
+	List<EmgcBsIf> getEmgcMstList(Map<String, Object> paramMap);
+	int getEmgcMstListCnt(Map<String, Object> paramMap);
 }

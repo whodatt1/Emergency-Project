@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.emergency.web.mapper.emgc.EmgcRltmMapper">
+<mapper namespace="com.emergency.web.mapper.emgc.EmgcMapper">
 	
 	<select id="getEmgcRltmHpIdListBeforeBatch" parameterType="int">
 		SELECT hp_id

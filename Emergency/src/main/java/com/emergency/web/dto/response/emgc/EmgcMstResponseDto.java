@@ -1,17 +1,33 @@
-package com.emergency.web.model;
+package com.emergency.web.dto.response.emgc;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * 
+* @packageName     : com.emergency.web.dto.response.emgc
+* @fileName        : EmgcMstResponseDto.java
+* @author          : KHK
+* @date            : 2025.04.17
+* @description     : 응급 병원 MST 정보 DTO
+* ===========================================================
+* DATE              AUTHOR             NOTE
+* -----------------------------------------------------------
+* 2025.04.17        KHK                최초 생성
+ */
+
 @Getter
+@Setter
 @Builder
-@NoArgsConstructor  // ⭐ MyBatis가 객체 생성할 수 있게 해줌
+@NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class EmgcBsIf {
+public class EmgcMstResponseDto {
+	
 	private String hpId; // 기관 ID
 	private String dutyName; // 기관명
 	private String dutyHayn; // 입원실 가용 여부 1/2
@@ -37,7 +53,4 @@ public class EmgcBsIf {
 	private String dutyTime6s;
 	private String dutyTime7s;
 	private String dutyTime8s;
-	private String dutyLon; // 병원 경도
-	private String dutyLat; // 병원 위도
-	private String dgidIdName; // 진료 과목
 }
