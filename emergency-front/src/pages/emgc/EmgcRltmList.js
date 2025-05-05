@@ -1,32 +1,55 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Form, Button, ListGroup } from 'react-bootstrap';
-import { getSidoList, getGugunList, getDongList } from '../../apis/bjd';
-import { getEmgcMstList } from '../../apis/emgc';
+import { Button, Container, Form, ListGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { getDongList, getGugunList, getSidoList } from '../../apis/bjd';
+import { getEmgcMstList } from '../../apis/emgc';
+import Pagination from '../../components/Pagination';
 
 const EmgcRltmList = () => {
   const [sidoList, setSidoList] = useState([]);
   const [gugunList, setGugunList] = useState([]);
   const [dongList, setDongList] = useState([]);
+  const [page, setPage] = useState(0);
 
-  const [searchParams, setSearchParams] = useState({
-    page: 0,
+  const [bjdSearchParams, setBjdSearchParams] = useState({
+    sidoCd: null,
+    gugunCd: null,
+    dongCd: null,
+  });
+
+  const [mstSearchParams, setMstSearchParams] = useState({
     size: 10,
     dutyNm: '',
-    sidoCd: '',
-    gugunCd: '',
-    dongCd: '',
+    sidoNm: '',
+    gugunNm: '',
+    dongNm: '',
   });
 
   const [emgcMstList, setEmgcMstList] = useState([]);
+  const [pageable, setPageable] = useState({
+    first: '',
+    last: '',
+    size: 0,
+    pageNumber: 0,
+    totalElements: 0,
+    totalPages: 0,
+  });
 
   const fetchEgmcMstList = async () => {
     try {
-      const res = await getEmgcMstList(searchParams);
+      setEmgcMstList([]); // 요청 전 초기화 과정
+
+      const res = await getEmgcMstList({ ...mstSearchParams, page: page });
 
       console.log(res);
 
       if (res.status === 200) {
+        setEmgcMstList(res.data.content);
+        setPageable({
+          size: res.data.size,
+          pageNumber: res.data.pageable.pageNumber,
+          totalPages: res.data.totalPages,
+        });
       }
     } catch (error) {
       console.log(error);
@@ -76,16 +99,26 @@ const EmgcRltmList = () => {
   };
 
   useEffect(() => {
+    setBjdSearchParams({
+      sidoCd: null,
+      gugunCd: null,
+      dongCd: null,
+    });
     fetchSidoList();
   }, []);
 
   useEffect(() => {
-    fetchGugunList(searchParams.sidoCd);
-  }, [searchParams.sidoCd]);
+    fetchGugunList(bjdSearchParams.sidoCd);
+  }, [bjdSearchParams.sidoCd]);
 
   useEffect(() => {
-    fetchDongList(searchParams.gugunCd);
-  }, [searchParams.gugunCd]);
+    setMstSearchParams({ ...mstSearchParams, page: page });
+    fetchEgmcMstList(mstSearchParams);
+  }, [page]);
+
+  useEffect(() => {
+    fetchDongList(bjdSearchParams.gugunCd);
+  }, [bjdSearchParams.gugunCd]);
 
   return (
     <Container fluid className="mt-5">
@@ -99,38 +132,71 @@ const EmgcRltmList = () => {
       >
         <div className="d-flex gap-3 mb-3">
           <Form.Select
-            value={searchParams.sidoCd}
-            onChange={(e) =>
-              setSearchParams({ ...searchParams, sidoCd: e.target.value })
-            }
+            onChange={(e) => {
+              const selected = sidoList.find(
+                (item) => item.bjdCd === e.target.value,
+              );
+              setMstSearchParams({
+                ...mstSearchParams,
+                sidoNm: selected?.bjdNm,
+              });
+              setBjdSearchParams({
+                ...bjdSearchParams,
+                sidoCd: e.target.value,
+              });
+            }}
           >
             <option value={''}>시도 선택</option>
             {sidoList.map((sidoItem) => (
-              <option value={sidoItem.bjdCd}>{sidoItem.bjdNm}</option>
+              <option key={sidoItem.bjdCd} value={sidoItem.bjdCd}>
+                {sidoItem.bjdNm}
+              </option>
             ))}
           </Form.Select>
 
           <Form.Select
-            value={searchParams.gugunCd}
-            onChange={(e) =>
-              setSearchParams({ ...searchParams, gugunCd: e.target.value })
-            }
+            onChange={(e) => {
+              const selected = gugunList.find(
+                (item) => item.bjdCd === e.target.value,
+              );
+              setMstSearchParams({
+                ...mstSearchParams,
+                gugunNm: selected?.bjdNm,
+              });
+              setBjdSearchParams({
+                ...bjdSearchParams,
+                gugunCd: e.target.value,
+              });
+            }}
           >
             <option value={''}>구군 선택</option>
             {gugunList.map((gugunItem) => (
-              <option value={gugunItem.bjdCd}>{gugunItem.bjdNm}</option>
+              <option key={gugunItem.bjdCd} value={gugunItem.bjdCd}>
+                {gugunItem.bjdNm}
+              </option>
             ))}
           </Form.Select>
 
           <Form.Select
-            value={searchParams.dongCd}
-            onChange={(e) =>
-              setSearchParams({ ...searchParams, dongCd: e.target.value })
-            }
+            onChange={(e) => {
+              const selected = dongList.find(
+                (item) => item.bjdCd === e.target.value,
+              );
+              setMstSearchParams({
+                ...mstSearchParams,
+                dongNm: selected?.bjdNm,
+              });
+              setBjdSearchParams({
+                ...bjdSearchParams,
+                dongCd: e.target.value,
+              });
+            }}
           >
             <option value={''}>동 선택</option>
             {dongList.map((dongItem) => (
-              <option value={dongItem.bjdCd}>{dongItem.bjdNm}</option>
+              <option key={dongItem.bjdCd} value={dongItem.bjdCd}>
+                {dongItem.bjdNm}
+              </option>
             ))}
           </Form.Select>
         </div>
@@ -138,9 +204,9 @@ const EmgcRltmList = () => {
           className="mb-3"
           type="text"
           placeholder="병원명을 입력하세요."
-          value={searchParams.dutyNm}
+          value={mstSearchParams.dutyNm}
           onChange={(e) =>
-            setSearchParams({ ...searchParams, dutyNm: e.target.value })
+            setMstSearchParams({ ...mstSearchParams, dutyNm: e.target.value })
           }
         />
         <div
@@ -152,9 +218,9 @@ const EmgcRltmList = () => {
           }}
         >
           <Form.Select
-            value={searchParams.size}
+            value={mstSearchParams.size}
             onChange={(e) =>
-              setSearchParams({ ...searchParams, size: e.target.value })
+              setMstSearchParams({ ...mstSearchParams, size: e.target.value })
             }
             style={{ flex: '1', maxWidth: '20%' }}
           >
@@ -166,7 +232,7 @@ const EmgcRltmList = () => {
           </Form.Select>
           <Button
             style={{ flex: '1', maxWidth: '5%' }}
-            onClick={() => fetchEgmcMstList(searchParams)}
+            onClick={() => fetchEgmcMstList({ ...mstSearchParams, page: page })}
           >
             검색
           </Button>
@@ -175,38 +241,49 @@ const EmgcRltmList = () => {
 
       <hr />
 
-      <div>
+      <div className="mb-3">
         <ListGroup>
-          <ListGroup.Item>
-            <div className="p-2 d-flex justify-content-between align-items-center">
-              {/* 병원이름 */}
-              <h6 className="m-0">
-                <Link
-                  to="/hospital-detail"
-                  className="text-decoration-none text-dark"
-                >
-                  병원이름
-                  {/* 상세보기 버튼 */}
-                  <Button variant="primary" size="sm" className="ms-2">
-                    상세보기
-                  </Button>
-                </Link>
-                <p>032-1234-1234</p>
-                <p>
-                  <em className="me-2 border border-dark px-2 py-1">도로명</em>
-                  서울특별시 어쩌구저쩌구
-                </p>
-                <p className="text-danger">
-                  정보 여기 if문걸어서 없으면 안나오도록
-                </p>
-                <div>
-                  <p></p>
-                </div>
-              </h6>
-            </div>
-          </ListGroup.Item>
+          {emgcMstList.map((item) => (
+            <ListGroup.Item key={item.hpId}>
+              <div className="p-2 d-flex justify-content-between align-items-center">
+                {/* 병원이름 */}
+                <h6 className="m-0">
+                  <Link
+                    to="/hospital-detail"
+                    className="text-decoration-none text-dark"
+                  >
+                    {item.dutyName}
+                    {/* 상세보기 버튼 */}
+                    <Button variant="primary" size="sm" className="ms-2">
+                      상세보기
+                    </Button>
+                  </Link>
+                  <p>{item.dutyTel}</p>
+                  <p>
+                    <em className="me-2 border border-dark px-2 py-1">
+                      도로명
+                    </em>
+                    {item.dutyAddr}
+                  </p>
+                  {item.dutyInf && (
+                    <p className="text-danger">{item.dutyInf}</p>
+                  )}
+                  <div>
+                    <p></p>
+                  </div>
+                </h6>
+              </div>
+            </ListGroup.Item>
+          ))}
         </ListGroup>
       </div>
+
+      <Pagination
+        totalPages={pageable.totalPages}
+        size={pageable.size}
+        page={pageable.pageNumber}
+        setPage={setPage}
+      />
     </Container>
   );
 };

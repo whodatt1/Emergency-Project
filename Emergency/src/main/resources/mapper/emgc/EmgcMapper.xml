@@ -9,4 +9,51 @@
 	     LIMIT 100 OFFSET #{offset};
 	</select>
 	
+	<select id="getEmgcMstList" parameterType="map" resultType="com.emergency.web.model.EmgcBsIf">
+		SELECT hp_id
+		     , duty_name
+		     , duty_ha_yn
+		     , duty_er_yn
+		     , post_cdn1
+		     , post_cdn2
+		     , duty_addr
+		     , duty_tel
+		     , duty_inf
+		  FROM tb_emgc_rltm_master
+		 <where>
+	         <if test="emgcMstRequestDto.sidoNm != null and emgcMstRequestDto.sidoNm != ''">
+	             AND duty_addr LIKE CONCAT(#{emgcMstRequestDto.sidoNm}, '%')
+	         </if>
+	         <if test="emgcMstRequestDto.gugunNm != null and emgcMstRequestDto.gugunNm != ''">
+	             AND duty_addr LIKE CONCAT('%', #{emgcMstRequestDto.gugunNm}, '%')
+	         </if>
+	         <if test="emgcMstRequestDto.dongNm != null and emgcMstRequestDto.dongNm != ''">
+	             AND duty_addr LIKE CONCAT('%', #{emgcMstRequestDto.dongNm}, '%')
+	         </if>
+	         <if test="emgcMstRequestDto.dutyNm != null and emgcMstRequestDto.dutyNm != ''">
+	             AND duty_name LIKE CONCAT('%', #{emgcMstRequestDto.dutyNm}, '%')
+	         </if>
+     	</where>
+	  ORDER BY duty_name
+	     LIMIT #{pageable.offset}, #{pageable.pageSize};
+	</select>
+	
+	<select id="getEmgcMstListCnt" parameterType="map" resultType="int">
+		SELECT COUNT(*)
+		  FROM tb_emgc_rltm_master
+		 <where>
+	         <if test="emgcMstRequestDto.sidoNm != null and emgcMstRequestDto.sidoNm != ''">
+	             AND duty_addr LIKE CONCAT(#{emgcMstRequestDto.sidoNm}, '%')
+	         </if>
+	         <if test="emgcMstRequestDto.gugunNm != null and emgcMstRequestDto.gugunNm != ''">
+	             AND duty_addr LIKE CONCAT('%', #{emgcMstRequestDto.gugunNm}, '%')
+	         </if>
+	         <if test="emgcMstRequestDto.dongNm != null and emgcMstRequestDto.dongNm != ''">
+	             AND duty_addr LIKE CONCAT('%', #{emgcMstRequestDto.dongNm}, '%')
+	         </if>
+	         <if test="emgcMstRequestDto.dutyNm != null and emgcMstRequestDto.dutyNm != ''">
+	             AND duty_name LIKE CONCAT('%', #{emgcMstRequestDto.dutyNm}, '%')
+	         </if>
+     	</where>
+	</select>
 </mapper>

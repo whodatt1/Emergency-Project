@@ -27,8 +27,8 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class EmgcMstRequestDto {
-	private String sidoCd;
-	private String gugunCd;
-	private String dongCd;
+	private String sidoNm;
+	private String gugunNm;
+	private String dongNm;
 	private String dutyNm;
 }

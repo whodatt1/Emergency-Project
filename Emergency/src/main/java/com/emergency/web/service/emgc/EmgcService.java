@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +34,7 @@ public class EmgcService {
 				.map(mst -> modelMapper.map(mst, EmgcMstResponseDto.class)).collect(Collectors.toList());
 		int contentTotalCnt = emgcMapper.getEmgcMstListCnt(paramMap);
 		
-		return null;
+		return new PageImpl<>(content, pageable, contentTotalCnt);
 	}
 	
 }
