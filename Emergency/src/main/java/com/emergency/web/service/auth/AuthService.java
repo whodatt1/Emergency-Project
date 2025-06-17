@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,7 +21,6 @@ import com.emergency.web.dto.request.auth.JoinRequestDto;
 import com.emergency.web.dto.request.auth.LoginRequestDto;
 import com.emergency.web.dto.response.auth.LoginResponseDto;
 import com.emergency.web.dto.response.auth.RefreshResponseDto;
-import com.emergency.web.dto.response.auth.UserInfoResponseDto;
 import com.emergency.web.exception.GlobalException;
 import com.emergency.web.jwt.JwtUtils;
 import com.emergency.web.mapper.token.TokenMapper;
@@ -27,8 +28,6 @@ import com.emergency.web.mapper.user.UserMapper;
 import com.emergency.web.model.RefreshToken;
 import com.emergency.web.model.User;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -102,17 +101,15 @@ public class AuthService {
 	
 	// 이 부분 다시 확인해서 수정
 	@Transactional
-	public RefreshResponseDto refresh(HttpServletRequest request) {
-		
-		// 쿠키에서 refreshToken 추출
-		String refreshToken = getRefreshTokenFromCookie(request);
+	public RefreshResponseDto refresh(String refreshToken) {
 		
 		if (refreshToken != null && jwtUtils.validateJwtToken(refreshToken)) {
 			// SecurityContextHolder에서 인증객체를 가져오기
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 			
-			if (authentication == null || !authentication.isAuthenticated()) {
-				throw new GlobalException("인증되지 않은 사용자입니다.", "UNAUTHORIZED");
+			// 인증이 없으면 AnonymousAuthenticationFilter가 작동하여 익명토큰을 자동으로 넣음 authentication.isAuthenticated() 가 true로 세팅되어 조건 추가
+			if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
+				throw new GlobalException("인증되지 않은 사용자입니다.", "UNAUTHORIZED", HttpStatus.UNAUTHORIZED);
 			}
 			
 				
@@ -129,10 +126,7 @@ public class AuthService {
 	}
 	
 	@Transactional
-	public void logout(HttpServletRequest request) {
-		
-		// 쿠키에서 refreshToken 추출
-		String refreshToken = getRefreshTokenFromCookie(request);
+	public void logout(String refreshToken) {
 		
 		if (refreshToken != null) {
 			int delResult = tokenMapper.deleteRefreshTokenByUserId(jwtUtils.getUserNameFromJwtToken(refreshToken));
@@ -222,19 +216,5 @@ public class AuthService {
 		}
 		
 		return validResult;
-	}
-	
-	// 쿠키로부터 리프레쉬 토큰 추출
-	public String getRefreshTokenFromCookie(HttpServletRequest request) {
-		Cookie[] cookies = request.getCookies();
-		if (cookies != null) {
-			for (Cookie cookie : cookies) {
-				if (cookie.getName().equals(typeSafeProperties.getRefreshTokenName())) {
-					return cookie.getValue();
-				}
-			}
-		}
-		
-		return null;
 	}
 }

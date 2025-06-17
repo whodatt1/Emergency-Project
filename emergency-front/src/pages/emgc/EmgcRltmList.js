@@ -108,17 +108,26 @@ const EmgcRltmList = () => {
   }, []);
 
   useEffect(() => {
-    fetchGugunList(bjdSearchParams.sidoCd);
+    if (bjdSearchParams.sidoCd === '') {
+      setGugunList([]);
+      setDongList([]);
+    } else {
+      fetchGugunList(bjdSearchParams.sidoCd);
+    }
   }, [bjdSearchParams.sidoCd]);
+
+  useEffect(() => {
+    if (bjdSearchParams.gugunCd === '') {
+      setDongList([]);
+    } else {
+      fetchDongList(bjdSearchParams.gugunCd);
+    }
+  }, [bjdSearchParams.gugunCd]);
 
   useEffect(() => {
     setMstSearchParams({ ...mstSearchParams, page: page });
     fetchEgmcMstList(mstSearchParams);
   }, [page]);
-
-  useEffect(() => {
-    fetchDongList(bjdSearchParams.gugunCd);
-  }, [bjdSearchParams.gugunCd]);
 
   return (
     <Container fluid className="mt-5">
@@ -249,7 +258,8 @@ const EmgcRltmList = () => {
                 {/* 병원이름 */}
                 <h6 className="m-0">
                   <Link
-                    to="/hospital-detail"
+                    to="/emgcRltmDtl"
+                    state={{ page, mstSearchParams, hpId: item.hpId }}
                     className="text-decoration-none text-dark"
                   >
                     {item.dutyName}

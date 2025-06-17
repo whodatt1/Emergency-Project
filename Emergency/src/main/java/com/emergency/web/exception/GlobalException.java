@@ -1,5 +1,7 @@
 package com.emergency.web.exception;
 
+import org.springframework.http.HttpStatus;
+
 import lombok.Getter;
 
 /**
@@ -19,6 +21,7 @@ import lombok.Getter;
 public class GlobalException extends RuntimeException {
 	
 	private String errorCd;
+	private HttpStatus status;
 	
 	public GlobalException(String message) {
 		super(message);
@@ -27,5 +30,11 @@ public class GlobalException extends RuntimeException {
 	public GlobalException(String message, String errorCd) {
 		super(message);
 		this.errorCd = errorCd;
+	}
+	
+	public GlobalException(String message, String errorCd, HttpStatus status) {
+		super(message);
+		this.errorCd = errorCd;
+		this.status = status;
 	}
 }

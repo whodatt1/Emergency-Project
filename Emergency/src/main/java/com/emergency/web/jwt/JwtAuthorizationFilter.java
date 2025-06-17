@@ -50,6 +50,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter  {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		
+		log.info("doFilterInternal...");
+		
 		// 이거 체크한번 해보기
 		// 로그인할때도 해당 요청을 타는데 로그인일 경우 해당 필터를 넘어가게끔
 		if (request.getRequestURI().contains("/login")) {
@@ -61,7 +63,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter  {
 			// 토큰 파싱
 			String jwtToken = parseJwt(request);
 			
+			log.info("jwtToken : {}", jwtToken);
+			
 			if (jwtToken != null && jwtUtils.validateJwtToken(jwtToken)) {
+				
+				log.info("SecurityContextHolder 세팅");
 				// 유저 ID 추출
 				String userId = "";
 				try {

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { login, refresh } from './auth';
+import { refresh } from './auth';
 
 const apiAuth = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
@@ -37,6 +37,7 @@ apiAuth.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.request;
+    console.log('interceptors resp');
 
     if (error.response?.status === 401 && !originalRequest.retry) {
       originalRequest.retry = true;

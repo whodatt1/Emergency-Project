@@ -13,6 +13,7 @@ import com.emergency.web.dto.request.auth.JoinRequestDto;
 import com.emergency.web.dto.request.auth.LoginRequestDto;
 import com.emergency.web.dto.response.auth.LoginResponseDto;
 import com.emergency.web.dto.response.auth.RefreshResponseDto;
+import com.emergency.web.jwt.JwtUtils;
 import com.emergency.web.service.auth.AuthService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,6 +41,8 @@ public class AuthController {
 	private final AuthService authService;
 	
 	private final TypeSafeProperties typeSafeProperties;
+	
+	private final JwtUtils jwtUtils;
 	
 	@PostMapping("/api/v1/auth/login")
 	public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto loginRequestDto, Errors errors, HttpServletResponse response) {
@@ -71,7 +74,10 @@ public class AuthController {
 	@PostMapping("/api/v1/auth/refresh")
 	public ResponseEntity<?> refresh(HttpServletRequest request, HttpServletResponse response) {
 		
-		RefreshResponseDto refreshResponseDto = authService.refresh(request);
+		// HTTP 정보 처리는 컨트롤러단에서
+		String refreshToken = jwtUtils.getRefreshTokenFromCookie(request);
+		
+		RefreshResponseDto refreshResponseDto = authService.refresh(refreshToken);
 		
 		if (refreshResponseDto != null) {
 			// AccessToken은 다양한 클라이언트에서 사용하기 쉬운 헤더에 담기
@@ -84,7 +90,10 @@ public class AuthController {
 	@PostMapping("/api/v1/auth/logout")
 	public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
 		
-		authService.logout(request);
+		// HTTP 정보 처리는 컨트롤러단에서
+		String refreshToken = jwtUtils.getRefreshTokenFromCookie(request);
+		
+		authService.logout(refreshToken);
 		
 		ResponseCookie delRefreshTokenCookie = ResponseCookie.from(typeSafeProperties.getRefreshTokenName(), "")
 															 .httpOnly(true)

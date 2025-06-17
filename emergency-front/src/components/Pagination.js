@@ -44,7 +44,7 @@ const Pagination = ({ totalPages, size, page, setPage }) => {
             </button>
           </li>
         ))}
-        {page < totalPages && (
+        {page < totalPages - 1 && (
           <li className="page-item">
             <button className="page-link" onClick={() => setPage(page + 1)}>
               Next

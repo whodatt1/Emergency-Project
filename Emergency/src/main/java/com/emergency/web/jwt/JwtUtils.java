@@ -22,6 +22,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -164,5 +166,19 @@ public class JwtUtils {
 		}
 		
 		return false;
+	}
+	
+	// 쿠키로부터 리프레쉬 토큰 추출
+	public String getRefreshTokenFromCookie(HttpServletRequest request) {
+		Cookie[] cookies = request.getCookies();
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (cookie.getName().equals(typeSafeProperties.getRefreshTokenName())) {
+					return cookie.getValue();
+				}
+			}
+		}
+		
+		return null;
 	}
 }

@@ -36,9 +36,11 @@ public class GlobalExceptionHandler {
 		errorResponse.put("message", ex.getMessage());
 		errorResponse.put("errorCd", ex.getErrorCd());
 		
+		HttpStatus status = ex.getStatus() != null ? ex.getStatus() : HttpStatus.BAD_REQUEST;
+	
 		// 로그 찍어두기
 		log.error("GlobalException 발생 - 메시지: {}, 오류 코드: {}", ex.getMessage(), ex.getErrorCd(), ex);
 		
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+		return ResponseEntity.status(status).body(errorResponse);
 	}
 }
