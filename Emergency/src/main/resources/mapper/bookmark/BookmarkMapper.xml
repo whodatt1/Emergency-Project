@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.emergency.web.mapper.bookmark.BookmarkMapper">
+	
+	<insert id="insertBookmark" parameterType="com.emergency.web.model.Bookmark">
+		INSERT INTO tb_bookmark
+		(
+			user_id,
+			hp_id,
+			reg_at,
+			mod_at
+		)
+		VALUES
+		(
+			#{userId},
+			#{hpId},
+			#{regAt},
+			#{modAt}
+		)
+	</insert>
+</mapper>

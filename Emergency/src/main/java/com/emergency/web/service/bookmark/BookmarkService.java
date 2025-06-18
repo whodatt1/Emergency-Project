@@ -1,5 +1,7 @@
 package com.emergency.web.service.bookmark;
 
+import java.time.LocalDateTime;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -9,6 +11,10 @@ import org.springframework.stereotype.Service;
 import com.emergency.web.auth.PrincipalDetails;
 import com.emergency.web.dto.request.bookmark.BookmarkInsRequestDto;
 import com.emergency.web.exception.GlobalException;
+import com.emergency.web.mapper.bookmark.BookmarkMapper;
+import com.emergency.web.model.Bookmark;
+
+import lombok.RequiredArgsConstructor;
 
 
 /**
@@ -25,7 +31,10 @@ import com.emergency.web.exception.GlobalException;
  */
 
 @Service
+@RequiredArgsConstructor
 public class BookmarkService {
+	
+	private final BookmarkMapper bookmarkMapper;
 
 	public void insertBookmark(BookmarkInsRequestDto bookmarkInsRequestDto) {
 		
@@ -39,7 +48,18 @@ public class BookmarkService {
 		PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
 		String userId = principal.getUser().getUserId();
 		
+		Bookmark bookmark = Bookmark.builder()
+									.userId(userId)
+									.hpId(bookmarkInsRequestDto.getHpId())
+									.regAt(LocalDateTime.now())
+									.modAt(LocalDateTime.now())
+									.build();
 		
+		int res = bookmarkMapper.insertBookmark(bookmark);
+		
+		if (res < 1) {
+			throw new GlobalException("즐겨찾기에 실패하였습니다. 고객센터에 문의해주세요.", "BOOKMARK_SAVE_FAILED");
+		}
 		
 	}
 

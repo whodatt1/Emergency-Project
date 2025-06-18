@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import { FaCheckCircle, FaExclamationCircle } from 'react-icons/fa'; // react-icons에서 가져옴
 
-const AlertDialog = ({ open, onClose, message, onConfirm, type }) => {
+const AlertDialog = ({ open, onClose, onConfirm, message, type }) => {
   // 아이콘 선택
   let IconComponent;
   let iconColor;

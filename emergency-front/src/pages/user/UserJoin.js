@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { Button, FloatingLabel, Form } from 'react-bootstrap';
+import { Button, FloatingLabel, Form, Container } from 'react-bootstrap';
 import AlertDialog from '../../components/AlertDialog';
 import DaumPC from '../../components/DaumPC';
 import { useNavigate } from 'react-router-dom'; // useNavigate 훅 임포트
 import { signUp } from '../../apis/auth';
+import { useAlertDialog } from '../../hooks/useAlertDialog';
 
 const UserJoin = () => {
   const navigate = useNavigate();
+
+  const { dialogState, showDialog, closeDialog } = useAlertDialog();
 
   const [user, setUser] = useState({
     userId: '',
@@ -32,20 +35,6 @@ const UserJoin = () => {
     address: '',
   });
 
-  // dialog 상태 관리 (현재 페이지)
-  const [dialogState, setDialogState] = useState({
-    open: false,
-    message: '', // 모달 메시지 상태
-    type: '', // 모달 타입 상태 ('success' or 'error')
-  });
-
-  const showDialog = (message, type) => {
-    setDialogState({
-      open: true,
-      message: message,
-      type: type,
-    });
-  };
   const [showPostCode, setShowPostCode] = useState(false);
 
   const changeValue = (e) => {
@@ -146,10 +135,7 @@ const UserJoin = () => {
   };
 
   const handleCloseDialog = () => {
-    setDialogState({
-      ...dialogState,
-      open: false,
-    });
+    closeDialog();
 
     if (dialogState.type === 'success') {
       navigate('/userLogin');
@@ -157,7 +143,7 @@ const UserJoin = () => {
   };
 
   return (
-    <div className="container mt-5">
+    <Container fluid className="mt-5">
       <Form onSubmit={joinUser}>
         <h1 className="h3 mb-3 fw-normal text-center">회원가입</h1>
 
@@ -296,7 +282,7 @@ const UserJoin = () => {
         onConfirm={handleCloseDialog}
         type={dialogState.type} // 'success' 또는 'error'로 알림 타입 전달
       />
-    </div>
+    </Container>
   );
 };
 

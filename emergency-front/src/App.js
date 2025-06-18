@@ -8,6 +8,7 @@ import { Container } from 'react-bootstrap';
 import LoginContextProvider from './context/LoginContextProvider';
 import EmgcRltmList from './pages/emgc/EmgcRltmList';
 import EmgcRltmDtl from './pages/emgc/EmgcRltmDtl';
+import BookmarkList from './pages/boomark/BookmarkList';
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
           <Route path="/userJoin" exact={true} element={<UserJoin />} />
           <Route path="/emgcRltmList" exact={true} element={<EmgcRltmList />} />
           <Route path="/emgcRltmDtl" exact={true} element={<EmgcRltmDtl />} />
+          <Route path="/bookmarkList" exact={true} element={<BookmarkList />} />
         </Routes>
         <Footer />
       </LoginContextProvider>

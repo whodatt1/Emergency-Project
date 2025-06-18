@@ -1,6 +1,7 @@
 package com.emergency.web.ctrl;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,6 +35,12 @@ public class BookmarkController {
 	public ResponseEntity<?> insertBookmark(@RequestBody BookmarkInsRequestDto bookmarkInsRequestDto) {
 		
 		bookmarkService.insertBookmark(bookmarkInsRequestDto);
+		
+		return ResponseEntity.ok(null);
+	}
+	
+	@GetMapping("/api/v1/bookmark/exist")
+	public ResponseEntity<?> existBookmark() {
 		
 		return ResponseEntity.ok(null);
 	}

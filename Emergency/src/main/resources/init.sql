@@ -168,3 +168,11 @@ CREATE TABLE `tb_bjd` (
   `dong_nm` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`law_cd`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `tb_bookmark` (
+  `user_id` varchar(10) NOT NULL,
+  `hp_id` varchar(50) NOT NULL,
+  `reg_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `mod_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`, `hp_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

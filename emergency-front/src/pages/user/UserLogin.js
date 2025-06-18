@@ -3,29 +3,18 @@ import { Button, FloatingLabel, Form } from 'react-bootstrap';
 import AlertDialog from '../../components/AlertDialog';
 import { LoginContext } from '../../context/LoginContextProvider';
 import { useNavigate } from 'react-router-dom';
+import { useAlertDialog } from '../../hooks/useAlertDialog';
 
 const LoginForm = () => {
   const { loginUser, validMessage, errorMessage } = useContext(LoginContext);
   const navigate = useNavigate();
+
+  const { dialogState, showDialog, closeDialog } = useAlertDialog();
+
   const [user, setUser] = useState({
     userId: '',
     password: '',
   });
-
-  // dialog 상태 관리 (현재 페이지)
-  const [dialogState, setDialogState] = useState({
-    open: false,
-    message: '', // 모달 메시지 상태
-    type: '', // 모달 타입 상태 ('success' or 'error')
-  });
-
-  const showDialog = (message, type) => {
-    setDialogState({
-      open: true,
-      message: message,
-      type: type,
-    });
-  };
 
   const changeValue = (e) => {
     setUser({
@@ -46,14 +35,6 @@ const LoginForm = () => {
     } else {
       showDialog('로그인에 실패하였습니다.', 'error');
     }
-  };
-
-  // 모달 닫기 핸들러
-  const handleCloseDialog = () => {
-    setDialogState({
-      ...dialogState,
-      open: false,
-    });
   };
 
   return (
@@ -104,9 +85,9 @@ const LoginForm = () => {
 
         <AlertDialog
           open={dialogState.open}
-          onClose={handleCloseDialog}
+          onClose={closeDialog}
+          onConfirm={closeDialog}
           message={dialogState.message}
-          onConfirm={handleCloseDialog}
           type={dialogState.type} // 'success' 또는 'error'로 알림 타입 전달
         />
       </Form>

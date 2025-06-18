@@ -3,12 +3,15 @@ import { getMe } from '../apis/user';
 import { login, logout } from '../apis/auth';
 import AlertDialog from '../components/AlertDialog';
 import { setAuthMethods } from '../apis/apiAuth';
+import { useAlertDialog } from '../hooks/useAlertDialog';
 
 export const LoginContext = createContext();
 
 const LoginContextProvider = ({ children }) => {
   // 로그인 여부
   const [isLoggedIn, setLoggedIn] = useState(false);
+
+  const { dialogState, showDialog, closeDialog } = useAlertDialog();
 
   // 유저 정보
   const [userInfo, setUserInfo] = useState({
@@ -27,22 +30,6 @@ const LoginContextProvider = ({ children }) => {
     userId: '',
     password: '',
   });
-
-  // dialog 상태 관리 (현재 페이지)
-  const [dialogState, setDialogState] = useState({
-    open: false,
-    message: '', // 모달 메시지 상태
-    type: '', // 모달 타입 상태 ('success' or 'error')
-    cd: '',
-  });
-
-  const showDialog = (message, type) => {
-    setDialogState({
-      open: true,
-      message: message,
-      type: type,
-    });
-  };
 
   const loginUser = async (user) => {
     // 기존 데이터 초기화
@@ -156,14 +143,6 @@ const LoginContextProvider = ({ children }) => {
     }
   }, []);
 
-  // 모달 닫기 핸들러
-  const handleCloseDialog = () => {
-    setDialogState({
-      ...dialogState,
-      open: false,
-    });
-  };
-
   return (
     <div>
       <LoginContext.Provider
@@ -184,9 +163,9 @@ const LoginContextProvider = ({ children }) => {
 
       <AlertDialog
         open={dialogState.open}
-        onClose={handleCloseDialog}
+        onClose={closeDialog}
+        onConfirm={closeDialog}
         message={dialogState.message}
-        onConfirm={handleCloseDialog}
         type={dialogState.type} // 'success' 또는 'error'로 알림 타입 전달
       />
     </div>
