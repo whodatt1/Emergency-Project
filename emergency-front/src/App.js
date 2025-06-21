@@ -8,7 +8,7 @@ import { Container } from 'react-bootstrap';
 import LoginContextProvider from './context/LoginContextProvider';
 import EmgcRltmList from './pages/emgc/EmgcRltmList';
 import EmgcRltmDtl from './pages/emgc/EmgcRltmDtl';
-import BookmarkList from './pages/boomark/BookmarkList';
+import BookmarkList from './pages/bookmark/BookmarkList';
 
 const App = () => {
   return (

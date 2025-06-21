@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.emergency.web.auth.PrincipalDetails;
+import com.emergency.web.dto.request.bookmark.BookmarkDelRequestDto;
 import com.emergency.web.dto.request.bookmark.BookmarkInsRequestDto;
 import com.emergency.web.exception.GlobalException;
 import com.emergency.web.mapper.bookmark.BookmarkMapper;
@@ -61,6 +62,58 @@ public class BookmarkService {
 			throw new GlobalException("즐겨찾기에 실패하였습니다. 고객센터에 문의해주세요.", "BOOKMARK_SAVE_FAILED");
 		}
 		
+	}
+
+	public Boolean existsBookmark(String hpId) {
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		
+		// 인증이 없으면 AnonymousAuthenticationFilter가 작동하여 익명토큰을 자동으로 넣음 authentication.isAuthenticated() 가 true로 세팅되어 조건 추가
+		if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
+			throw new GlobalException("인증되지 않은 사용자입니다.", "UNAUTHORIZED", HttpStatus.UNAUTHORIZED);
+		}
+		
+		PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
+		String userId = principal.getUser().getUserId();
+		
+		Bookmark bookmark = Bookmark.builder()
+									.userId(userId)
+									.hpId(hpId)
+									.build();
+		
+		int cnt = bookmarkMapper.existsBookmark(bookmark);
+		
+		boolean exists = false;
+		
+		if (cnt > 0) {
+			exists = true;
+		}
+		
+		return exists;
+	}
+
+	public void deleteBookmark(BookmarkDelRequestDto bookmarkDelRequestDto) {
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		
+		// 인증이 없으면 AnonymousAuthenticationFilter가 작동하여 익명토큰을 자동으로 넣음 authentication.isAuthenticated() 가 true로 세팅되어 조건 추가
+		if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
+			throw new GlobalException("인증되지 않은 사용자입니다.", "UNAUTHORIZED", HttpStatus.UNAUTHORIZED);
+		}
+		
+		PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
+		String userId = principal.getUser().getUserId();
+		
+		Bookmark bookmark = Bookmark.builder()
+									.userId(userId)
+									.hpId(bookmarkDelRequestDto.getHpId())
+									.build();
+		
+		int res = bookmarkMapper.deleteBookmark(bookmark);
+		
+		if (res < 1) {
+			throw new GlobalException("즐겨찾기 제거에 실패하였습니다. 고객센터에 문의해주세요.", "BOOKMARK_DELETE_FAILED");
+		}
 	}
 
 }

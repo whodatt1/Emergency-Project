@@ -21,4 +21,6 @@ import com.emergency.web.model.Bookmark;
 public interface BookmarkMapper {
 	
 	int insertBookmark(Bookmark bookmark);
+	int existsBookmark(Bookmark bookmark);
+	int deleteBookmark(Bookmark bookmark);
 }

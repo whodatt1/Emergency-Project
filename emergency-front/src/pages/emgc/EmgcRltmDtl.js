@@ -1,13 +1,18 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Container, Button } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
-import { insertBookmark } from '../../apis/bookmark';
+import {
+  insertBookmark,
+  existsBookmark,
+  deleteBookmark,
+} from '../../apis/bookmark';
 import AlertDialog from '../../components/AlertDialog';
 import { useAlertDialog } from '../../hooks/useAlertDialog';
 import { LoginContext } from '../../context/LoginContextProvider';
 
 const EmgcRltmDtl = () => {
   const location = useLocation();
+  const [isBookmarked, setIsBookmarked] = useState(false);
   const { mstSearchParams, page, hpId } = location.state || {};
   const { isLoggedIn } = useContext(LoginContext);
 
@@ -31,6 +36,7 @@ const EmgcRltmDtl = () => {
       console.log(res);
 
       if (res.status === 200) {
+        setIsBookmarked(true);
         showDialog('즐겨찾기에 등록되었습니다.', 'success');
       }
     } catch (err) {
@@ -41,12 +47,66 @@ const EmgcRltmDtl = () => {
     }
   };
 
+  const delBookmark = async (e) => {
+    e.preventDefault();
+
+    if (!isLoggedIn) {
+      showDialog('로그인 후 이용가능합니다.', 'error');
+      return;
+    }
+
+    const hpInfo = {
+      hpId: hpId,
+    };
+
+    try {
+      const res = await deleteBookmark(hpInfo);
+
+      console.log(res);
+
+      if (res.status === 200) {
+        setIsBookmarked(false);
+        showDialog('즐겨찾기가 제거되었습니다.', 'success');
+      }
+    } catch (err) {
+      console.log(err);
+      if (err.response) {
+        showDialog(err.response.data.message, 'error');
+      }
+    }
+  };
+
+  const chkBookmark = async () => {
+    if (!isLoggedIn) return;
+
+    try {
+      const res = await existsBookmark(hpId);
+
+      if (res.data) {
+        console.log('1111111111');
+        setIsBookmarked(true);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (isLoggedIn && hpId) {
+      chkBookmark();
+    }
+  }, [isLoggedIn, hpId]);
+
   return (
     <Container fluid className="mt-5">
       <h1 className="h3 mb-3 fw-normal text-center">
         실시간 병상제공 병원 상세
       </h1>
-      <Button onClick={addBookmark}>즐겨찾기 추가 테스트</Button>
+      {isBookmarked ? (
+        <Button onClick={delBookmark}>즐겨찾기 제거</Button>
+      ) : (
+        <Button onClick={addBookmark}>즐겨찾기 추가</Button>
+      )}
 
       {/* 모달 알림 */}
       <AlertDialog

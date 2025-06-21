@@ -23,7 +23,7 @@ public class EmgcService {
 	
 	private final EmgcMapper emgcMapper;
 	private final ModelMapper modelMapper;
-
+	
 	public Page<?> getEmgcMstList(EmgcMstRequestDto emgcMstRequestDto, Pageable pageable) {
 		
 		Map<String, Object> paramMap = new HashMap<>();

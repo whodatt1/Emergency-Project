@@ -18,4 +18,18 @@
 			#{modAt}
 		)
 	</insert>
+	
+	<select id="existsBookmark" parameterType="com.emergency.web.model.Bookmark">
+		SELECT COUNT(*)
+		  FROM tb_bookmark
+		 WHERE user_id = #{userId}
+		   AND hp_id = #{hpId}
+	</select>
+	
+	<delete id="deleteBookmark" parameterType="com.emergency.web.model.Bookmark">
+		DELETE
+		  FROM tb_bookmark
+		 WHERE user_id = #{userId}
+		   AND hp_id = #{hpId}
+	</delete>
 </mapper>
