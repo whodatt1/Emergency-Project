@@ -40,4 +40,9 @@ public class TypeSafeProperties {
 	private String bjdApiNormarDecoding;
 	private String bjdApiHost;
 	private String bjdPath;
+	// Kafka
+	private String bootstrapServers;
+	private String consumerGroup;
+	// FCM
+	private String firebasePath;
 }

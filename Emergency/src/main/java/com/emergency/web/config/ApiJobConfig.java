@@ -17,7 +17,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import com.emergency.web.dto.response.emgc.EmgcBsIfResponseDto;
 import com.emergency.web.dto.response.emgc.EmgcRltmResponseDto;
-import com.emergency.web.model.BJD;
 import com.emergency.web.model.EmgcBsIf;
 import com.emergency.web.model.EmgcRltm;
 import com.emergency.web.processor.EmgcBsIfItemProcessor;
@@ -28,6 +27,20 @@ import com.emergency.web.writer.EmgcBsIfItemWriter;
 import com.emergency.web.writer.EmgcRltmItemWriter;
 
 import lombok.RequiredArgsConstructor;
+
+/**
+ * 
+ * 
+ * @packageName     : com.emergency.web.config
+ * @fileName        : ApiJobConfig.java
+ * @author          : KHK
+ * @date            : 2025. 3. 5.
+ * @description     : JOB 정의
+ * ===========================================================
+ * DATE              AUTHOR             NOTE
+ * -----------------------------------------------------------
+ * 2025. 3. 5.        KIMHK                최초 생성
+ */
 
 @Configuration
 @RequiredArgsConstructor

@@ -62,6 +62,10 @@ dependencies {
     implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.5'
     // Page 사용을 위해 추가
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    // Kafka
+    implementation 'org.springframework.kafka:spring-kafka'
+    // Firebase
+    implementation 'com.google.firebase:firebase-admin:9.2.0'
 	
 }
 

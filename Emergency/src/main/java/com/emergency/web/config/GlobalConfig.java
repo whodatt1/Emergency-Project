@@ -23,6 +23,20 @@ import lombok.extern.log4j.Log4j2;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
+/**
+ * 
+ * 
+ * @packageName     : com.emergency.web.config
+ * @fileName        : GlobalConfig.java
+ * @author          : KHK
+ * @date            : 2025. 3. 5.
+ * @description     : 전역 Config 정의
+ * ===========================================================
+ * DATE              AUTHOR             NOTE
+ * -----------------------------------------------------------
+ * 2025. 3. 5.        KHK                최초 생성
+ */
+
 @Log4j2
 @Configuration
 public class GlobalConfig {
