@@ -12,3 +12,6 @@ SERVICE KEY IS NOT REGISTERED ERROR 발생
 => WebClient을 이용하여 http 요청을 할 때 service key를 queryParam으로 전달했는데, WebClient가 queryParam을 UriComponentsBuilder#encode() 방식을 이용해서 인코딩하기 때문에 service key의 값이 달라져서 생기는 문제
 
 DefaultUriBuilderFactory() 객체를 생성하여 인코딩 모드를 NONE이나 VALUES_ONLY로 변경
+
+XMLMAPPER 사용하여 API XML 응답을 JSON으로 바꿔 처리하려고 의존성 추가하였는데
+컨트롤러 응답시 XML이 우선시되는 상황이 발생 설정 추가하여 OBJECTMAPPER가 우선시되도록 수정
