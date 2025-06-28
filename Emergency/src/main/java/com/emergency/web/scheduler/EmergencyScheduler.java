@@ -1,6 +1,7 @@
 package com.emergency.web.scheduler;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.explore.JobExplorer;
@@ -10,6 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.emergency.web.config.ApiJobConfig;
+import com.emergency.web.mapper.fcm.FcmMapper;
 import com.emergency.web.mapper.token.TokenMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,7 @@ import lombok.extern.log4j.Log4j2;
 public class EmergencyScheduler {
 	
 	private final TokenMapper tokenMapper;
+	private final FcmMapper fcmMapper;
 	
 	private final JobLauncher jobLauncher;
 	private final JobExplorer jobExplorer;
@@ -46,7 +49,15 @@ public class EmergencyScheduler {
 	public void expiredRefreshTokensCleaner() {
 		log.info("expiredRefreshTokensCleaner start");
 		
+		// 만료된 유저 아이디
+		List<String> expiredUserIds = tokenMapper.getUserIdsWithExpiredRefreshToken();
+		
 		tokenMapper.deleteExpiredRefreshToken();
+		
+		// 만료된 유저의 fcm 토큰도 삭제
+		for (String userId : expiredUserIds) {
+			fcmMapper.deleteFcmInfoByUserId(userId);
+		}
 		
 		log.info("expiredRefreshTokensCleaner complete");
 	}

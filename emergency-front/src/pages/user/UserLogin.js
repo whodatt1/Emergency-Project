@@ -14,6 +14,7 @@ const LoginForm = () => {
   const [user, setUser] = useState({
     userId: '',
     password: '',
+    fcmToken: localStorage.getItem('fcm_token'),
   });
 
   const changeValue = (e) => {

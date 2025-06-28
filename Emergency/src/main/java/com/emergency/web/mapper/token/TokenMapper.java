@@ -1,5 +1,7 @@
 package com.emergency.web.mapper.token;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 
 import com.emergency.web.model.RefreshToken;
@@ -24,4 +26,5 @@ public interface TokenMapper {
 	int deleteRefreshTokenByUserId(String id);
 	RefreshToken getRefreshTokenByUserId(String id);
 	int deleteExpiredRefreshToken();
+	List<String> getUserIdsWithExpiredRefreshToken();
 }

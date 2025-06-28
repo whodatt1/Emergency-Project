@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.emergency.web.auth.PrincipalDetails;
 import com.emergency.web.dto.request.bookmark.BookmarkDelRequestDto;
@@ -36,7 +37,8 @@ import lombok.RequiredArgsConstructor;
 public class BookmarkService {
 	
 	private final BookmarkMapper bookmarkMapper;
-
+	
+	@Transactional
 	public void insertBookmark(BookmarkInsRequestDto bookmarkInsRequestDto) {
 		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -63,7 +65,8 @@ public class BookmarkService {
 		}
 		
 	}
-
+	
+	@Transactional
 	public Boolean existsBookmark(String hpId) {
 		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -91,7 +94,8 @@ public class BookmarkService {
 		
 		return exists;
 	}
-
+	
+	@Transactional
 	public void deleteBookmark(BookmarkDelRequestDto bookmarkDelRequestDto) {
 		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

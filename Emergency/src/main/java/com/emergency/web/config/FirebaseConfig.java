@@ -38,14 +38,19 @@ public class FirebaseConfig {
 	@Bean
  	public FirebaseApp firebaseApp() {
 		try {
-			FirebaseOptions options = FirebaseOptions.builder()
-					.setCredentials(
-							GoogleCredentials.fromStream(new ClassPathResource(typeSafeProperties.getFirebasePath()).getInputStream())
-					)
-					.build();
-			
-			log.info("firebase app 초기화 성공");
-			return FirebaseApp.initializeApp(options);
+			if (FirebaseApp.getApps().isEmpty()) {
+				FirebaseOptions options = FirebaseOptions.builder()
+						.setCredentials(
+								GoogleCredentials.fromStream(new ClassPathResource(typeSafeProperties.getFirebasePath()).getInputStream())
+						)
+						.build();
+				
+				log.info("firebase app 초기화 성공");
+				return FirebaseApp.initializeApp(options);
+			} else {
+				log.info("firebase app 이미 초기화 되어있음. 기존 인스턴스 반환");
+	            return FirebaseApp.getInstance();
+			}
 		} catch (IOException e) {
 			log.info("firebase app 초기화 실패 {}", e.getMessage());
 			return null;

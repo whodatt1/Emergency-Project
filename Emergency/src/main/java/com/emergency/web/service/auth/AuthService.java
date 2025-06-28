@@ -23,8 +23,10 @@ import com.emergency.web.dto.response.auth.LoginResponseDto;
 import com.emergency.web.dto.response.auth.RefreshResponseDto;
 import com.emergency.web.exception.GlobalException;
 import com.emergency.web.jwt.JwtUtils;
+import com.emergency.web.mapper.fcm.FcmMapper;
 import com.emergency.web.mapper.token.TokenMapper;
 import com.emergency.web.mapper.user.UserMapper;
+import com.emergency.web.model.Fcm;
 import com.emergency.web.model.RefreshToken;
 import com.emergency.web.model.User;
 
@@ -37,6 +39,7 @@ import lombok.RequiredArgsConstructor;
 * @author          : KHK
 * @date            : 2024.10.20
 * @description     : 로그인, 회원가입, 토큰 재발급 비즈니스 로직 구간
+*                    1. 단일 로그인 허용
 * ===========================================================
 * DATE              AUTHOR             NOTE
 * -----------------------------------------------------------
@@ -50,6 +53,8 @@ public class AuthService {
 	private final UserMapper userMapper;
 	
 	private final TokenMapper tokenMapper;
+	
+	private final FcmMapper fcmMapper;
 	
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	
@@ -83,6 +88,14 @@ public class AuthService {
 		String accessToken = jwtUtils.createAccessToken(authentication);
 		
 		String refreshToken = handleRefreshToken(principalDetails.getUser().getUserId(), authentication);
+		
+		// fcm 토큰 저장
+		Fcm fcm = Fcm.builder()
+					 .userId(principalDetails.getUser().getUserId())
+					 .fcmToken(loginRequestDto.getFcmToken())
+					 .build();
+		
+		handleFcmToken(fcm);
 		
 		// 최종 로그인 업데이트 작업
 		int lastLoginResult = userMapper.updateLastLogin(loginRequestDto.getUserId());
@@ -128,12 +141,28 @@ public class AuthService {
 	@Transactional
 	public void logout(String refreshToken) {
 		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		
+		// 인증이 없으면 AnonymousAuthenticationFilter가 작동하여 익명토큰을 자동으로 넣음 authentication.isAuthenticated() 가 true로 세팅되어 조건 추가
+		if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
+			throw new GlobalException("인증되지 않은 사용자입니다.", "UNAUTHORIZED", HttpStatus.UNAUTHORIZED);
+		}
+		
+		PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
+		String userId = principal.getUser().getUserId();
+		
 		if (refreshToken != null) {
 			int delResult = tokenMapper.deleteRefreshTokenByUserId(jwtUtils.getUserNameFromJwtToken(refreshToken));
 			
 			if (delResult < 1) {
 				throw new GlobalException("만료된 토큰 삭제에 실패하였습니다.", "REFRESH_TOKEN_DELETE_FAIL");
 			}
+		}
+		
+		int delResult = fcmMapper.deleteFcmInfoByUserId(userId);
+		
+		if (delResult < 1) {
+			throw new GlobalException("FCM 토큰 삭제에 실패하였습니다.", "FCM_TOKEN_DELETE_FAIL");
 		}
 		
 		SecurityContextHolder.clearContext();
@@ -170,7 +199,7 @@ public class AuthService {
 	}
 	
 	// 로그인 시 리프레쉬토큰 핸들링
-	public String handleRefreshToken(String userId, Authentication authentication) {
+	private String handleRefreshToken(String userId, Authentication authentication) {
 		
 		RefreshToken existingToken = tokenMapper.getRefreshTokenByUserId(userId);
 		
@@ -202,6 +231,30 @@ public class AuthService {
 		}
 		
 		return refreshToken;
+	}
+	
+	// 로그인 시 FCM토큰 핸들링
+	private void handleFcmToken(Fcm fcm) {
+		
+		Fcm existingToken = fcmMapper.getFcmInfoByUserIdAndFcmToken(fcm);
+		
+		if (existingToken != null) {
+			if (fcm.getUserId().equals(existingToken.getUserId()) && !fcm.getFcmToken().equals(existingToken.getFcmToken())) {
+				int delResult = fcmMapper.deleteFcmInfoByUserId(fcm.getUserId());
+				
+				if (delResult < 1) {
+					throw new GlobalException("FCM 토큰 삭제에 실패하였습니다.", "FCM_TOKEN_DELETE_FAIL");
+				}
+			} else {
+				return;
+			}
+		}
+		
+		int insResult = fcmMapper.insertFcmInfo(fcm);
+		
+		if (insResult < 1) {
+			throw new GlobalException("FCM 토큰 생성에 실패하였습니다.", "FCM_TOKEN_INSERT_FAIL");
+		}
 	}
 	
 	// 밸리데이션 핸들링

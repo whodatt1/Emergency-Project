@@ -15,6 +15,7 @@ import com.emergency.web.dto.response.auth.LoginResponseDto;
 import com.emergency.web.dto.response.auth.RefreshResponseDto;
 import com.emergency.web.jwt.JwtUtils;
 import com.emergency.web.service.auth.AuthService;
+import com.emergency.web.service.fcm.FcmService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,6 +41,9 @@ public class AuthController {
 	
 	private final AuthService authService;
 	
+	// 테스트용으로 추가
+	private final FcmService fcmService;
+	
 	private final TypeSafeProperties typeSafeProperties;
 	
 	private final JwtUtils jwtUtils;
@@ -50,6 +54,8 @@ public class AuthController {
 		if (errors.hasErrors()) {
 			return ResponseEntity.badRequest().body(authService.validHandle(errors));
 		}
+		
+		fcmService.sendNotification("테스트", "테스트", loginRequestDto.getFcmToken());
 		
 		LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
 		

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { getMessaging, getToken } from 'firebase/messaging';
+import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 import { Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -33,28 +33,67 @@ const App = () => {
 
       if (!storedToken) {
         try {
-          const token = await getToken(messaging, {
+          const newToken = await getToken(messaging, {
             vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY,
           });
-          if (token) {
-            localStorage.setItem('fcm_token', token);
-            console.log('새로 생성된 Token : ', token);
+
+          if (!storedToken || storedToken !== newToken) {
+            localStorage.setItem('fcm_token', newToken);
+          } else {
+            console.log('기존 FCM 토큰 동일. 변경 없음');
           }
         } catch (error) {
           console.error('FCM 토큰 발급 에러:', error);
         }
-      } else {
-        console.log('스토리지 토큰: ', storedToken);
       }
     };
 
     initFcmToken();
+
+    onMessage(messaging, (payload) => {
+      console.log('[포그라운드 메시지 수신]', payload);
+      if (Notification.permission === 'granted') {
+        new Notification(payload.data.title, {
+          body: payload.data.body,
+          icon: '/icon.png',
+        });
+      }
+    });
   }, [messaging]);
+
+  // 테스트용 알림 띄우기 함수 (윈도우 방해금지 모드를 사용하지 않아야 뜸)
+  const testNotification = () => {
+    if (Notification.permission === 'granted') {
+      console.log('여기');
+      new Notification('테스트 알림', {
+        body: '이 알림이 뜨면 알림 설정이 정상입니다!',
+        icon: '/icon.png',
+      });
+    } else {
+      Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+          new Notification('테스트 알림', {
+            body: '이 알림이 뜨면 알림 설정이 정상입니다!',
+            icon: '/icon.png',
+          });
+        } else {
+          alert('알림 권한이 거부되었습니다.');
+        }
+      });
+    }
+  };
 
   return (
     <Container fluid>
       <LoginContextProvider>
         <Header />
+
+        {/* 테스트용 버튼 추가 */}
+        <div style={{ padding: 16, textAlign: 'center' }}>
+          <button onClick={testNotification} variant="primary">
+            테스트 알림 보내기
+          </button>
+        </div>
         <Routes>
           <Route path="/userLogin" exact={true} element={<UserLogin />} />
           <Route path="/userJoin" exact={true} element={<UserJoin />} />

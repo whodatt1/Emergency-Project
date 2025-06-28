@@ -17,6 +17,20 @@ import com.emergency.web.mapper.emgc.EmgcMapper;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * 
+* @packageName     : com.emergency.web.service.emgc
+* @fileName        : EmgcService.java
+* @author          : KHK
+* @date            : 2024.10.16
+* @description     :
+* ===========================================================
+* DATE              AUTHOR             NOTE
+* -----------------------------------------------------------
+* 2024.10.16        KHK                최초 생성
+ */
+
+
 @Service
 @RequiredArgsConstructor
 public class EmgcService {

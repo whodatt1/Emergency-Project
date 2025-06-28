@@ -37,4 +37,10 @@
 		 WHERE expiry_date <![CDATA[<]]> NOW()
 	</delete>
 	
+	<select id="getUserIdsWithExpiredRefreshToken" parameterType="string">
+		SELECT  user_id
+		  FROM tb_refresh_token
+		 WHERE expiry_date <![CDATA[<]]> NOW()
+	</select>
+	
 </mapper>
