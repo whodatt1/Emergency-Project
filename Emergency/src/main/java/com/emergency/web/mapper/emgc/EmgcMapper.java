@@ -27,4 +27,5 @@ public interface EmgcMapper {
 	List<String> getEmgcRltmHpIdListBeforeBatch(int offset);
 	List<EmgcBsIf> getEmgcMstList(Map<String, Object> paramMap);
 	int getEmgcMstListCnt(Map<String, Object> paramMap);
+	String getEmgcRltmUpdDateByHpId(String hpId);
 }

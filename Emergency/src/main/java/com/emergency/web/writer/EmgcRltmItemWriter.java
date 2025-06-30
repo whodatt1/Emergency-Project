@@ -1,5 +1,6 @@
 package com.emergency.web.writer;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -7,6 +8,13 @@ import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
+import org.springframework.kafka.core.KafkaTemplate;
+
+import com.emergency.web.dto.response.emgc.EmgcRltmResponseDto;
+import com.emergency.web.mapper.emgc.EmgcMapper;
+import com.emergency.web.model.EmgcRltm;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * 
@@ -21,12 +29,17 @@ import org.springframework.batch.item.database.JdbcBatchItemWriter;
 * 2025.02.09        KHK                최초 생성
  */
 
-public class EmgcRltmItemWriter<T> implements ItemWriter<List<T>> {
+@RequiredArgsConstructor
+public class EmgcRltmItemWriter<T extends EmgcRltm> implements ItemWriter<List<T>> {
 	
 	private JdbcBatchItemWriter<T> jdbcBatchItemWriter;
+	private EmgcMapper emgcMapper;
+	private KafkaTemplate<String, EmgcRltm> kafkaTemplate;
 	
-	public EmgcRltmItemWriter(JdbcBatchItemWriter<T> jdbcBatchItemWriter) {
+	public EmgcRltmItemWriter(JdbcBatchItemWriter<T> jdbcBatchItemWriter, EmgcMapper emgcMapper, KafkaTemplate<String, EmgcRltm> kafkaTemplate) {
 		this.jdbcBatchItemWriter = jdbcBatchItemWriter;
+		this.emgcMapper = emgcMapper;
+		this.kafkaTemplate = kafkaTemplate;
 	}
 
 	@Override
@@ -35,6 +48,16 @@ public class EmgcRltmItemWriter<T> implements ItemWriter<List<T>> {
 		List<T> flattenedItems = chunk.getItems().stream()
                 .flatMap(List::stream)  // List<List<T>>를 List<T>로 평탄화
                 .collect(Collectors.toList());
+		
+		List<T> targetToWrite = new ArrayList<>();
+		
+		for (T incomingItem : flattenedItems) {
+			String updDate = emgcMapper.getEmgcRltmUpdDateByHpId(incomingItem.getHpId());
+			
+			if (updDate == null || !updDate.equals(incomingItem.getUpdDate())) {
+				targetToWrite.add(incomingItem);
+			}
+		}
 		
 		String sql = "INSERT INTO tb_emgc_rltm_detail "
 				+ "( "
@@ -146,7 +169,18 @@ public class EmgcRltmItemWriter<T> implements ItemWriter<List<T>> {
 		jdbcBatchItemWriter.setSql(sql);
 		jdbcBatchItemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>());
 		jdbcBatchItemWriter.afterPropertiesSet();
-		jdbcBatchItemWriter.write(new Chunk<>(flattenedItems));
+		jdbcBatchItemWriter.write(new Chunk<>(targetToWrite));
+		
+		// @TransactionalEventListener
+		// ApplicationEventPublisher eventPublisher;
+		// db커밋이 된후 이벤트 리스너로 카프카에 토픽 전송되게끔 처리?
+		
+		// outbox pattern? 둘다 알아보기
+		
+		// Kafka로 메시지 전송 (알림 트리거)
+        for (T item : targetToWrite) {
+            kafkaTemplate.send("emgc-alert-topic", item);
+        }
 	}
 	
 }

@@ -13,10 +13,12 @@ import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.emergency.web.dto.response.emgc.EmgcBsIfResponseDto;
 import com.emergency.web.dto.response.emgc.EmgcRltmResponseDto;
+import com.emergency.web.mapper.emgc.EmgcMapper;
 import com.emergency.web.model.EmgcBsIf;
 import com.emergency.web.model.EmgcRltm;
 import com.emergency.web.processor.EmgcBsIfItemProcessor;
@@ -56,6 +58,9 @@ public class ApiJobConfig {
 	// EmgcBsIf
 	private final EmgcBsIfItemReader emgcBsIfItemReader;
 	private final EmgcBsIfItemProcessor egmcBsIfItemProcessor;
+	
+	private final EmgcMapper emgcMapper;
+	private final KafkaTemplate<String, EmgcRltm> kafkaTemplate;
 	
 	private final DataSource dataSource;
 	
@@ -103,7 +108,7 @@ public class ApiJobConfig {
 		JdbcBatchItemWriter<EmgcRltm> writer = new JdbcBatchItemWriter<>();
 		writer.setDataSource(dataSource);
 		writer.setJdbcTemplate(new NamedParameterJdbcTemplate(dataSource));
-		return new EmgcRltmItemWriter<>(writer);
+		return new EmgcRltmItemWriter<>(writer, emgcMapper, kafkaTemplate);
 	}
 	
 	public EmgcBsIfItemWriter<EmgcBsIf> emgcBsIfItemWriter() {

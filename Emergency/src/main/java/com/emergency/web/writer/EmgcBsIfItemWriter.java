@@ -8,6 +8,9 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 
+import com.emergency.web.dto.response.emgc.EmgcBsIfResponseDto;
+import com.emergency.web.model.EmgcBsIf;
+
 /**
  * 
 * @packageName     : com.emergency.web.writer
@@ -21,7 +24,7 @@ import org.springframework.batch.item.database.JdbcBatchItemWriter;
 * 2025.03.05        KHK                최초 생성
  */
 
-public class EmgcBsIfItemWriter<T> implements ItemWriter<List<T>> {
+public class EmgcBsIfItemWriter<T extends EmgcBsIf> implements ItemWriter<List<T>> {
 	
 	private JdbcBatchItemWriter<T> jdbcBatchItemWriter;
 	
