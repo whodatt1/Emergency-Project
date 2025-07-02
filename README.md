@@ -15,3 +15,33 @@ DefaultUriBuilderFactory() 객체를 생성하여 인코딩 모드를 NONE이나
 
 XMLMAPPER 사용하여 API XML 응답을 JSON으로 바꿔 처리하려고 의존성 추가하였는데
 컨트롤러 응답시 XML이 우선시되는 상황이 발생 설정 추가하여 OBJECTMAPPER가 우선시되도록 수정
+
+## 🚀 로컬 Kafka 환경 (도커 사용)
+
+```yml
+version: '3.8'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.1
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.1
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+```
