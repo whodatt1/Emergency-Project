@@ -8,9 +8,11 @@ import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.kafka.core.KafkaTemplate;
 
 import com.emergency.web.dto.response.emgc.EmgcRltmResponseDto;
+import com.emergency.web.event.EmgcRltmBatchEvent;
 import com.emergency.web.mapper.emgc.EmgcMapper;
 import com.emergency.web.model.EmgcRltm;
 
@@ -34,12 +36,12 @@ public class EmgcRltmItemWriter<T extends EmgcRltm> implements ItemWriter<List<T
 	
 	private JdbcBatchItemWriter<T> jdbcBatchItemWriter;
 	private EmgcMapper emgcMapper;
-	private KafkaTemplate<String, EmgcRltm> kafkaTemplate;
+	private ApplicationEventPublisher applicationEventPublisher;
 	
-	public EmgcRltmItemWriter(JdbcBatchItemWriter<T> jdbcBatchItemWriter, EmgcMapper emgcMapper, KafkaTemplate<String, EmgcRltm> kafkaTemplate) {
+	public EmgcRltmItemWriter(JdbcBatchItemWriter<T> jdbcBatchItemWriter, EmgcMapper emgcMapper, ApplicationEventPublisher applicationEventPublisher) {
 		this.jdbcBatchItemWriter = jdbcBatchItemWriter;
 		this.emgcMapper = emgcMapper;
-		this.kafkaTemplate = kafkaTemplate;
+		this.applicationEventPublisher = applicationEventPublisher;
 	}
 
 	@Override
@@ -171,16 +173,11 @@ public class EmgcRltmItemWriter<T extends EmgcRltm> implements ItemWriter<List<T
 		jdbcBatchItemWriter.afterPropertiesSet();
 		jdbcBatchItemWriter.write(new Chunk<>(targetToWrite));
 		
-		// @TransactionalEventListener
-		// ApplicationEventPublisher eventPublisher;
-		// db커밋이 된후 이벤트 리스너로 카프카에 토픽 전송되게끔 처리?
+		// 여기서 db outbox에 저장
 		
-		// outbox pattern? 둘다 알아보기
-		
-		// Kafka로 메시지 전송 (알림 트리거)
-        for (T item : targetToWrite) {
-            kafkaTemplate.send("emgc-alert-topic", item);
-        }
+		// DB 커밋 완료 후에 EmgcRltmBatchEvent를 발행하기 위해
+		// @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)를 활용
+    	applicationEventPublisher.publishEvent(new EmgcRltmBatchEvent<>(targetToWrite));
 	}
 	
 }

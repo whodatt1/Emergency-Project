@@ -10,6 +10,7 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -41,7 +42,7 @@ import lombok.RequiredArgsConstructor;
  * ===========================================================
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
- * 2025. 3. 5.        KIMHK                최초 생성
+ * 2025. 3. 5.        KIMHK             최초 생성
  */
 
 @Configuration
@@ -59,8 +60,9 @@ public class ApiJobConfig {
 	private final EmgcBsIfItemReader emgcBsIfItemReader;
 	private final EmgcBsIfItemProcessor egmcBsIfItemProcessor;
 	
+	// event
 	private final EmgcMapper emgcMapper;
-	private final KafkaTemplate<String, EmgcRltm> kafkaTemplate;
+	private final ApplicationEventPublisher applicationEventPublisher;
 	
 	private final DataSource dataSource;
 	
@@ -108,7 +110,7 @@ public class ApiJobConfig {
 		JdbcBatchItemWriter<EmgcRltm> writer = new JdbcBatchItemWriter<>();
 		writer.setDataSource(dataSource);
 		writer.setJdbcTemplate(new NamedParameterJdbcTemplate(dataSource));
-		return new EmgcRltmItemWriter<>(writer, emgcMapper, kafkaTemplate);
+		return new EmgcRltmItemWriter<>(writer, emgcMapper, applicationEventPublisher);
 	}
 	
 	public EmgcBsIfItemWriter<EmgcBsIf> emgcBsIfItemWriter() {

@@ -6,6 +6,7 @@ import java.time.Duration;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -83,12 +84,18 @@ public class GlobalConfig {
 		return mapper;
 	}
 	
+	@Bean
+	@Primary
+	public ObjectMapper objectMapper() {
+	    return new ObjectMapper();
+	}
+	
 	// 컨트롤러 응답시 XML로 처리되는 상황 발생
 	// ObjectMapper를 우선시하도록 설정함
 	@Bean
-	public MappingJackson2HttpMessageConverter jackson2HttpMessageConverter() {
+	public MappingJackson2HttpMessageConverter jackson2HttpMessageConverter(ObjectMapper objectMapper) {
 	    MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-	    converter.setObjectMapper(new ObjectMapper());
+	    converter.setObjectMapper(objectMapper);
 	    return converter;
 	}
 }
