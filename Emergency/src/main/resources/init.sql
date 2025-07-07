@@ -183,3 +183,16 @@ CREATE TABLE tb_fcm (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- emergency.tb_outbox definition
+
+CREATE TABLE `tb_outbox` (
+  `batch_id` varchar(255) NOT NULL,
+  `aggregate_type` varchar(255) NOT NULL,
+  `aggregate_id` varchar(255) NOT NULL,
+  `event_type` varchar(255) NOT NULL,
+  `payload` text NOT NULL,
+  `timestamp` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `status` varchar(50) NOT NULL DEFAULT 'READY_TO_PUBLISH',
+  PRIMARY KEY (`batch_id`, `aggregate_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2063 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

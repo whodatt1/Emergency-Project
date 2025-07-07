@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.kafka.common.Uuid;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
@@ -171,13 +172,16 @@ public class EmgcRltmItemWriter<T extends EmgcRltm> implements ItemWriter<List<T
 		jdbcBatchItemWriter.setSql(sql);
 		jdbcBatchItemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>());
 		jdbcBatchItemWriter.afterPropertiesSet();
-		jdbcBatchItemWriter.write(new Chunk<>(targetToWrite));
+		//jdbcBatchItemWriter.write(new Chunk<>(targetToWrite));
+		jdbcBatchItemWriter.write(new Chunk<>(flattenedItems)); // 테스트용
 		
 		// 여기서 db outbox에 저장
 		
+		String batchId = Uuid.randomUuid().toString();
 		// DB 커밋 완료 후에 EmgcRltmBatchEvent를 발행하기 위해
 		// @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)를 활용
-    	applicationEventPublisher.publishEvent(new EmgcRltmBatchEvent<>(targetToWrite));
+    	//applicationEventPublisher.publishEvent(new EmgcRltmBatchEvent<>(targetToWrite, batchId));
+    	applicationEventPublisher.publishEvent(new EmgcRltmBatchEvent<>(flattenedItems, batchId)); // 테스트용
 	}
 	
 }

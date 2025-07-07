@@ -21,4 +21,5 @@ import com.emergency.web.model.Outbox;
 @Mapper
 public interface OutboxMapper {
 	int insertOutbox(Outbox outbox);
+	int updateOutboxStatus(Outbox outbox);
 }

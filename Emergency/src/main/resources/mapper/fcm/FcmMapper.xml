@@ -28,4 +28,13 @@
 		  FROM tb_fcm
 		 WHERE user_id = #{userId}
 	</delete>
+	
+	<select id="getFcmListWithHpId" parameterType="string">
+		SELECT a.user_id,
+			   a.fcm_token
+		  FROM tb_fcm a
+		  JOIN tb_bookmark b
+		    ON a.user_id = b.user_id
+		 WHERE b.hp_id = #{hpId}
+	</select>
 </mapper>

@@ -55,8 +55,6 @@ public class AuthController {
 			return ResponseEntity.badRequest().body(authService.validHandle(errors));
 		}
 		
-		fcmService.sendNotification("테스트", "테스트", loginRequestDto.getFcmToken());
-		
 		LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
 		
 		// AccessToken은 다양한 클라이언트에서 사용하기 쉬운 헤더에 담기

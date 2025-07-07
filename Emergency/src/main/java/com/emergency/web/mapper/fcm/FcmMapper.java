@@ -1,5 +1,7 @@
 package com.emergency.web.mapper.fcm;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 
 import com.emergency.web.model.Fcm;
@@ -24,4 +26,5 @@ public interface FcmMapper {
 	Fcm getFcmInfoByUserIdAndFcmToken(Fcm fcm);
 	// 단일 로그인만 가능하므로 UserId만 끌고와서 삭제
 	int deleteFcmInfoByUserId(String userId);
+	List<Fcm> getFcmListWithHpId(String hpId);
 }

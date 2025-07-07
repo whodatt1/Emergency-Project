@@ -22,8 +22,10 @@ import lombok.Getter;
 @Getter
 public class EmgcRltmBatchEvent<T extends EmgcRltm> {
 	private final List<T> emgcRltmItems;
+	private final String batchId;
 	
-	public EmgcRltmBatchEvent(List<T> emgcRltmItems) {
+	public EmgcRltmBatchEvent(List<T> emgcRltmItems, String batchId) {
 		this.emgcRltmItems = emgcRltmItems;
+		this.batchId = batchId;
 	}
 }

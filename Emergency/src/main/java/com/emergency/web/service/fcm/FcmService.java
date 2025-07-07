@@ -28,9 +28,9 @@ public class FcmService {
 	
 	private final FirebaseMessaging firebaseMessaging;
 	
-	public void sendNotification(String title, String body, String fcmToken) {
+	public void sendNotification(String title, String body, String payload, String fcmToken) {
 		log.info("Attempting to send Notification (title: {}, body: {}, fcmToken: {})", title, body, fcmToken);
-		send(createMessage(title, body, fcmToken));
+		send(createMessage(title, body, payload, fcmToken));
 	}
 	
 	private void send(Message message) {
@@ -42,10 +42,11 @@ public class FcmService {
 		}
 	}
 	
-	private Message createMessage(String title, String body, String fcmToken) {
+	private Message createMessage(String title, String body, String payload, String fcmToken) {
 		return Message.builder()
 				.putData("title", title)
 				.putData("body", body)
+				.putData("payload", payload)
 				.setToken(fcmToken)
 				.build();
 				

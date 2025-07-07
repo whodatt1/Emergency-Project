@@ -10,6 +10,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import com.emergency.web.event.EmgcRltmBatchEvent;
+import com.emergency.web.kafka.KafkaProducer;
 import com.emergency.web.mapper.outbox.OutboxMapper;
 import com.emergency.web.model.EmgcRltm;
 import com.emergency.web.model.Outbox;
@@ -39,6 +40,7 @@ public class ApplicationEventHandler {
 	
 	private final OutboxMapper outboxMapper;
 	private final ObjectMapper objectMapper;
+	private final KafkaProducer kafkaProducer;
 	
 	// OutBox를 채택한 이유 after_commit 이벤트 리스너가 동작하기 전이나 도중 문제가 생겨 kafka에 메시지 발행에 문제가 생길경우
 	// outbox 테이블을 재조회하여 알림을 전달할 수 있다.
@@ -52,9 +54,8 @@ public class ApplicationEventHandler {
 			payload.put("dutyName", emgcRltm.getDutyName());
 			
 			try {
-				System.out.println("여기!!!!!!!" + objectMapper.writeValueAsString(payload));
-				
 				Outbox outbox = Outbox.builder()
+									  .batchId(event.getBatchId())
 									  .aggregateType("EmgcRltm")
 									  .aggregateId(emgcRltm.getHpId())
 									  .eventType("EmgcRltmUpdate")
@@ -77,5 +78,6 @@ public class ApplicationEventHandler {
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void handleEmgcRltmBatchEventAfter(EmgcRltmBatchEvent<EmgcRltm> event) {
 		// 여기서 db outbox 테이블에 저장된 객체를 불러와 kafka 컨슈머 서비스 메서드 호출
+		kafkaProducer.publishEmgcRltmEvent(event);
 	}
 }

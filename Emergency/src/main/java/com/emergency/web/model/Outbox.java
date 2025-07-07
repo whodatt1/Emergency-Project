@@ -25,9 +25,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor  // ⭐ MyBatis가 객체 생성할 수 있게 해줌
 @AllArgsConstructor
 public class Outbox {
-	private long id;                 // PK
+	private String batchId;          // BatchId (PK)
 	private String aggregateType;    // 도메인 객체 유형
-	private String aggregateId;      // 도메인 객체 ID
+	private String aggregateId;      // 도메인 객체 ID (PK)
 	private String eventType;        // 이벤트 타입
 	private String payload;          // 이벤트 관련 JSON 데이터
 	private LocalDateTime timestamp; // 이벤트 기록 시간
