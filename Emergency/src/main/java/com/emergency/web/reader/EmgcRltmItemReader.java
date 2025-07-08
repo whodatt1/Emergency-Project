@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.NonTransientResourceException;
 import org.springframework.batch.item.ParseException;
@@ -36,6 +37,7 @@ import reactor.util.retry.Retry;
 
 @Log4j2
 @Component
+@StepScope
 public class EmgcRltmItemReader implements ItemReader<List<EmgcRltmResponseDto>> {
 	
 	@Autowired

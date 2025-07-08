@@ -9,10 +9,9 @@ import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.kafka.core.KafkaTemplate;
 
-import com.emergency.web.dto.response.emgc.EmgcRltmResponseDto;
 import com.emergency.web.event.EmgcRltmBatchEvent;
 import com.emergency.web.mapper.emgc.EmgcMapper;
 import com.emergency.web.model.EmgcRltm;
@@ -34,6 +33,9 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class EmgcRltmItemWriter<T extends EmgcRltm> implements ItemWriter<List<T>> {
+	
+	@Value("#{jobParameters['batchId']}")
+    private String batchId;
 	
 	private JdbcBatchItemWriter<T> jdbcBatchItemWriter;
 	private EmgcMapper emgcMapper;
@@ -172,16 +174,15 @@ public class EmgcRltmItemWriter<T extends EmgcRltm> implements ItemWriter<List<T
 		jdbcBatchItemWriter.setSql(sql);
 		jdbcBatchItemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>());
 		jdbcBatchItemWriter.afterPropertiesSet();
-		//jdbcBatchItemWriter.write(new Chunk<>(targetToWrite));
-		jdbcBatchItemWriter.write(new Chunk<>(flattenedItems)); // 테스트용
+		jdbcBatchItemWriter.write(new Chunk<>(targetToWrite));
+//		jdbcBatchItemWriter.write(new Chunk<>(flattenedItems)); // 테스트용
 		
 		// 여기서 db outbox에 저장
 		
-		String batchId = Uuid.randomUuid().toString();
 		// DB 커밋 완료 후에 EmgcRltmBatchEvent를 발행하기 위해
 		// @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)를 활용
-    	//applicationEventPublisher.publishEvent(new EmgcRltmBatchEvent<>(targetToWrite, batchId));
-    	applicationEventPublisher.publishEvent(new EmgcRltmBatchEvent<>(flattenedItems, batchId)); // 테스트용
+    	applicationEventPublisher.publishEvent(new EmgcRltmBatchEvent<>(targetToWrite, batchId));
+//    	applicationEventPublisher.publishEvent(new EmgcRltmBatchEvent<>(flattenedItems, batchId)); // 테스트용
 	}
 	
 }

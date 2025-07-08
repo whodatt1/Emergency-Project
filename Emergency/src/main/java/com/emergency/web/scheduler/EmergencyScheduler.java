@@ -3,6 +3,7 @@ package com.emergency.web.scheduler;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.apache.kafka.common.Uuid;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.JobLauncher;
@@ -74,8 +75,12 @@ public class EmergencyScheduler {
 		try {
 			log.info("excuteEmergencyRealTimeJob start");
 			
+			// 한 배치 통합 id 생성
+	        String batchId = Uuid.randomUuid().toString();
+			
 			jobLauncher.run(apiJobConfig.rltmApiJob()
 					,new JobParametersBuilder() // 실행 추적
+					.addString("batchId", batchId)
 					.addString("datetime", LocalDateTime.now().toString()) // 배치 처리 기준 시간
 					.addString("jobName", "rltmApiJob") // jobName 추가
 					.toJobParameters()

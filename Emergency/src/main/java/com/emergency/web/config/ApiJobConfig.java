@@ -6,6 +6,7 @@ import javax.sql.DataSource;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -14,7 +15,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.emergency.web.dto.response.emgc.EmgcBsIfResponseDto;
@@ -106,6 +106,8 @@ public class ApiJobConfig {
 				.build();
 	}
 	
+	@Bean
+    @StepScope
 	public EmgcRltmItemWriter<EmgcRltm> emgcRltmItemWriter() {
 		JdbcBatchItemWriter<EmgcRltm> writer = new JdbcBatchItemWriter<>();
 		writer.setDataSource(dataSource);
@@ -113,6 +115,7 @@ public class ApiJobConfig {
 		return new EmgcRltmItemWriter<>(writer, emgcMapper, applicationEventPublisher);
 	}
 	
+	@Bean
 	public EmgcBsIfItemWriter<EmgcBsIf> emgcBsIfItemWriter() {
 		JdbcBatchItemWriter<EmgcBsIf> writer = new JdbcBatchItemWriter<>();
 		writer.setDataSource(dataSource);

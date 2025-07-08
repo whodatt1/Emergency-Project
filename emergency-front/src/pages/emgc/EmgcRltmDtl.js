@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Container, Button } from 'react-bootstrap';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import {
   insertBookmark,
   existsBookmark,
@@ -12,9 +12,16 @@ import { LoginContext } from '../../context/LoginContextProvider';
 
 const EmgcRltmDtl = () => {
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const { mstSearchParams, page, hpId } = location.state || {};
+  const { mstSearchParams, page } = location.state || {};
   const { isLoggedIn } = useContext(LoginContext);
+
+  const hpIdFromState = location.state?.hpId;
+  // fcm으로 넘어올 경우
+  const hpIdFromQuery = searchParams.get('hpid');
+  const hpId = hpIdFromState || hpIdFromQuery;
 
   const { dialogState, showDialog, closeDialog } = useAlertDialog();
 
@@ -27,7 +34,7 @@ const EmgcRltmDtl = () => {
     }
 
     const hpInfo = {
-      hpId: hpId,
+      hpId: hpId || hpIdFromQuery,
     };
 
     try {

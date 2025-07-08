@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import UserLogin from './pages/user/UserLogin';
@@ -13,6 +13,8 @@ import BookmarkList from './pages/bookmark/BookmarkList';
 import { initializeApp } from 'firebase/app';
 
 const App = () => {
+  const navigate = useNavigate();
+
   const firebaseConfig = {
     apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
     authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
@@ -52,14 +54,29 @@ const App = () => {
 
     onMessage(messaging, (payload) => {
       console.log('[포그라운드 메시지 수신]', payload);
+
+      const title = payload?.data?.title || '알림';
+      const body = payload?.data?.body || '';
+      const hpId = payload?.data?.payload || '';
+
       if (Notification.permission === 'granted') {
-        new Notification(payload.data.title, {
-          body: payload.data.body,
+        const notification = new Notification(title, {
+          body: body,
           icon: '/icon.png',
+          requireInteraction: false, // 몇 초 후 사라짐
         });
+
+        notification.onclick = () => {
+          if (hpId) {
+            navigate('/emgcRltmDtl', {
+              state: { hpId: hpId },
+            });
+            window.focus();
+          }
+        };
       }
     });
-  }, [messaging]);
+  }, [messaging, navigate]);
 
   // 테스트용 알림 띄우기 함수 (윈도우 방해금지 모드를 사용하지 않아야 뜸)
   const testNotification = () => {
