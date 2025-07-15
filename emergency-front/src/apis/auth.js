@@ -10,4 +10,5 @@ export const signUp = (user) => api.post('/api/v1/auth/signup', user);
 
 export const logout = () => apiAuth.post('/api/v1/auth/logout');
 
-export const refresh = () => apiAuth.post('/api/v1/auth/refresh');
+export const refresh = () =>
+  api.post('/api/v1/auth/refresh', {}, { withCredentials: true });

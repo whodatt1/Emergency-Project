@@ -75,6 +75,7 @@ public class KafkaProducer {
 			} catch (Exception e) {
 				log.error("Kafka 메시지 직렬화 실패 - batchId: {}, hpId: {}", 
 				          event.getBatchId(), emgcRltm.getHpId(), e);
+				throw new RuntimeException("FCM 발송 실패", e);
 			}
 		}
 	}

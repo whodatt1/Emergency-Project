@@ -42,32 +42,40 @@ public class KafkaConsumer {
 	
 	@KafkaListener(topics = "EmgcRltmEvent", groupId = "emgc-rltm-service-group")
 	public void EmgcRltmConsume(String jsonPayload) {
+		
+		boolean allSuccess = true;
+		
 		try {
 			Map<String, String> param = objectMapper.readValue(jsonPayload, new TypeReference<Map<String, String>>() {});
 			String batchId = param.get("batchId");
             String hpId = param.get("hpId");
             String dutyName = param.get("dutyName");
             
-            Outbox outbox = Outbox.builder()
-					  .batchId(batchId)
-					  .aggregateId(hpId)
-					  .status("FINISHED")
-					  .build();
-            
             List<Fcm> fcmList = fcmMapper.getFcmListWithHpId(hpId);
             
             for (Fcm fcm : fcmList) {
-				fcmService.sendNotification(dutyName, dutyName + "의 정보가 변경되었습니다.", hpId, fcm.getFcmToken());
-				
-				 int res = outboxMapper.updateOutboxStatus(outbox);
-				 
-				 if (res > 0) {
-					    log.info("Outbox 상태 업데이트 완료 - batchId: {}, hpId: {}, status: FINISHED", 
-					    		batchId, hpId);
-				 } else {
-					 log.warn("Outbox 상태 업데이트 실패 - 영향받은 row 없음 - batchId: {}, hpId: {}", 
-							 batchId, hpId);
-				 }
+            	try {
+            		fcmService.sendNotification(dutyName, dutyName + "의 정보가 변경되었습니다.", hpId, fcm.getFcmToken());
+				} catch (Exception e) {
+					allSuccess = false;
+					log.error("FCM 전송 실패 - token: {}, 에러: {}", fcm.getFcmToken(), e.getMessage(), e);
+				}
+			}
+            
+            Outbox outbox = Outbox.builder()
+					  .batchId(batchId)
+					  .aggregateId(hpId)
+					  .status(allSuccess ? "FINISHED" : "FAILED")
+					  .build();
+            
+            int res = outboxMapper.updateOutboxStatus(outbox);
+			 
+			if (res > 0) {
+				log.info("Outbox 상태 업데이트 완료 - batchId: {}, hpId: {}, status: {}", 
+				         batchId, hpId, allSuccess ? "FINISHED" : "FAILED");
+			} else {
+				log.warn("Outbox 상태 업데이트 실패 - 영향받은 row 없음 - batchId: {}, hpId: {}", 
+						 batchId, hpId);
 			}
 		} catch (Exception e) {
 			log.error("KafkaConsumer 처리 중 오류 발생 - payload: {}, 에러: {}", jsonPayload, e.getMessage(), e);

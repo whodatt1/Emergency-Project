@@ -80,7 +80,11 @@ const LoginContextProvider = ({ children }) => {
   };
 
   const loginCheck = async (accessToken) => {
+    console.log('loginCheck...');
+    console.log('loginCheck accessToken : ' + accessToken);
+
     localStorage.setItem('accessToken', accessToken);
+
     try {
       const res = await getMe(); // 리턴되는 값이 있어야 await가 작동
 
@@ -118,6 +122,7 @@ const LoginContextProvider = ({ children }) => {
       }
     } catch (err) {
       console.log(err);
+      logoutSetting();
     }
   };
 
@@ -138,9 +143,8 @@ const LoginContextProvider = ({ children }) => {
 
     const localAccessToken = localStorage.getItem('accessToken');
 
-    if (localAccessToken) {
-      loginCheck(localAccessToken);
-    }
+    // localStorage가 어떤 상황에 의해 삭제될 경우를 고려하여 항상 검사
+    loginCheck(localAccessToken);
   }, []);
 
   return (

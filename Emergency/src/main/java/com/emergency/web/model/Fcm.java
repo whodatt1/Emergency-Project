@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * 
@@ -22,6 +23,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor  // ⭐ MyBatis가 객체 생성할 수 있게 해줌
 @AllArgsConstructor
+@ToString
 public class Fcm {
 	
    private String userId;

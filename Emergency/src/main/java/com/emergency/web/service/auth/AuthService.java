@@ -116,56 +116,72 @@ public class AuthService {
 	@Transactional
 	public RefreshResponseDto refresh(String refreshToken) {
 		
-		if (refreshToken != null && jwtUtils.validateJwtToken(refreshToken)) {
-			// SecurityContextHolder에서 인증객체를 가져오기
-			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (refreshToken == null || !jwtUtils.validateJwtToken(refreshToken)) {
+	        throw new GlobalException("유효하지 않은 리프레쉬 토큰입니다.", "INVALID_REFRESH_TOKEN", HttpStatus.UNAUTHORIZED);
+	    }
+		
+		// SecurityContextHolder에서 인증객체를 가져오기
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		
+		// 인증이 없으면 AnonymousAuthenticationFilter가 작동하여 익명토큰을 자동으로 넣음 authentication.isAuthenticated() 가 true로 세팅되어 조건 추가
+		if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
+			String userId = jwtUtils.getUserNameFromJwtToken(refreshToken);
 			
-			// 인증이 없으면 AnonymousAuthenticationFilter가 작동하여 익명토큰을 자동으로 넣음 authentication.isAuthenticated() 가 true로 세팅되어 조건 추가
-			if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
-				throw new GlobalException("인증되지 않은 사용자입니다.", "UNAUTHORIZED", HttpStatus.UNAUTHORIZED);
+			if (userId == null) {
+				throw new GlobalException("리프레쉬 토큰에 해당하는 유저 정보가 없습니다.", "UNAUTHORIZED", HttpStatus.UNAUTHORIZED);
 			}
 			
-				
-			// 새로운 accessToken 생성
-			String accessToken = jwtUtils.createAccessToken(authentication);
+			// PrincipalDetails 객체를 만들기 위해 User 객체 가져오기
+			User user = userMapper.findById(userId);
 			
-			return RefreshResponseDto.builder()
-									 .accessToken(accessToken)
-									 .type(typeSafeProperties.getTokenPrefix())
-									 .build();
+			if (user == null) {
+				throw new GlobalException("존재하지 않는 아이디입니다.", "USER_ID_NOT_FOUND", HttpStatus.UNAUTHORIZED);
+			}
+			
+	        // PrincipalDetails 객체 생성
+			PrincipalDetails principalDetails = new PrincipalDetails(user);
+			
+			// 인증 객체 생성 (권한 관리를 스프링에게 위임)
+			authentication = new UsernamePasswordAuthenticationToken(principalDetails, null, principalDetails.getAuthorities());
+			
+			// SecurityContextHolder에 저장
+			SecurityContextHolder.getContext().setAuthentication(authentication);
 		}
 		
-		return null;
+			
+		// 새로운 accessToken 생성
+		String accessToken = jwtUtils.createAccessToken(authentication);
+		
+		return RefreshResponseDto.builder()
+								 .accessToken(accessToken)
+								 .type(typeSafeProperties.getTokenPrefix())
+								 .build();
 	}
 	
 	@Transactional
 	public void logout(String refreshToken) {
 		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		
-		// 인증이 없으면 AnonymousAuthenticationFilter가 작동하여 익명토큰을 자동으로 넣음 authentication.isAuthenticated() 가 true로 세팅되어 조건 추가
-		if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
-			throw new GlobalException("인증되지 않은 사용자입니다.", "UNAUTHORIZED", HttpStatus.UNAUTHORIZED);
-		}
-		
-		PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
-		String userId = principal.getUser().getUserId();
-		
-		if (refreshToken != null) {
-			int delResult = tokenMapper.deleteRefreshTokenByUserId(jwtUtils.getUserNameFromJwtToken(refreshToken));
-			
-			if (delResult < 1) {
-				throw new GlobalException("만료된 토큰 삭제에 실패하였습니다.", "REFRESH_TOKEN_DELETE_FAIL");
-			}
-		}
-		
-		int delResult = fcmMapper.deleteFcmInfoByUserId(userId);
-		
-		if (delResult < 1) {
-			throw new GlobalException("FCM 토큰 삭제에 실패하였습니다.", "FCM_TOKEN_DELETE_FAIL");
-		}
-		
-		SecurityContextHolder.clearContext();
+		String userId = null;
+
+	    if (refreshToken != null && jwtUtils.validateJwtToken(refreshToken)) {
+	        userId = jwtUtils.getUserNameFromJwtToken(refreshToken);
+	    } else {
+	        throw new GlobalException("유효하지 않은 리프레쉬 토큰입니다.", "INVALID_REFRESH_TOKEN");
+	    }
+
+	    // refreshToken 삭제
+	    int delResult = tokenMapper.deleteRefreshTokenByUserId(userId);
+	    if (delResult < 1) {
+	        throw new GlobalException("만료된 토큰 삭제에 실패하였습니다.", "REFRESH_TOKEN_DELETE_FAIL");
+	    }
+
+	    // fcm 토큰 삭제
+	    int fcmDelResult = fcmMapper.deleteFcmInfoByUserId(userId);
+	    if (fcmDelResult < 1) {
+	        throw new GlobalException("FCM 토큰 삭제에 실패하였습니다.", "FCM_TOKEN_DELETE_FAIL");
+	    }
+
+	    SecurityContextHolder.clearContext();
 	}
 	
 	@Transactional
@@ -237,6 +253,8 @@ public class AuthService {
 	private void handleFcmToken(Fcm fcm) {
 		
 		Fcm existingToken = fcmMapper.getFcmInfoByUserIdAndFcmToken(fcm);
+		
+		System.out.println("여기ㅣㅣㅣ + " + fcm.toString());
 		
 		if (existingToken != null) {
 			if (fcm.getUserId().equals(existingToken.getUserId()) && !fcm.getFcmToken().equals(existingToken.getFcmToken())) {

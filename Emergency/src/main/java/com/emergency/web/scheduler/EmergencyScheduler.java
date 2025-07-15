@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.emergency.web.config.ApiJobConfig;
 import com.emergency.web.mapper.fcm.FcmMapper;
+import com.emergency.web.mapper.outbox.OutboxMapper;
 import com.emergency.web.mapper.token.TokenMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,7 @@ public class EmergencyScheduler {
 	
 	private final TokenMapper tokenMapper;
 	private final FcmMapper fcmMapper;
+	private final OutboxMapper outboxMapper;
 	
 	private final JobLauncher jobLauncher;
 	private final JobExplorer jobExplorer;
@@ -63,8 +65,19 @@ public class EmergencyScheduler {
 		log.info("expiredRefreshTokensCleaner complete");
 	}
 	
+	// 12 시간마다 실행 
+	//@Scheduled(fixedRate = 60000)
+	@Scheduled(cron = "0 0 6,18 * * ?")
+	public void staleEmgcRltmOutboxCleaner() {
+		log.info("staleEmgcRltmOutboxCleaner start");
+		
+		outboxMapper.staleEmgcRltmOutboxCleaner();
+		
+		log.info("staleEmgcRltmOutboxCleaner complete");
+	}
+	
 	@Async
-	@Scheduled(fixedRate = 60000)
+//	@Scheduled(fixedRate = 60000)
 //	@Scheduled(cron = "0 5 23 * * ?")
 	public void excuteEmergencyRealTimeJob() {
 		if (isJobRunning("rltmApiJob")) {

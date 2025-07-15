@@ -25,4 +25,10 @@
 	 WHERE batch_id = #{batchId}
 	   AND aggregate_id = #{aggregateId}
 	</update>
+	
+	<delete id="staleEmgcRltmOutboxCleaner">
+		DELETE
+		  FROM tb_outbox
+		 WHERE timestamp <![CDATA[<]]> DATE_SUB(NOW(), INTERVAL 12 HOUR);
+	</delete>
 </mapper>

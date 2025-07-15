@@ -36,10 +36,12 @@ apiAuth.interceptors.request.use(
 apiAuth.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.request;
+    const originalRequest = error.config; // axios에서 재요청시 error.config가 원래 요청 설정 객체
     console.log('interceptors resp');
 
     if (error.response?.status === 401 && !originalRequest.retry) {
+      console.log('refresh token 재발급');
+
       originalRequest.retry = true;
 
       try {
@@ -50,12 +52,18 @@ apiAuth.interceptors.response.use(
         if (accessToken.startsWith('Bearer ')) {
           const splitToken = accessToken.split(' ')[1]; // Bearer 제거거
 
-          if (loginCheck) await loginCheck(splitToken);
+          if (loginCheck) {
+            console.log('세팅시작한다.');
+            await loginCheck(splitToken);
+          }
 
           const newToken = localStorage.getItem('accessToken');
 
+          console.log('새로운 토큰 !!! : ' + newToken);
+
           if (newToken) {
-            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            // originalRequest.headers.Authorization 기존에 이거로 하여서 헤더에 세팅이 안되었음..
+            originalRequest.headers['authorization'] = `Bearer ${newToken}`;
           }
           return apiAuth(originalRequest);
         }
