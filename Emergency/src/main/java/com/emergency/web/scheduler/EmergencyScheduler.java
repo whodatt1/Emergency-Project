@@ -2,6 +2,7 @@ package com.emergency.web.scheduler;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.kafka.common.Uuid;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -46,23 +47,39 @@ public class EmergencyScheduler {
 	
 	private final ApiJobConfig apiJobConfig;
 	
-	// 로그인 후 로그인 혹은 로그아웃 과정을 거치지 않아 DB에 남아있는 리프레쉬 토큰 삭제처리
-	@Scheduled(cron = "0 0 3 * * ?")
-	//@Scheduled(cron = "0 */2 * * * ?") // 테스트
+	// Job을 제외한 작업의 실행상태를 추적하기 위해 추가
+	private final AtomicBoolean isRunning = new AtomicBoolean(false);
+	
+	// 로그인 후 로그인 혹은 로그아웃 과정을 거치지 않아 DB에 남아있는 만료기간이 지난 리프레쉬 토큰 삭제처리
+	@Async
+	@Scheduled(fixedRate = 60000)
 	public void expiredRefreshTokensCleaner() {
-		log.info("expiredRefreshTokensCleaner start");
-		
-		// 만료된 유저 아이디
-		List<String> expiredUserIds = tokenMapper.getUserIdsWithExpiredRefreshToken();
-		
-		tokenMapper.deleteExpiredRefreshToken();
-		
-		// 만료된 유저의 fcm 토큰도 삭제
-		for (String userId : expiredUserIds) {
-			fcmMapper.deleteFcmInfoByUserId(userId);
+		// false일 경우 true로 변경 후 true 반환 if문 패스
+		// true일 경우 false 반환하며 if문 내부 실행하며 return
+		// 1분 간격으로 실행되므로 해당 밸리데이션 추가
+		if (!isRunning.compareAndSet(false, true)) {
+			log.warn("expiredRefreshTokensCleaner already started");
+			return;
 		}
 		
-		log.info("expiredRefreshTokensCleaner complete");
+		try {
+			log.info("expiredRefreshTokensCleaner start");
+			
+			// 만료된 유저 아이디
+			List<String> expiredUserIds = tokenMapper.getUserIdsWithExpiredRefreshToken();
+			
+			tokenMapper.deleteExpiredRefreshToken();
+			
+			// 만료된 유저의 fcm 토큰도 삭제
+			for (String userId : expiredUserIds) {
+				fcmMapper.deleteFcmInfoByUserId(userId);
+			}
+			
+			log.info("expiredRefreshTokensCleaner complete");
+		} finally {
+			isRunning.set(false);
+		}
+		
 	}
 	
 	// 12 시간마다 실행 
@@ -77,7 +94,7 @@ public class EmergencyScheduler {
 	}
 	
 	@Async
-//	@Scheduled(fixedRate = 60000)
+	@Scheduled(fixedRate = 60000)
 //	@Scheduled(cron = "0 5 23 * * ?")
 	public void excuteEmergencyRealTimeJob() {
 		if (isJobRunning("rltmApiJob")) {
@@ -107,7 +124,7 @@ public class EmergencyScheduler {
 	
 	@Async
 //	@Scheduled(fixedRate = 60000)
-//	@Scheduled(cron = "0 0 1 * * ?")
+	@Scheduled(cron = "0 0 1 * * ?")
 	public void excuteEmergencyBaseInfoJob() {
 		
 		try {

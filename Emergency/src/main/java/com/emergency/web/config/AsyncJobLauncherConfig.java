@@ -35,9 +35,9 @@ public class AsyncJobLauncherConfig {
 	@Primary // 해당 taskExecutor를 사용
 	public TaskExecutor taskExecutor() {
 		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-		executor.setCorePoolSize(2); // 동시 실행할 스레드 개수
-		executor.setMaxPoolSize(2); // 최대 실행 가능한 스레드 개수
-		executor.setQueueCapacity(10); // 대기 큐 크기
+		executor.setCorePoolSize(5); // 동시 실행할 스레드 개수
+		executor.setMaxPoolSize(10); // 최대 실행 가능한 스레드 개수
+		executor.setQueueCapacity(50); // 대기 큐 크기
 		executor.setThreadNamePrefix("batch-thread-");
 		executor.initialize();
 		return executor;

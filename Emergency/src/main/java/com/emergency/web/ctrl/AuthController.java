@@ -65,7 +65,7 @@ public class AuthController {
 														  .httpOnly(true) // 클라이언트 javascript에서 접근 불가 XSS 방지
 														  //.secure(true) // HTTPS 가 아닌 환경에선 반환 안함
 														  .path("/")
-														  .maxAge(typeSafeProperties.getJwtRefreshExpirationTime())
+														  .maxAge(typeSafeProperties.getJwtRefreshExpirationTime() / 1000)
 														  .sameSite("Strict") // 쿠키가 동일한 도메인에서 발생한 요청에 대해서만 전송 CSRF 방지
 														  .build();
 		
