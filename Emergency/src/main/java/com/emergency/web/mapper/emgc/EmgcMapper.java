@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.emergency.web.dto.response.emgc.EmgcDtlResponseDto;
 import com.emergency.web.model.EmgcBsIf;
 import com.emergency.web.model.EmgcRltm;
 
@@ -28,4 +29,5 @@ public interface EmgcMapper {
 	List<EmgcBsIf> getEmgcMstList(Map<String, Object> paramMap);
 	int getEmgcMstListCnt(Map<String, Object> paramMap);
 	String getEmgcRltmUpdDateByHpId(String hpId);
+	EmgcDtlResponseDto getEmgcDtl(String hpId);
 }

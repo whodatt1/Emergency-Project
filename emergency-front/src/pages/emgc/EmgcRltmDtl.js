@@ -9,12 +9,14 @@ import {
 import AlertDialog from '../../components/AlertDialog';
 import { useAlertDialog } from '../../hooks/useAlertDialog';
 import { LoginContext } from '../../context/LoginContextProvider';
+import { getEmgcDtl } from '../../apis/emgc';
 
 const EmgcRltmDtl = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
 
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [emgcDtl, setEmgcDtl] = useState({});
   const { mstSearchParams, page } = location.state || {};
   const { isLoggedIn } = useContext(LoginContext);
 
@@ -34,7 +36,7 @@ const EmgcRltmDtl = () => {
     }
 
     const hpInfo = {
-      hpId: hpId || hpIdFromQuery,
+      hpId: hpId,
     };
 
     try {
@@ -98,10 +100,23 @@ const EmgcRltmDtl = () => {
     }
   };
 
+  const fetchEmgcDtl = async (hpId) => {
+    try {
+      const res = await getEmgcDtl(hpId);
+
+      if (res.status === 200) {
+        setIsBookmarked(res.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     if (isLoggedIn && hpId) {
       chkBookmark();
     }
+    fetchEmgcDtl(hpId);
   }, [isLoggedIn, hpId]);
 
   return (

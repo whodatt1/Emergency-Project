@@ -80,14 +80,10 @@ const LoginContextProvider = ({ children }) => {
   };
 
   const loginCheck = async (accessToken) => {
-    console.log('loginCheck...');
-
     localStorage.setItem('accessToken', accessToken);
 
     try {
       const res = await getMe(); // 리턴되는 값이 있어야 await가 작동
-
-      console.log(res.data);
 
       if (res.data) {
         loginSetting(res.data.userId);
@@ -114,7 +110,6 @@ const LoginContextProvider = ({ children }) => {
   const logoutUser = async () => {
     try {
       const res = await logout();
-      console.log(res);
 
       if (res.status === 200) {
         logoutSetting();
@@ -142,8 +137,10 @@ const LoginContextProvider = ({ children }) => {
 
     const localAccessToken = localStorage.getItem('accessToken');
 
-    // localStorage가 어떤 상황에 의해 삭제될 경우를 고려하여 항상 검사
-    loginCheck(localAccessToken);
+    // 항상 검사하면 서버요청이 계속됨 차라리 권한 필요한 요청이 들어왔을때 재로그인 시켜주는게 낫다.
+    if (localAccessToken) {
+      loginCheck(localAccessToken);
+    }
   }, []);
 
   return (

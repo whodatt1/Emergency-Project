@@ -83,7 +83,7 @@ public class EmergencyScheduler {
 	}
 	
 	// 12 시간마다 실행 
-	//@Scheduled(fixedRate = 60000)
+	@Scheduled(fixedRate = 60000)
 	@Scheduled(cron = "0 0 6,18 * * ?")
 	public void staleEmgcRltmOutboxCleaner() {
 		log.info("staleEmgcRltmOutboxCleaner start");
@@ -95,7 +95,6 @@ public class EmergencyScheduler {
 	
 	@Async
 	@Scheduled(fixedRate = 60000)
-//	@Scheduled(cron = "0 5 23 * * ?")
 	public void excuteEmergencyRealTimeJob() {
 		if (isJobRunning("rltmApiJob")) {
 			log.warn("이전 배치가 실행 중입니다. 현재 배치를 건너뜁니다.");

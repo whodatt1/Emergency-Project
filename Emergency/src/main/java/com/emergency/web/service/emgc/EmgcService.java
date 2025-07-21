@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.emergency.web.dto.request.emgc.EmgcMstRequestDto;
+import com.emergency.web.dto.response.emgc.EmgcDtlResponseDto;
 import com.emergency.web.dto.response.emgc.EmgcMstResponseDto;
 import com.emergency.web.mapper.emgc.EmgcMapper;
 
@@ -49,6 +50,10 @@ public class EmgcService {
 		int contentTotalCnt = emgcMapper.getEmgcMstListCnt(paramMap);
 		
 		return new PageImpl<>(content, pageable, contentTotalCnt);
+	}
+
+	public EmgcDtlResponseDto getEmgcDtl(String hpId) {
+		return emgcMapper.getEmgcDtl(hpId);
 	}
 	
 }

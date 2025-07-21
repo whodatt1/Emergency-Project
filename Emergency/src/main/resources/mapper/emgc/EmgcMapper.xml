@@ -62,4 +62,9 @@
 	         </if>
      	</where>
 	</select>
+	
+	<select id="getEmgcDtl" parameterType="string" resultType="com.emergency.web.dto.response.emgc.EmgcDtlResponseDto">
+		SELECT *
+		FROM tb_emgc_rltm_master
+	</select>
 </mapper>
