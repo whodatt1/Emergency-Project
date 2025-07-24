@@ -63,7 +63,6 @@ const App = () => {
         const notification = new Notification(title, {
           body: body,
           icon: '/icon.png',
-          requireInteraction: false, // 몇 초 후 사라짐
         });
 
         notification.onclick = () => {
@@ -79,26 +78,26 @@ const App = () => {
   }, [messaging, navigate]);
 
   // 테스트용 알림 띄우기 함수 (윈도우 방해금지 모드를 사용하지 않아야 뜸)
-  const testNotification = () => {
-    if (Notification.permission === 'granted') {
-      console.log('여기');
-      new Notification('테스트 알림', {
-        body: '이 알림이 뜨면 알림 설정이 정상입니다!',
-        icon: '/icon.png',
-      });
-    } else {
-      Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-          new Notification('테스트 알림', {
-            body: '이 알림이 뜨면 알림 설정이 정상입니다!',
-            icon: '/icon.png',
-          });
-        } else {
-          alert('알림 권한이 거부되었습니다.');
-        }
-      });
-    }
-  };
+  // const testNotification = () => {
+  //   if (Notification.permission === 'granted') {
+  //     console.log('여기');
+  //     new Notification('테스트 알림', {
+  //       body: '이 알림이 뜨면 알림 설정이 정상입니다!',
+  //       icon: '/icon.png',
+  //     });
+  //   } else {
+  //     Notification.requestPermission().then((permission) => {
+  //       if (permission === 'granted') {
+  //         new Notification('테스트 알림', {
+  //           body: '이 알림이 뜨면 알림 설정이 정상입니다!',
+  //           icon: '/icon.png',
+  //         });
+  //       } else {
+  //         alert('알림 권한이 거부되었습니다.');
+  //       }
+  //     });
+  //   }
+  // };
 
   return (
     <Container fluid>
@@ -106,11 +105,11 @@ const App = () => {
         <Header />
 
         {/* 테스트용 버튼 추가 */}
-        <div style={{ padding: 16, textAlign: 'center' }}>
+        {/* <div style={{ padding: 16, textAlign: 'center' }}>
           <button onClick={testNotification} variant="primary">
             테스트 알림 보내기
           </button>
-        </div>
+        </div> */}
         <Routes>
           <Route path="/userLogin" exact={true} element={<UserLogin />} />
           <Route path="/userJoin" exact={true} element={<UserJoin />} />

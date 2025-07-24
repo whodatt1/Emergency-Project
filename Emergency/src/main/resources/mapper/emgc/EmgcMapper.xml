@@ -64,7 +64,167 @@
 	</select>
 	
 	<select id="getEmgcDtl" parameterType="string" resultType="com.emergency.web.dto.response.emgc.EmgcDtlResponseDto">
-		SELECT *
-		FROM tb_emgc_rltm_master
+		SELECT COALESCE(a.hp_id                            , '') AS hp_id
+		     , COALESCE(a.duty_name                        , '') AS duty_name
+		     , COALESCE(a.duty_ha_yn                       , '') AS duty_ha_yn
+		     , COALESCE(a.duty_er_yn                       , '') AS duty_er_yn
+		     , COALESCE(a.post_cdn1                        , '') AS post_cdn1
+		     , COALESCE(a.post_cdn2                        , '') AS post_cdn2
+		     , COALESCE(a.duty_addr                        , '') AS duty_addr
+		     , COALESCE(a.duty_tel                         , '') AS duty_tel
+		     , COALESCE(a.duty_inf                         , '') AS duty_inf
+		     , COALESCE(a.duty_lon                         , '') AS duty_lon
+		     , COALESCE(a.duty_lat                         , '') AS duty_lat
+		     , COALESCE(a.duty_time_1c                     , '') AS duty_time_1c
+		     , COALESCE(a.duty_time_2c                     , '') AS duty_time_2c
+		     , COALESCE(a.duty_time_3c                     , '') AS duty_time_3c
+		     , COALESCE(a.duty_time_4c                     , '') AS duty_time_4c
+		     , COALESCE(a.duty_time_5c                     , '') AS duty_time_5c
+		     , COALESCE(a.duty_time_6c                     , '') AS duty_time_6c
+		     , COALESCE(a.duty_time_7c                     , '') AS duty_time_7c
+		     , COALESCE(a.duty_time_8c                     , '') AS duty_time_8c
+		     , COALESCE(a.duty_time_1s                     , '') AS duty_time_1s
+		     , COALESCE(a.duty_time_2s                     , '') AS duty_time_2s
+		     , COALESCE(a.duty_time_3s                     , '') AS duty_time_3s
+		     , COALESCE(a.duty_time_4s                     , '') AS duty_time_4s
+		     , COALESCE(a.duty_time_5s                     , '') AS duty_time_5s
+		     , COALESCE(a.duty_time_6s                     , '') AS duty_time_6s
+		     , COALESCE(a.duty_time_7s                     , '') AS duty_time_7s
+		     , COALESCE(a.duty_time_8s                     , '') AS duty_time_8s
+		     , COALESCE(a.dgid_id_name                     , '') AS dgid_id_name
+		                                                   
+		     -- 가용 여부 및 가용 기준 인원 시작           
+		     -- 기준 인원 있는 구간                        
+		     , COALESCE(b.ct_avail_yn		 	           , 'N1') AS ct_avail_yn
+		     , COALESCE(b.ct_stdd_psn        	           , 0)    AS ct_stdd_psn
+		     , COALESCE(b.mri_avail_yn		 	           , 'N1') AS mri_avail_yn
+		     , COALESCE(b.mri_stdd_psn		 	           , 0)    AS mri_stdd_psn
+		     , COALESCE(b.angio_avail_yn	 	           , 'N1') AS angio_avail_yn
+		     , COALESCE(b.angio_stdd_psn     	           , 0)    AS angio_stdd_psn
+		     , COALESCE(b.venti_avail_yn	 	           , 'N1') AS venti_avail_yn
+		     , COALESCE(b.venti_gen_stdd_psn 	           , 0)    AS venti_gen_stdd_psn
+		     , COALESCE(b.venti_pret_avail_yn	           , 'N1') AS venti_pret_avail_yn
+		     , COALESCE(b.venti_pret_stdd_psn	           , 0)    AS venti_pret_stdd_psn
+		     , COALESCE(b.incu_avail_yn      	           , 'N1') AS incu_avail_yn
+		     , COALESCE(b.incu_stdd_psn      	           , 0)    AS incu_stdd_psn
+		     , COALESCE(b.crrt_avail_yn      	           , 'N1') AS crrt_avail_yn
+		     , COALESCE(b.crrt_stdd_psn      	           , 0)    AS crrt_stdd_psn
+		     , COALESCE(b.ecmo_avail_yn      	           , 'N1') AS ecmo_avail_yn
+		     , COALESCE(b.ecmo_stdd_psn      	           , 0)    AS ecmo_stdd_psn
+		     , COALESCE(b.oxy_avail_yn       	           , 'N1') AS oxy_avail_yn
+		     , COALESCE(b.oxy_stdd_psn       	           , 0)    AS oxy_stdd_psn
+		     , COALESCE(b.hypo_avail_yn      	           , 'N1') AS hypo_avail_yn
+		     , COALESCE(b.core_temp_ctrl_stdd_psn          , 0)    AS core_temp_ctrl_stdd_psn
+		     , COALESCE(b.etc_dlvr_room_yn                 , 'N1') AS etc_dlvr_room_yn
+		     , COALESCE(b.etc_dlvr_room_stdd_psn           , 0)    AS etc_dlvr_room_stdd_psn
+		     , COALESCE(b.etc_burn_spctrt_yn               , 'N1') AS etc_burn_spctrt_yn
+		     , COALESCE(b.etc_burn_spctrt_room_stdd_psn    , 0)    AS etc_burn_spctrt_room_stdd_psn
+		                                                    
+		     -- 기준 인원 없는 구간                         
+		     , COALESCE(b.ambul_avail_yn                   , 'N1') AS ambul_avail_yn
+		     , COALESCE(b.icu_drug_yn                      , 'N1') AS icu_drug_yn
+		     , COALESCE(b.neurol_inpt_yn                   , 'N1') AS neurol_inpt_yn
+		     , COALESCE(b.venti_yn                         , 'N1') AS venti_yn
+		                                                   
+		     -- 응급실 시작                                
+		     , COALESCE(b.emgc_ers_gen_bed_psn			   , 0) AS emgc_ers_gen_bed_psn
+		     , COALESCE(b.gen_stdd_psn        			   , 0) AS gen_stdd_psn
+		     , COALESCE(b.emgc_ers_gen_press_bed_psn	   , 0) AS emgc_ers_gen_press_bed_psn
+		     , COALESCE(b.emgc_ers_gen_press_stdd_bed_psn  , 0) AS emgc_ers_gen_press_stdd_bed_psn
+		     , COALESCE(b.emgc_ers_neg_press_bed_psn       , 0) AS emgc_ers_neg_press_bed_psn
+		     , COALESCE(b.emgc_ers_neg_press_stdd_bed_psn  , 0) AS emgc_ers_neg_press_stdd_bed_psn
+		     , COALESCE(b.emgc_icu_neg_press_psn           , 0) AS emgc_icu_neg_press_psn
+		     , COALESCE(b.emgc_icu_neg_press_stdd_psn      , 0) AS emgc_icu_neg_press_stdd_psn
+		     , COALESCE(b.emgc_icu_gen_press_psn           , 0) AS emgc_icu_gen_press_psn
+		     , COALESCE(b.emgc_icu_gen_press_stdd_psn      , 0) AS emgc_icu_gen_press_stdd_psn
+		     , COALESCE(b.emgc_ipt_neg_press_psn           , 0) AS emgc_ipt_neg_press_psn
+		     , COALESCE(b.emgc_ipt_neg_press_stdd_psn      , 0) AS emgc_ipt_neg_press_stdd_psn
+		     , COALESCE(b.emgc_ipt_gen_press_psn           , 0) AS emgc_ipt_gen_press_psn
+		     , COALESCE(b.emgc_ipt_gen_press_stdd_psn      , 0) AS emgc_ipt_gen_press_stdd_psn
+		     , COALESCE(b.emgc_icu_psn                     , 0) AS emgc_icu_psn
+		     , COALESCE(b.emgc_icu_stdd_psn                , 0) AS emgc_icu_stdd_psn
+		     , COALESCE(b.emgc_ipt_psn                     , 0) AS emgc_ipt_psn
+		     , COALESCE(b.emgc_ipt_stdd_psn                , 0) AS emgc_ipt_stdd_psn
+		     , COALESCE(b.emgc_ped_ipt_psn                 , 0) AS emgc_ped_ipt_psn
+		     , COALESCE(b.emgc_ped_ipt_stdd_psn            , 0) AS emgc_ped_ipt_stdd_psn
+		     , COALESCE(b.emgc_ped_icu_psn                 , 0) AS emgc_ped_icu_psn
+		     , COALESCE(b.emgc_ped_icu_stdd_psn            , 0) AS emgc_ped_icu_stdd_psn
+		                                                   
+		     -- 중환자실 시작                               
+		     , COALESCE(b.icu_neuro_psn                    , 0) AS icu_neuro_psn
+		     , COALESCE(b.icu_neuro_stdd_psn               , 0) AS icu_neuro_stdd_psn
+		     , COALESCE(b.icu_neo_psn                      , 0) AS icu_neo_psn
+		     , COALESCE(b.icu_neo_stdd_psn                 , 0) AS icu_neo_stdd_psn
+		     , COALESCE(b.icu_thor_surg_psn                , 0) AS icu_thor_surg_psn
+		     , COALESCE(b.icu_thor_surg_stdd_psn           , 0) AS icu_thor_surg_stdd_psn
+		     , COALESCE(b.icu_gen_psn                      , 0) AS icu_gen_psn
+		     , COALESCE(b.icu_gen_stdd_psn                 , 0) AS icu_gen_stdd_psn       
+		     , COALESCE(b.icu_med_psn                      , 0) AS icu_med_psn            
+		     , COALESCE(b.icu_med_stdd_psn                 , 0) AS icu_med_stdd_psn       
+		     , COALESCE(b.icu_surg_psn                     , 0) AS icu_surg_psn           
+		     , COALESCE(b.icu_surg_stdd_psn                , 0) AS icu_surg_stdd_psn      
+		     , COALESCE(b.icu_neuro_surg_psn               , 0) AS icu_neuro_surg_psn     
+		     , COALESCE(b.icu_neuro_surg_stdd_psn          , 0) AS icu_neuro_surg_stdd_psn
+		     , COALESCE(b.icu_burn_psn                     , 0) AS icu_burn_psn           
+		     , COALESCE(b.icu_burn_stdd_psn                , 0) AS icu_burn_stdd_psn      
+		     , COALESCE(b.icu_trauma_psn                   , 0) AS icu_trauma_psn         
+		     , COALESCE(b.icu_trauma_stdd_psn              , 0) AS icu_trauma_stdd_psn    
+		     , COALESCE(b.icu_ped_psn                      , 0) AS icu_ped_psn            
+		     , COALESCE(b.icu_ped_stdd_psn                 , 0) AS icu_ped_stdd_psn       
+		     , COALESCE(b.icu_cardio_psn                   , 0) AS icu_cardio_psn         
+		     , COALESCE(b.icu_cardio_stdd_psn              , 0) AS icu_cardio_stdd_psn    
+		     , COALESCE(b.icu_neg_press_psn                , 0) AS icu_neg_press_psn      
+		     , COALESCE(b.icu_neg_press_stdd_psn           , 0) AS icu_neg_press_stdd_psn 
+		                                                    
+		     -- 입원실 시작                                 
+		     , COALESCE(b.ipt_gen_psn                      , 0) AS ipt_gen_psn            
+		     , COALESCE(b.ipt_gen_stdd_psn                 , 0) AS ipt_gen_stdd_psn       
+		     , COALESCE(b.ipt_trauma_psn                   , 0) AS ipt_trauma_psn         
+		     , COALESCE(b.ipt_trauma_stdd_psn              , 0) AS ipt_trauma_stdd_psn    
+		     , COALESCE(b.ipt_psy_closed_psn               , 0) AS ipt_psy_closed_psn     
+		     , COALESCE(b.ipt_psy_closed_stdd_psn          , 0) AS ipt_psy_closed_stdd_psn
+		     , COALESCE(b.ipt_neg_press_psn                , 0) AS ipt_neg_press_psn      
+		     , COALESCE(b.ipt_neg_press_stdd_psn           , 0) AS ipt_neg_press_stdd_psn 
+		                                                   
+		     -- 소아 시작                                  
+		     , COALESCE(b.ped_psn                          , 0) AS ped_psn               
+		     , COALESCE(b.ped_stdd_psn                     , 0) AS ped_stdd_psn          
+		     , COALESCE(b.ped_press_bed_psn                , 0) AS ped_press_bed_psn     
+		     , COALESCE(b.ped_neg_press_stdd_psn           , 0) AS ped_neg_press_stdd_psn
+		     , COALESCE(b.ped_isol_bed_psn                 , 0) AS ped_isol_bed_psn      
+		     , COALESCE(b.ped_gen_press_stdd_psn           , 0) AS ped_gen_press_stdd_psn
+		                                                   
+		     -- 기타 시작                                  
+		     , COALESCE(b.op_psn                           , 0) AS op_psn                
+		     , COALESCE(b.etc_op_stdd_psn                  , 0) AS etc_op_stdd_psn       
+		     , COALESCE(b.etc_trauma_op_psn                , 0) AS etc_trauma_op_psn     
+		     , COALESCE(b.etc_trauma_op_stdd_psn           , 0) AS etc_trauma_op_stdd_psn
+		                                                   
+		     -- 격리 시작                                  
+		     , COALESCE(b.isolarea_neg_press_bed_psn       , 0) AS isolarea_neg_press_bed_psn 
+		     , COALESCE(b.isolarea_neg_press_stdd_psn      , 0) AS isolarea_neg_press_stdd_psn
+		     , COALESCE(b.isolarea_gen_press_bed_psn       , 0) AS isolarea_gen_press_bed_psn 
+		     , COALESCE(b.isolarea_gen_press_stdd_psn      , 0) AS isolarea_gen_press_stdd_psn
+		                                                   
+		     -- 감염 시작                                  
+		     , COALESCE(b.infec_ddc_icu_psn                , 0) AS infec_ddc_icu_psn               
+		     , COALESCE(b.infec_ddc_icu_stdd_psn           , 0) AS infec_ddc_icu_stdd_psn          
+		     , COALESCE(b.infec_ddc_icu_neg_press_psn      , 0) AS infec_ddc_icu_neg_press_psn     
+		     , COALESCE(b.infec_ddc_icu_neg_press_stdd_psn , 0) AS infec_ddc_icu_neg_press_stdd_psn
+		     , COALESCE(b.infec_severe_bed_psn             , 0) AS infec_severe_bed_psn            
+		     , COALESCE(b.infec_severe_bed_stdd_psn        , 0) AS infec_severe_bed_stdd_psn       
+		     , COALESCE(b.infec_semi_severe_bed_psn        , 0) AS infec_semi_severe_bed_psn       
+		     , COALESCE(b.infec_semi_severe_bed_stdd_psn   , 0) AS infec_semi_severe_bed_stdd_psn  
+		     , COALESCE(b.infec_mdrate_bed_psn             , 0) AS infec_mdrate_bed_psn            
+		     , COALESCE(b.infec_mdrate_bed_stdd_psn        , 0) AS infec_mdrate_bed_stdd_psn       
+		     
+		     -- 코호트
+		     , COALESCE(b.chrt_isol_psn                    , 0) AS chrt_isol_psn     
+		     , COALESCE(b.chrt_isol_stdd_cnt               , 0) AS chrt_isol_stdd_cnt
+		     
+		  FROM tb_emgc_rltm_master a
+		  JOIN tb_emgc_rltm_detail b
+		    ON a.hp_id = b.hp_id
+		 WHERE a.hp_id = #{hpId}
 	</select>
 </mapper>
