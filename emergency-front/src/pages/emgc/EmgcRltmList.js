@@ -4,12 +4,14 @@ import { Link } from 'react-router-dom';
 import { getDongList, getGugunList, getSidoList } from '../../apis/bjd';
 import { getEmgcMstList } from '../../apis/emgc';
 import Pagination from '../../components/Pagination';
+import { useSearchParams } from 'react-router-dom';
 
 const EmgcRltmList = () => {
   const [sidoList, setSidoList] = useState([]);
   const [gugunList, setGugunList] = useState([]);
   const [dongList, setDongList] = useState([]);
   const [page, setPage] = useState(0);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [bjdSearchParams, setBjdSearchParams] = useState({
     sidoCd: null,
@@ -20,16 +22,13 @@ const EmgcRltmList = () => {
   const [mstSearchParams, setMstSearchParams] = useState({
     size: 10,
     dutyNm: '',
-    sidoNm: '',
-    gugunNm: '',
-    dongNm: '',
   });
 
   const [emgcMstList, setEmgcMstList] = useState([]);
   const [pageable, setPageable] = useState({
     first: '',
     last: '',
-    size: 0,
+    size: 10,
     pageNumber: 0,
     totalElements: 0,
     totalPages: 0,
@@ -39,14 +38,16 @@ const EmgcRltmList = () => {
     try {
       setEmgcMstList([]); // 요청 전 초기화 과정
 
-      const res = await getEmgcMstList({ ...mstSearchParams, page: page });
+      const query = Object.fromEntries(searchParams.entries());
+
+      const res = await getEmgcMstList(query);
 
       console.log(res);
 
       if (res.status === 200) {
         setEmgcMstList(res.data.content);
         setPageable({
-          size: res.data.size,
+          ...pageable,
           pageNumber: res.data.pageable.pageNumber,
           totalPages: res.data.totalPages,
         });
@@ -98,6 +99,45 @@ const EmgcRltmList = () => {
     }
   };
 
+  // 쿼리스트링 세팅
+  const handleSearchClick = () => {
+    const newParams = new URLSearchParams();
+
+    if (mstSearchParams.dutyNm) newParams.set('dutyNm', mstSearchParams.dutyNm);
+    if (mstSearchParams.size) newParams.set('size', mstSearchParams.size);
+
+    if (bjdSearchParams.sidoCd) {
+      const sidoNm = sidoList.find(
+        (s) => s.bjdCd === bjdSearchParams.sidoCd,
+      )?.bjdNm;
+      if (sidoNm) newParams.set('sidoNm', sidoNm);
+    }
+    if (bjdSearchParams.gugunCd) {
+      const gugunNm = gugunList.find(
+        (s) => s.bjdCd === bjdSearchParams.gugunCd,
+      )?.bjdNm;
+      if (gugunNm) newParams.set('gugunNm', gugunNm);
+    }
+    if (bjdSearchParams.dongCd) {
+      const dongNm = dongList.find(
+        (s) => s.bjdCd === bjdSearchParams.dongCd,
+      )?.bjdNm;
+      if (dongNm) newParams.set('dongNm', dongNm);
+    }
+
+    newParams.set('page', 0);
+    setPage(0);
+    setSearchParams(newParams);
+    // fetchEgmcMstList();
+  };
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+
+    searchParams.set('page', newPage);
+    setSearchParams(searchParams);
+  };
+
   useEffect(() => {
     setBjdSearchParams({
       sidoCd: null,
@@ -125,9 +165,8 @@ const EmgcRltmList = () => {
   }, [bjdSearchParams.gugunCd]);
 
   useEffect(() => {
-    setMstSearchParams({ ...mstSearchParams, page: page });
-    fetchEgmcMstList(mstSearchParams);
-  }, [page]);
+    fetchEgmcMstList();
+  }, [page, searchParams]);
 
   return (
     <Container fluid className="mt-5">
@@ -142,13 +181,6 @@ const EmgcRltmList = () => {
         <div className="d-flex gap-3 mb-3">
           <Form.Select
             onChange={(e) => {
-              const selected = sidoList.find(
-                (item) => item.bjdCd === e.target.value,
-              );
-              setMstSearchParams({
-                ...mstSearchParams,
-                sidoNm: selected?.bjdNm,
-              });
               setBjdSearchParams({
                 ...bjdSearchParams,
                 sidoCd: e.target.value,
@@ -165,13 +197,6 @@ const EmgcRltmList = () => {
 
           <Form.Select
             onChange={(e) => {
-              const selected = gugunList.find(
-                (item) => item.bjdCd === e.target.value,
-              );
-              setMstSearchParams({
-                ...mstSearchParams,
-                gugunNm: selected?.bjdNm,
-              });
               setBjdSearchParams({
                 ...bjdSearchParams,
                 gugunCd: e.target.value,
@@ -188,13 +213,6 @@ const EmgcRltmList = () => {
 
           <Form.Select
             onChange={(e) => {
-              const selected = dongList.find(
-                (item) => item.bjdCd === e.target.value,
-              );
-              setMstSearchParams({
-                ...mstSearchParams,
-                dongNm: selected?.bjdNm,
-              });
               setBjdSearchParams({
                 ...bjdSearchParams,
                 dongCd: e.target.value,
@@ -227,11 +245,11 @@ const EmgcRltmList = () => {
           }}
         >
           <Form.Select
-            value={mstSearchParams.size}
+            value={searchParams.get('size') || 10}
+            style={{ flex: '1', maxWidth: '20%' }}
             onChange={(e) =>
               setMstSearchParams({ ...mstSearchParams, size: e.target.value })
             }
-            style={{ flex: '1', maxWidth: '20%' }}
           >
             <option value={10}>10건 씩 조회</option>
             <option value={20}>20건 씩 조회</option>
@@ -241,7 +259,7 @@ const EmgcRltmList = () => {
           </Form.Select>
           <Button
             style={{ flex: '1', maxWidth: '5%' }}
-            onClick={() => fetchEgmcMstList({ ...mstSearchParams, page: page })}
+            onClick={() => handleSearchClick()}
           >
             검색
           </Button>
@@ -258,8 +276,10 @@ const EmgcRltmList = () => {
                 {/* 병원이름 */}
                 <h6 className="m-0">
                   <Link
-                    to="/emgcRltmDtl"
-                    state={{ page, mstSearchParams, hpId: item.hpId }}
+                    to={{
+                      pathname: '/emgcRltmDtl',
+                      search: `${searchParams.toString()}&hpId=${item.hpId}`,
+                    }}
                     className="text-decoration-none text-dark"
                   >
                     {item.dutyName}
@@ -292,7 +312,7 @@ const EmgcRltmList = () => {
         totalPages={pageable.totalPages}
         size={pageable.size}
         page={pageable.pageNumber}
-        setPage={setPage}
+        handlePageChange={handlePageChange}
       />
     </Container>
   );

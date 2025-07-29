@@ -15,11 +15,12 @@ public class EmgcBsIf {
 	private String hpId; // 기관 ID
 	private String dutyName; // 기관명
 	private String dutyHayn; // 입원실 가용 여부 1/2
-	private String dutyEryn; // 응급실 운영 벼우 1/2
+	private String dutyEryn; // 응급실 운영 여우 1/2
 	private String postCdn1; // 우편번호1
 	private String postCdn2; // 우편번호2
 	private String dutyAddr; // 주소
 	private String dutyTel; // 대표전화1
+	private String dutyErTel; // 응급실전화
 	private String dutyInf; // 기관설명상세
 	private String dutyTime1c;
 	private String dutyTime2c;

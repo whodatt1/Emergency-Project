@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Nav } from 'react-bootstrap';
 
-const Pagination = ({ totalPages, size, page, setPage }) => {
+const Pagination = ({ totalPages, size, page, handlePageChange }) => {
   const [currPageArr, setCurrPageArr] = useState([]);
   const [totalPageArr, setTotalPageArr] = useState([]);
 
@@ -32,21 +32,27 @@ const Pagination = ({ totalPages, size, page, setPage }) => {
       <ul className="pagination">
         {page > 0 && (
           <li className="page-item">
-            <button className="page-link" onClick={() => setPage(page - 1)}>
+            <button
+              className="page-link"
+              onClick={() => handlePageChange(page - 1)}
+            >
               Prev
             </button>
           </li>
         )}
         {currPageArr?.map((i) => (
           <li key={i} className={`page-item ${page === i ? 'active' : ''}`}>
-            <button className="page-link" onClick={() => setPage(i)}>
+            <button className="page-link" onClick={() => handlePageChange(i)}>
               {i + 1}
             </button>
           </li>
         ))}
         {page < totalPages - 1 && (
           <li className="page-item">
-            <button className="page-link" onClick={() => setPage(page + 1)}>
+            <button
+              className="page-link"
+              onClick={() => handlePageChange(page + 1)}
+            >
               Next
             </button>
           </li>

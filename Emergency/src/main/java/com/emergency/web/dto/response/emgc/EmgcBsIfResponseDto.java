@@ -197,6 +197,7 @@ public class EmgcBsIfResponseDto {
 				.postCdn2(postCdn2)
 				.dutyAddr(dutyAddr)
 				.dutyTel(dutyTel1)
+				.dutyErTel(dutyTel3)
 				.dutyInf(dutyInf)
 				.dutyTime1c(dutyTime1c)
 				.dutyTime2c(dutyTime2c)

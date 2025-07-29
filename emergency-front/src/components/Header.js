@@ -21,7 +21,11 @@ const Header = () => {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
-              <Nav.Link as={Link} to="/emgcRltmList" className="px-2">
+              <Nav.Link
+                as={Link}
+                to="/emgcRltmList?page=0&size=10"
+                className="px-2"
+              >
                 응급기관 정보
               </Nav.Link>
             </Nav>

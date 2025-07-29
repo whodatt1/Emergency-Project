@@ -1,6 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Container, Button, Card, ListGroup } from 'react-bootstrap';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import {
+  Container,
+  Button,
+  Card,
+  ListGroup,
+  Col,
+  Row,
+  Badge,
+} from 'react-bootstrap';
+import { useSearchParams } from 'react-router-dom';
 import {
   insertBookmark,
   existsBookmark,
@@ -13,17 +21,12 @@ import { getEmgcDtl } from '../../apis/emgc';
 import Location from '../../components/Location';
 
 const EmgcRltmDtl = () => {
-  const location = useLocation();
   const [searchParams] = useSearchParams();
 
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [emgcDtl, setEmgcDtl] = useState({});
-  const { mstSearchParams, page } = location.state || {};
   const { isLoggedIn } = useContext(LoginContext);
-  const hpIdFromState = location.state?.hpId;
-  // fcm으로 넘어올 경우
-  const hpIdFromQuery = searchParams.get('hpid');
-  const hpId = hpIdFromState || hpIdFromQuery;
+  const hpId = searchParams.get('hpId');
 
   const { dialogState, showDialog, closeDialog } = useAlertDialog();
 
@@ -94,7 +97,6 @@ const EmgcRltmDtl = () => {
       console.log(res.data);
 
       if (res.data) {
-        console.log('1111111111');
         setIsBookmarked(true);
       }
     } catch (error) {
@@ -155,60 +157,193 @@ const EmgcRltmDtl = () => {
                 <strong>주소:</strong> {emgcDtl.dutyAddr || '정보 없음'}
               </ListGroup.Item>
               <ListGroup.Item>
-                <strong>전화번호:</strong> {emgcDtl.dutyTel || '정보 없음'}
+                <strong>대표번호:</strong> {emgcDtl.dutyTel || '정보 없음'}
               </ListGroup.Item>
               <ListGroup.Item>
-                <strong>비고:</strong> {emgcDtl.dutyInf || '정보 없음'}
+                <strong>응급실번호:</strong> {emgcDtl.dutyErTel || '정보 없음'}
+              </ListGroup.Item>
+              <ListGroup.Item>
+                <strong>소개:</strong> {emgcDtl.dutyInf || '정보 없음'}
               </ListGroup.Item>
             </ListGroup>
           </Card>
         </div>
       </div>
 
-      <div className="row mt-4">
-        <div className="col">
-          <div
-            className="p-3 shadow-sm rounded"
-            style={{ backgroundColor: '#f9f9f9', border: '1px solid #e0e0e0' }}
-          >
-            <h5
-              className="mb-3"
-              style={{
-                borderBottom: '2px solid #007bff',
-                paddingBottom: '6px',
-                color: '#333',
-                fontWeight: '600',
-              }}
-            >
-              진료과목
-            </h5>
-            <ul
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                paddingLeft: '1.2rem',
-                listStyleType: 'disc',
-                margin: 0,
-              }}
-            >
-              {emgcDtl.dgidIdName &&
-                emgcDtl.dgidIdName.split(',').map((item, index) => (
-                  <li
-                    key={index}
-                    style={{
-                      flexBasis: '25%',
-                      listStylePosition: 'inside',
-                      fontSize: '0.95rem',
-                      marginBottom: '8px',
-                    }}
-                  >
+      <Card className="shadow-sm border-0 mb-3">
+        <Card.Header className="bg-success text-white fw-bold">
+          진료과목
+        </Card.Header>
+        <Card.Body>
+          <Row>
+            {emgcDtl.dgidIdName &&
+              emgcDtl.dgidIdName.split(',').map((item, index) => (
+                <Col key={index} xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
                     {item.trim()}
-                  </li>
-                ))}
-            </ul>
+                  </Badge>
+                </Col>
+              ))}
+          </Row>
+        </Card.Body>
+      </Card>
+
+      <Card className="shadow-sm border-0 mb-3">
+        <Card.Header className="bg-danger text-white fw-bold">
+          가용 의료자원
+        </Card.Header>
+        <Card.Body>
+          <Row>
+            {emgcDtl.ctAvailYn === 'Y' && (
+              <Col xs={6} md={3} className="mb-2">
+                <Badge bg="light" text="dark" className="w-100 text-start">
+                  CT
+                </Badge>
+              </Col>
+            )}
+            {emgcDtl.mriAvailYn === 'Y' && (
+              <Col xs={6} md={3} className="mb-2">
+                <Badge bg="light" text="dark" className="w-100 text-start">
+                  MRI
+                </Badge>
+              </Col>
+            )}
+            {emgcDtl.angioAvailYn === 'Y' && (
+              <Col xs={6} md={3} className="mb-2">
+                <Badge bg="light" text="dark" className="w-100 text-start">
+                  혈관촬영기
+                </Badge>
+              </Col>
+            )}
+            {emgcDtl.ventiAvailYn === 'Y' && (
+              <Col xs={6} md={3} className="mb-2">
+                <Badge bg="light" text="dark" className="w-100 text-start">
+                  인공호흡기
+                </Badge>
+              </Col>
+            )}
+            {emgcDtl.ventiPretAvailYn === 'Y' && (
+              <Col xs={6} md={3} className="mb-2">
+                <Badge bg="light" text="dark" className="w-100 text-start">
+                  조산아 인공호흡기
+                </Badge>
+              </Col>
+            )}
+            {emgcDtl.incuAvailYn === 'Y' && (
+              <Col xs={6} md={3} className="mb-2">
+                <Badge bg="light" text="dark" className="w-100 text-start">
+                  인큐베이터
+                </Badge>
+              </Col>
+            )}
+            {emgcDtl.crrtAvailYn === 'Y' && (
+              <Col xs={6} md={3} className="mb-2">
+                <Badge bg="light" text="dark" className="w-100 text-start">
+                  CRRT
+                </Badge>
+              </Col>
+            )}
+            {emgcDtl.ecmoAvailYn === 'Y' && (
+              <Col xs={6} md={3} className="mb-2">
+                <Badge bg="light" text="dark" className="w-100 text-start">
+                  ECMO
+                </Badge>
+              </Col>
+            )}
+            {emgcDtl.oxyAvailYn === 'Y' && (
+              <Col xs={6} md={3} className="mb-2">
+                <Badge bg="light" text="dark" className="w-100 text-start">
+                  고압 산소 치료기
+                </Badge>
+              </Col>
+            )}
+            {emgcDtl.hypoAvailYn === 'Y' && (
+              <Col xs={6} md={3} className="mb-2">
+                <Badge bg="light" text="dark" className="w-100 text-start">
+                  중심 체온 조절 유도기
+                </Badge>
+              </Col>
+            )}
+            {emgcDtl.etcDlvrRoomYn === 'Y' && (
+              <Col xs={6} md={3} className="mb-2">
+                <Badge bg="light" text="dark" className="w-100 text-start">
+                  분만실
+                </Badge>
+              </Col>
+            )}
+            {emgcDtl.etcBurnSpctrtYn === 'Y' && (
+              <Col xs={6} md={3} className="mb-2">
+                <Badge bg="light" text="dark" className="w-100 text-start">
+                  화상전용처치실
+                </Badge>
+              </Col>
+            )}
+            {emgcDtl.ambulAvailYn === 'Y' && (
+              <Col xs={6} md={3} className="mb-2">
+                <Badge bg="light" text="dark" className="w-100 text-start">
+                  구급차
+                </Badge>
+              </Col>
+            )}
+            {emgcDtl.icuDrugYn === 'Y' && (
+              <Col xs={6} md={3} className="mb-2">
+                <Badge bg="light" text="dark" className="w-100 text-start">
+                  약물중환자
+                </Badge>
+              </Col>
+            )}
+            {emgcDtl.neurolInptYn === 'Y' && (
+              <Col xs={6} md={3} className="mb-2">
+                <Badge bg="light" text="dark" className="w-100 text-start">
+                  신경과입원실
+                </Badge>
+              </Col>
+            )}
+            {emgcDtl.ventiYn === 'Y' && (
+              <Col xs={6} md={3} className="mb-2">
+                <Badge bg="light" text="dark" className="w-100 text-start">
+                  VENTI(소아)
+                </Badge>
+              </Col>
+            )}
+          </Row>
+        </Card.Body>
+      </Card>
+
+      <Card className="shadow-sm border-0">
+        <Card.Header className="bg-warning text-white fw-bold">
+          실시간 병상정보
+        </Card.Header>
+        <Card.Body>
+          <div className="mb-3">
+            <h6 className="fw-bold text-primary border-start border-4 border-primary ps-2">
+              응급실
+            </h6>
+            <Row>
+              {emgcDtl.genStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    응급실 일반 병상{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.emgcErsGenBedPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.emgcErsGenPressStddBedPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    응급실 일반 격리 병상{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.emgcErsGenPressBedPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+            </Row>
           </div>
-        </div>
-      </div>
+        </Card.Body>
+      </Card>
 
       {/* 모달 알림 */}
       <AlertDialog

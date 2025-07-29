@@ -72,6 +72,7 @@
 		     , COALESCE(a.post_cdn2                        , '') AS post_cdn2
 		     , COALESCE(a.duty_addr                        , '') AS duty_addr
 		     , COALESCE(a.duty_tel                         , '') AS duty_tel
+		     , COALESCE(a.duty_er_tel                      , '') AS duty_er_tel
 		     , COALESCE(a.duty_inf                         , '') AS duty_inf
 		     , COALESCE(a.duty_lon                         , '') AS duty_lon
 		     , COALESCE(a.duty_lat                         , '') AS duty_lat
