@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import {
   Container,
   Button,
@@ -8,6 +8,7 @@ import {
   Row,
   Badge,
 } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { useSearchParams } from 'react-router-dom';
 import {
   insertBookmark,
@@ -29,6 +30,15 @@ const EmgcRltmDtl = () => {
   const hpId = searchParams.get('hpId');
 
   const { dialogState, showDialog, closeDialog } = useAlertDialog();
+
+  const gubun = searchParams.get('gubun');
+
+  const filteredSearchParams = useMemo(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('hpId');
+    params.delete('gubun');
+    return params.toString();
+  }, [searchParams, gubun]);
 
   const addBookmark = async (e) => {
     e.preventDefault();
@@ -310,7 +320,7 @@ const EmgcRltmDtl = () => {
         </Card.Body>
       </Card>
 
-      <Card className="shadow-sm border-0">
+      <Card className="shadow-sm border-0 mb-3">
         <Card.Header className="bg-warning text-white fw-bold">
           실시간 병상정보
         </Card.Header>
@@ -333,9 +343,424 @@ const EmgcRltmDtl = () => {
               {emgcDtl.emgcErsGenPressStddBedPsn > 0 && (
                 <Col xs={6} md={3} className="mb-2">
                   <Badge bg="light" text="dark" className="w-100 text-start">
-                    응급실 일반 격리 병상{' '}
+                    응급실 일반격리 병상{' '}
                     <span style={{ color: 'red', fontWeight: 'bold' }}>
                       [{emgcDtl.emgcErsGenPressBedPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.emgcErsNegPressStddBedPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    응급실 음압격리 병상{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.emgcErsNegPressBedPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.emgcIcuNegPressStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    응급전용 중환자실 음압격리{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.emgcIcuNegPressPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.emgcIcuGenPressStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    응급전용 중환자실 일반격리{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.emgcIcuGenPressPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.emgcIptNegPressStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    응급전용 입원실 음압격리{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.emgcIptNegPressPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.emgcIptGenPressStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    응급전용 입원실 일반격리{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.emgcIptGenPressPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.emgcIcuStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    응급전용 중환자실{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.emgcIcuPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.emgcIptStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    응급전용 입원실{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.emgcIptPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.emgcPedIptStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    응급전용 소아입원실{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.emgcPedIptPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.emgcPedIcuStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    응급전용 소아중환자실{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.emgcPedIcuPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+            </Row>
+            <h6 className="fw-bold text-primary border-start border-4 border-primary ps-2">
+              중환자실
+            </h6>
+            <Row>
+              {emgcDtl.icuNeuroStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    중환자실 신경과{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.icuNeuroPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.icuNeoStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    중환자실 신생아{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.icuNeoPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.icuThorSurgStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    중환자실 흉부외과{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.icuThorSurgPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.icuGenStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    중환자실 일반{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.icuGenPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.icuMedStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    중환자실 내과{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.icuMedPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.icuSurgStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    중환자실 외과{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.icuSurgStddPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.icuNeuroSurgStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    중환자실 신경외과{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.icuNeuroSurgPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.icuBurnStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    중환자실 화상{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.icuBurnPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.icuTraumaStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    중환자실 외상{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.icuTraumaPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.icuPedStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    중환자실 소아{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.icuPedPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.icuCardioStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    중환자실 심장내과{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.icuCardioPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.icuNegPressStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    중환자실 음압격리{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.icuNegPressPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+            </Row>
+            <h6 className="fw-bold text-primary border-start border-4 border-primary ps-2">
+              입원실
+            </h6>
+            <Row>
+              {emgcDtl.iptGenStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    입원실 일반{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.iptGenPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.iptTraumaStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    입원실 외상전용{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.iptTraumaPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.iptPsyClosedStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    입원실 정신과 폐쇄병동{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.iptPsyClosedPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.iptNegPressStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    입원실 음압격리{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.iptNegPressPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+            </Row>
+            <h6 className="fw-bold text-primary border-start border-4 border-primary ps-2">
+              소아
+            </h6>
+            <Row>
+              {emgcDtl.pedStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    소아{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.pedPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.pedNegPressStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    소아 음압격리{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.pedPressBedPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.pedGenPressStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    소아 일반격리{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.pedIsolBedPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+            </Row>
+            <h6 className="fw-bold text-primary border-start border-4 border-primary ps-2">
+              수술실
+            </h6>
+            <Row>
+              {emgcDtl.etcOpStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    수술실{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.opPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.etcTraumaOpStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    외상전용 수술실{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.etcTraumaOpPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+            </Row>
+            <h6 className="fw-bold text-primary border-start border-4 border-primary ps-2">
+              격리
+            </h6>
+            <Row>
+              {emgcDtl.isolareaNegPressStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    격리진료구역 음압격리 병상{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.isolareaNegPressBedPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.isolareaGenPressStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    격리진료구역 일반격리 병상{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.isolareaGenPressBedPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+            </Row>
+            <h6 className="fw-bold text-primary border-start border-4 border-primary ps-2">
+              감염
+            </h6>
+            <Row>
+              {emgcDtl.infecDdcIcuStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    감염병 전담병상 중환자실{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.infecDdcIcuPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.infecDdcIcuNegPressStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    감염병 전담병상 중환자실 내 음압격리 병상{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.infecDdcIcuNegPressPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.infecSevereBedStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    감염병 전담병상 중증 병상{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.infecSevereBedPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.infecSemiSevereBedStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    감염병 전담병상 준-중증 병상{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.infecSemiSevereBedPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+              {emgcDtl.infecMdrateBedStddPsn > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    감염병 전담병상 중등증 병상{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.infecMdrateBedPsn}명 이용가능]
+                    </span>
+                  </Badge>
+                </Col>
+              )}
+            </Row>
+            <h6 className="fw-bold text-primary border-start border-4 border-primary ps-2">
+              코호트
+            </h6>
+            <Row>
+              {emgcDtl.chrtIsolStddCnt > 0 && (
+                <Col xs={6} md={3} className="mb-2">
+                  <Badge bg="light" text="dark" className="w-100 text-start">
+                    코호트 격리{' '}
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      [{emgcDtl.chrtIsolPsn}명 이용가능]
                     </span>
                   </Badge>
                 </Col>
@@ -344,6 +769,19 @@ const EmgcRltmDtl = () => {
           </div>
         </Card.Body>
       </Card>
+
+      <Link
+        to={{
+          pathname: gubun === '1' ? '/emgcRltmList' : '/bookmarkList',
+          search: filteredSearchParams,
+        }}
+        className="text-decoration-none text-dark"
+      >
+        {/* 상세보기 버튼 */}
+        <Button variant="primary" size="sm" className="ms-2">
+          목록
+        </Button>
+      </Link>
 
       {/* 모달 알림 */}
       <AlertDialog

@@ -99,6 +99,47 @@ const EmgcRltmList = () => {
     }
   };
 
+  // 쿼리스트링 기반 조회조건 세팅
+  const initParams = async () => {
+    const query = Object.fromEntries(searchParams.entries());
+
+    const { size = 10, dutyNm = '', sidoNm, gugunNm, dongNm, page = 0 } = query;
+
+    // 조회 조건 세팅
+    setMstSearchParams({ size, dutyNm });
+
+    let sidoCd, gugunCd, dongCd;
+
+    if (sidoNm) {
+      sidoCd = sidoList.find((s) => s.bjdNm === sidoNm)?.bjdCd;
+      if (sidoCd) {
+        const gugunRes = await getGugunList(sidoCd);
+        if (gugunRes.status === 200) {
+          setGugunList(gugunRes.data);
+          if (gugunNm) {
+            gugunCd = gugunRes.data.find((g) => g.bjdNm === gugunNm)?.bjdCd;
+
+            if (gugunCd) {
+              const dongRes = await getDongList(gugunCd);
+              if (dongRes.status === 200) {
+                setDongList(dongRes.data);
+                if (dongNm) {
+                  dongCd = dongRes.data.find((d) => d.bjdNm === dongNm)?.bjdCd;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    setBjdSearchParams({
+      sidoCd: sidoCd || '',
+      gugunCd: gugunCd || '',
+      dongCd: dongCd || '',
+    });
+  };
+
   // 쿼리스트링 세팅
   const handleSearchClick = () => {
     const newParams = new URLSearchParams();
@@ -126,16 +167,14 @@ const EmgcRltmList = () => {
     }
 
     newParams.set('page', 0);
-    setPage(0);
     setSearchParams(newParams);
-    // fetchEgmcMstList();
+    //fetchEgmcMstList();
   };
 
   const handlePageChange = (newPage) => {
-    setPage(newPage);
-
-    searchParams.set('page', newPage);
-    setSearchParams(searchParams);
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.set('page', newPage);
+    setSearchParams(newParams);
   };
 
   useEffect(() => {
@@ -164,9 +203,16 @@ const EmgcRltmList = () => {
     }
   }, [bjdSearchParams.gugunCd]);
 
+  // sidoList를 불러옴과 동시에 세팅
+  useEffect(() => {
+    if (sidoList.length > 0) {
+      initParams(); // 최초 한 번만 실행되게
+    }
+  }, [sidoList, searchParams.toString()]);
+
   useEffect(() => {
     fetchEgmcMstList();
-  }, [page, searchParams]);
+  }, [searchParams.toString()]);
 
   return (
     <Container fluid className="mt-5">
@@ -180,6 +226,7 @@ const EmgcRltmList = () => {
       >
         <div className="d-flex gap-3 mb-3">
           <Form.Select
+            value={bjdSearchParams.sidoCd}
             onChange={(e) => {
               setBjdSearchParams({
                 ...bjdSearchParams,
@@ -196,6 +243,7 @@ const EmgcRltmList = () => {
           </Form.Select>
 
           <Form.Select
+            value={bjdSearchParams.gugunCd}
             onChange={(e) => {
               setBjdSearchParams({
                 ...bjdSearchParams,
@@ -212,6 +260,7 @@ const EmgcRltmList = () => {
           </Form.Select>
 
           <Form.Select
+            value={bjdSearchParams.dongCd}
             onChange={(e) => {
               setBjdSearchParams({
                 ...bjdSearchParams,
@@ -245,7 +294,7 @@ const EmgcRltmList = () => {
           }}
         >
           <Form.Select
-            value={searchParams.get('size') || 10}
+            value={mstSearchParams.size}
             style={{ flex: '1', maxWidth: '20%' }}
             onChange={(e) =>
               setMstSearchParams({ ...mstSearchParams, size: e.target.value })
@@ -278,7 +327,9 @@ const EmgcRltmList = () => {
                   <Link
                     to={{
                       pathname: '/emgcRltmDtl',
-                      search: `${searchParams.toString()}&hpId=${item.hpId}`,
+                      search: `${searchParams.toString()}&hpId=${
+                        item.hpId
+                      }&gubun=1`,
                     }}
                     className="text-decoration-none text-dark"
                   >
