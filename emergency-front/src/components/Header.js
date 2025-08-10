@@ -31,7 +31,11 @@ const Header = () => {
             </Nav>
             {isLoggedIn ? (
               <Nav>
-                <Nav.Link as={Link} to="/bookmarkList" className="px-2">
+                <Nav.Link
+                  as={Link}
+                  to="/bookmarkList?offset=0&size=10"
+                  className="px-2"
+                >
                   즐겨찾기
                 </Nav.Link>
                 <Nav.Link as={Link} to="/" className="px-2">

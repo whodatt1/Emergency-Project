@@ -36,7 +36,11 @@ const EmgcRltmDtl = () => {
   const filteredSearchParams = useMemo(() => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete('hpId');
-    params.delete('gubun');
+
+    if (gubun === '1') {
+      params.delete('gubun');
+    }
+
     return params.toString();
   }, [searchParams, gubun]);
 

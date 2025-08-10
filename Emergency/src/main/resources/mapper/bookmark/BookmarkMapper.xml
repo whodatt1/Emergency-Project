@@ -32,4 +32,45 @@
 		 WHERE user_id = #{userId}
 		   AND hp_id = #{hpId}
 	</delete>
+	
+	<select id="getBookmarkMstList" parameterType="com.emergency.web.dto.request.bookmark.BookmarkMstRequestDto" resultType="com.emergency.web.dto.response.emgc.EmgcMstResponseDto">
+		SELECT b.hp_id
+		     , b.duty_name
+		     , b.duty_ha_yn
+		     , b.duty_er_yn
+		     , b.post_cdn1
+		     , b.post_cdn2
+		     , b.duty_addr
+		     , b.duty_tel
+		     , b.duty_inf
+		  FROM tb_bookmark a
+		  JOIN tb_emgc_rltm_master b
+		    ON a.hp_id = b.hp_id
+		 <where>
+			 <if test="userId != null and userId != ''">
+	             AND a.user_id = #{userId}
+	         </if>
+	         <if test="dutyNm != null and dutyNm != ''">
+	             AND b.duty_name LIKE CONCAT('%', #{dutyNm}, '%')
+	         </if>
+     	</where>
+	  ORDER BY b.duty_name
+	     LIMIT #{offset}, #{size};
+	</select>
+	
+	<select id="getBookmarkMstListTotalCnt" parameterType="com.emergency.web.dto.request.bookmark.BookmarkMstRequestDto" resultType="int">
+		SELECT COUNT(*)
+		  FROM tb_bookmark a
+		  JOIN tb_emgc_rltm_master b
+		    ON a.hp_id = b.hp_id
+		 <where>
+			 <if test="userId != null and userId != ''">
+	             AND a.user_id = #{userId}
+	         </if>
+	         <if test="dutyNm != null and dutyNm != ''">
+	             AND b.duty_name LIKE CONCAT('%', #{dutyNm}, '%')
+	         </if>
+     	</where>
+	  ORDER BY b.duty_name;
+	</select>
 </mapper>

@@ -67,7 +67,7 @@ const App = () => {
 
         notification.onclick = () => {
           if (hpId) {
-            navigate('/emgcRltmDtl', {
+            navigate(`/emgcRltmDtl?hpId=${hpId}&gubun=2`, {
               state: { hpId: hpId },
             });
             window.focus();

@@ -84,7 +84,7 @@ public class EmergencyScheduler {
 	
 	// 12 시간마다 실행 
 //	@Scheduled(fixedRate = 60000)
-	@Scheduled(cron = "0 0 6,18 * * ?")
+//	@Scheduled(cron = "0 0 6,18 * * ?")
 	public void staleEmgcRltmOutboxCleaner() {
 		log.info("staleEmgcRltmOutboxCleaner start");
 		

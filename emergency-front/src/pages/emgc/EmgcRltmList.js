@@ -10,7 +10,6 @@ const EmgcRltmList = () => {
   const [sidoList, setSidoList] = useState([]);
   const [gugunList, setGugunList] = useState([]);
   const [dongList, setDongList] = useState([]);
-  const [page, setPage] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [bjdSearchParams, setBjdSearchParams] = useState({
@@ -103,7 +102,7 @@ const EmgcRltmList = () => {
   const initParams = async () => {
     const query = Object.fromEntries(searchParams.entries());
 
-    const { size = 10, dutyNm = '', sidoNm, gugunNm, dongNm, page = 0 } = query;
+    const { size = 10, dutyNm = '', sidoNm, gugunNm, dongNm } = query;
 
     // 조회 조건 세팅
     setMstSearchParams({ size, dutyNm });
@@ -168,7 +167,6 @@ const EmgcRltmList = () => {
 
     newParams.set('page', 0);
     setSearchParams(newParams);
-    //fetchEgmcMstList();
   };
 
   const handlePageChange = (newPage) => {

@@ -1,6 +1,7 @@
 package com.emergency.web.service.bookmark;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -12,6 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.emergency.web.auth.PrincipalDetails;
 import com.emergency.web.dto.request.bookmark.BookmarkDelRequestDto;
 import com.emergency.web.dto.request.bookmark.BookmarkInsRequestDto;
+import com.emergency.web.dto.request.bookmark.BookmarkMstRequestDto;
+import com.emergency.web.dto.response.bookmark.BookmarkMstResponseDto;
+import com.emergency.web.dto.response.emgc.EmgcMstResponseDto;
 import com.emergency.web.exception.GlobalException;
 import com.emergency.web.mapper.bookmark.BookmarkMapper;
 import com.emergency.web.model.Bookmark;
@@ -37,6 +41,30 @@ import lombok.RequiredArgsConstructor;
 public class BookmarkService {
 	
 	private final BookmarkMapper bookmarkMapper;
+	
+	@Transactional
+	public BookmarkMstResponseDto getBookmarkMstList(BookmarkMstRequestDto bookmarkMstRequestDto) {
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		
+		// 인증이 없으면 AnonymousAuthenticationFilter가 작동하여 익명토큰을 자동으로 넣음 authentication.isAuthenticated() 가 true로 세팅되어 조건 추가
+		if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
+			throw new GlobalException("인증되지 않은 사용자입니다.", "UNAUTHORIZED", HttpStatus.UNAUTHORIZED);
+		}
+		
+		PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
+		String userId = principal.getUser().getUserId();
+		
+		bookmarkMstRequestDto.setUserId(userId);
+		
+		List<EmgcMstResponseDto> bookmarkMstList = bookmarkMapper.getBookmarkMstList(bookmarkMstRequestDto);
+		int totalCnt = bookmarkMapper.getBookmarkMstListTotalCnt(bookmarkMstRequestDto);
+		
+		return BookmarkMstResponseDto.builder()
+									 .content(bookmarkMstList)
+									 .totalCnt(totalCnt)
+									 .build();
+	}
 	
 	@Transactional
 	public void insertBookmark(BookmarkInsRequestDto bookmarkInsRequestDto) {

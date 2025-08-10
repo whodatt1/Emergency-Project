@@ -8,11 +8,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.emergency.web.dto.request.bookmark.BookmarkDelRequestDto;
-import com.emergency.web.dto.request.bookmark.BookmarkExistRequestDto;
 import com.emergency.web.dto.request.bookmark.BookmarkInsRequestDto;
+import com.emergency.web.dto.request.bookmark.BookmarkMstRequestDto;
 import com.emergency.web.service.bookmark.BookmarkService;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -33,6 +32,11 @@ import lombok.RequiredArgsConstructor;
 public class BookmarkController {
 	
 	private final BookmarkService bookmarkService;
+	
+	@GetMapping("/api/v1/bookmark/mst")
+	public ResponseEntity<?> getBookmarkMstList(BookmarkMstRequestDto bookmarkMstRequestDto) {
+		return ResponseEntity.ok(bookmarkService.getBookmarkMstList(bookmarkMstRequestDto));
+	}
 	
 	@PostMapping("/api/v1/bookmark/ins")
 	public ResponseEntity<?> insertBookmark(@RequestBody BookmarkInsRequestDto bookmarkInsRequestDto) {
