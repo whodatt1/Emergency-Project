@@ -3,8 +3,10 @@ package com.emergency.web.service.user;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.emergency.web.dto.request.user.ChkUserRequestDto;
 import com.emergency.web.dto.response.auth.UserInfoResponseDto;
 import com.emergency.web.exception.GlobalException;
 import com.emergency.web.mapper.user.UserMapper;
@@ -33,6 +35,8 @@ public class UserService {
 	
 	private final UserMapper userMapper;
 	
+	private final BCryptPasswordEncoder bCryptPasswordEncoder;
+	
 	public UserInfoResponseDto getMe() {
 		
 		log.info("getMe running");
@@ -54,5 +58,26 @@ public class UserService {
 		return UserInfoResponseDto.builder()
 								  .userId(user.getUserId())
 								  .build();
+	}
+
+	public Boolean chkMe(ChkUserRequestDto chkUserRequestDto) {
+		
+		Boolean chk = false;
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		
+		if (authentication == null || !authentication.isAuthenticated()) {
+			throw new GlobalException("인증되지 않은 사용자입니다.", "UNAUTHORIZED", HttpStatus.UNAUTHORIZED);
+		}
+			
+		String userId = authentication.getName();
+		
+		User user = userMapper.findById(userId);
+		
+		if (bCryptPasswordEncoder.matches(chkUserRequestDto.getPassword(), user.getPassword())) {
+	        chk = true;
+	    }
+		
+		return chk;
 	}
 }

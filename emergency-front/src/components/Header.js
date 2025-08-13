@@ -38,7 +38,7 @@ const Header = () => {
                 >
                   즐겨찾기
                 </Nav.Link>
-                <Nav.Link as={Link} to="/" className="px-2">
+                <Nav.Link as={Link} to="/userDetailAuth" className="px-2">
                   {userInfo.userId}
                 </Nav.Link>
                 <Nav.Link onClick={handleLogout} className="px-2">

@@ -2,8 +2,10 @@ package com.emergency.web.ctrl;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.emergency.web.dto.request.user.ChkUserRequestDto;
 import com.emergency.web.dto.response.auth.UserInfoResponseDto;
 import com.emergency.web.service.user.UserService;
 
@@ -34,5 +36,15 @@ public class UserController {
 		UserInfoResponseDto userInfoResponseDto = userService.getMe();
 		
 		return ResponseEntity.ok(userInfoResponseDto);
+	}
+	
+	@PostMapping("/api/v1/user/chk")
+	public ResponseEntity<?> chkMe(@RequestBody ChkUserRequestDto chkUserRequestDto) {
+		
+		System.out.println("11111111111111111111111111111111111111111" + chkUserRequestDto.toString());
+		
+		Boolean chk = userService.chkMe(chkUserRequestDto);
+		
+		return ResponseEntity.ok(chk);
 	}
 }
