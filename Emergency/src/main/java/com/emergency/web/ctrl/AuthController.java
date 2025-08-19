@@ -41,9 +41,6 @@ public class AuthController {
 	
 	private final AuthService authService;
 	
-	// 테스트용으로 추가
-	private final FcmService fcmService;
-	
 	private final TypeSafeProperties typeSafeProperties;
 	
 	private final JwtUtils jwtUtils;
@@ -118,7 +115,9 @@ public class AuthController {
 		if (errors.hasErrors()) {
 			return ResponseEntity.badRequest().body(authService.validHandle(errors));
 		}
+		
 		authService.signUp(joinRequestDto);
+		
 		return ResponseEntity.ok().body(null);
 	}
 }

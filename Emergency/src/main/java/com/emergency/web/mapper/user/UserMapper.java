@@ -22,4 +22,5 @@ public interface UserMapper {
 	User findById(String id);
 	int saveUser(User user);
 	int updateLastLogin(String id);
+	int modMe(User user);
 }

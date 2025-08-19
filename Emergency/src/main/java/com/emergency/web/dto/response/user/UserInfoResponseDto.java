@@ -1,4 +1,4 @@
-package com.emergency.web.dto.response.auth;
+package com.emergency.web.dto.response.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * 
-* @packageName     : com.emergency.web.dto.response.auth
+* @packageName     : com.emergency.web.dto.response.user
 * @fileName        : UserInfoResponseDto.java
 * @author          : KHK
 * @date            : 2025.01.11

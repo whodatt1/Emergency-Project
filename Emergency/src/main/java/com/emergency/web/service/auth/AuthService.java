@@ -254,8 +254,6 @@ public class AuthService {
 		
 		Fcm existingToken = fcmMapper.getFcmInfoByUserIdAndFcmToken(fcm);
 		
-		System.out.println("여기ㅣㅣㅣ + " + fcm.toString());
-		
 		if (existingToken != null) {
 			if (fcm.getUserId().equals(existingToken.getUserId()) && !fcm.getFcmToken().equals(existingToken.getFcmToken())) {
 				int delResult = fcmMapper.deleteFcmInfoByUserId(fcm.getUserId());

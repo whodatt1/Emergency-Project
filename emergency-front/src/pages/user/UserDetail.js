@@ -1,23 +1,23 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, FloatingLabel, Form, Container } from 'react-bootstrap';
 import AlertDialog from '../../components/AlertDialog';
 import DaumPC from '../../components/DaumPC';
 import { useNavigate } from 'react-router-dom'; // useNavigate 훅 임포트
-import { signUp } from '../../apis/auth';
+import { getMeDetail } from '../../apis/user';
 import { useAlertDialog } from '../../hooks/useAlertDialog';
 
-const UserJoin = () => {
+const UserDetail = () => {
   const navigate = useNavigate();
 
   const { dialogState, showDialog, closeDialog } = useAlertDialog();
 
   const [user, setUser] = useState({
-    userId: '',
     password: '',
     email: '',
     hp: '',
     postCd: '',
     address: '',
+    changePassword: false,
   });
 
   const [errorMessage, setErrorMessage] = useState({
@@ -27,7 +27,6 @@ const UserJoin = () => {
 
   const [validMessage, setValidMessage] = useState({
     errorCd: '',
-    userId: '',
     password: '',
     email: '',
     hp: '',
@@ -37,8 +36,28 @@ const UserJoin = () => {
 
   const [showPostCode, setShowPostCode] = useState(false);
 
+  const fetchMeDetail = async () => {
+    try {
+      const res = await getMeDetail();
+
+      if (res.status === 200) {
+        setUser(res.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const changeValue = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
+
+    if (type === 'checkbox') {
+      setUser({
+        ...user,
+        [name]: checked,
+      });
+      return;
+    }
 
     if (name === 'hp') {
       const formattedValue = formatPhoneNumber(value);
@@ -82,12 +101,11 @@ const UserJoin = () => {
     setShowPostCode(true);
   };
 
-  const joinUser = async (e) => {
+  const modifyUser = async (e) => {
     e.preventDefault();
     // 기존 데이터 초기화
     setValidMessage({
       errorCd: '',
-      userId: '',
       password: '',
       email: '',
       hp: '',
@@ -102,13 +120,11 @@ const UserJoin = () => {
 
     try {
       // 회원가입 요청
-      const res = await signUp(user);
-
-      console.log(res);
-
-      if (res.status === 200) {
-        showDialog('회원가입에 성공하였습니다.', 'success');
-      }
+      //const res = await signUp(user);
+      // console.log(res);
+      // if (res.status === 200) {
+      //   showDialog('회원수정에 성공하였습니다.', 'success');
+      // }
     } catch (err) {
       console.log(err);
       if (err.response) {
@@ -117,7 +133,6 @@ const UserJoin = () => {
         if (data.errorCd === 'INVALID_FORM') {
           setValidMessage({
             errorCd: data.errorCd || '',
-            userId: data.userId || '',
             password: data.password || '',
             email: data.email || '',
             hp: data.hp || '',
@@ -142,25 +157,24 @@ const UserJoin = () => {
     }
   };
 
+  useEffect(() => {
+    fetchMeDetail();
+  }, []);
+
   return (
     <Container fluid className="mt-5">
-      <Form onSubmit={joinUser}>
+      <Form onSubmit={modifyUser}>
         <h1 className="h3 mb-3 fw-normal text-center">회원정보 관리</h1>
 
-        {/* 아이디 입력 */}
-        <FloatingLabel controlId="floatingID" label="ID" className="mb-3">
-          <Form.Control
-            type="text"
-            name="userId"
-            placeholder="아이디를 입력하세요."
-            value={user.userId}
-            onChange={changeValue}
-            isInvalid={!!validMessage.userId}
-          />
-          <Form.Control.Feedback type="invalid">
-            {validMessage.userId}
-          </Form.Control.Feedback>
-        </FloatingLabel>
+        {/* ✅ 비밀번호 변경 체크박스 */}
+        <Form.Check
+          type="checkbox"
+          id="changePasswordCheck"
+          label="비밀번호 변경"
+          className="mb-2"
+          checked={user.changePassword}
+          onChange={changeValue}
+        />
 
         {/* 비밀번호 입력 */}
         <FloatingLabel
@@ -175,6 +189,7 @@ const UserJoin = () => {
             value={user.password}
             onChange={changeValue}
             isInvalid={!!validMessage.password}
+            disabled={!user.changePassword}
           />
           <Form.Control.Feedback type="invalid">
             {validMessage.password}
@@ -286,4 +301,4 @@ const UserJoin = () => {
   );
 };
 
-export default UserJoin;
+export default UserDetail;
