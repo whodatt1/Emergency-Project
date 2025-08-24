@@ -9,13 +9,13 @@ import java.util.Date;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import com.emergency.web.auth.PrincipalDetails;
 import com.emergency.web.config.TypeSafeProperties;
 import com.emergency.web.exception.GlobalException;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -89,6 +89,28 @@ public class JwtUtils {
 	    } catch (Exception e) {
 	        // 다른 일반적인 예외 처리
 	        throw new GlobalException("토큰 생성 중 오류가 발생했습니다.", "REFRESH_TOKEN_CREATION_ERROR");
+	    }
+	}
+	
+	public String createVerifyToken(Authentication authentication) {
+	    try {
+	        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+	        Date expiryDate = new Date(new Date().getTime() + typeSafeProperties.getJwtVerifyExpirationTime());
+	        byte[] secretByteKey = typeSafeProperties.getJwtSecretCd().getBytes(StandardCharsets.UTF_8);
+	        Key signKey = new SecretKeySpec(secretByteKey, "HmacSHA512");
+
+	        return Jwts.builder()
+	                   .setSubject(principalDetails.getUsername())
+	                   .setIssuedAt(new Date())
+	                   .setExpiration(expiryDate)
+	                   .signWith(signKey, SignatureAlgorithm.HS512)
+	                   .compact();
+	    } catch (JwtException e) {
+	        // JWT 관련 오류 발생 시 처리
+	        throw new GlobalException("JWT 생성 중 오류가 발생했습니다.", "VERIFY_TOKEN_CREATION_ERROR");
+	    } catch (Exception e) {
+	        // 다른 일반적인 예외 처리
+	        throw new GlobalException("토큰 생성 중 오류가 발생했습니다.", "VERIFY_TOKEN_CREATION_ERROR");
 	    }
 	}
 
@@ -181,4 +203,18 @@ public class JwtUtils {
 		
 		return null;
 	}
+	
+	// 쿠키로부터 검증 토큰 추출
+		public String getVerifyTokenFromCookie(HttpServletRequest request) {
+			Cookie[] cookies = request.getCookies();
+			if (cookies != null) {
+				for (Cookie cookie : cookies) {
+					if (cookie.getName().equals(typeSafeProperties.getVerifyTokenName())) {
+						return cookie.getValue();
+					}
+				}
+			}
+			
+			return null;
+		}
 }

@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'; // useNavigate 훅 임포트
 import { chkMe } from '../../apis/user';
 import { useAlertDialog } from '../../hooks/useAlertDialog';
 
-const UserJoin = () => {
+const UserDetailAuth = () => {
   const navigate = useNavigate();
 
   const { dialogState, showDialog, closeDialog } = useAlertDialog();
@@ -34,6 +34,9 @@ const UserJoin = () => {
       console.log(res);
 
       if (res.status === 200) {
+        // 보안상 http-only로 할 예정
+        // 토큰을 사용하는 이유는 UserDetail url을 직접 쳐서 들어갈경우 해당 토큰으로 접근 여부를 관리하기 위해
+
         if (res.data) {
           showDialog('본인확인에 성공하였습니다.', 'success');
         } else {
@@ -96,4 +99,4 @@ const UserJoin = () => {
   );
 };
 
-export default UserJoin;
+export default UserDetailAuth;

@@ -28,9 +28,11 @@ public class TypeSafeProperties {
 	private String jwtSecretCd;
 	private int jwtAccessExpirationTime;
 	private int jwtRefreshExpirationTime;
+	private int jwtVerifyExpirationTime;
 	private String tokenPrefix;
 	private String headerString;
 	private String refreshTokenName;
+	private String verifyTokenName;
 	// API
 	private String apiNormalEncoding;
 	private String apiHost;

@@ -14,9 +14,11 @@ import org.springframework.validation.FieldError;
 
 import com.emergency.web.dto.request.user.ChkUserRequestDto;
 import com.emergency.web.dto.request.user.ModRequestDto;
+import com.emergency.web.dto.response.user.ChkUserResponseDto;
 import com.emergency.web.dto.response.user.UserInfoDtlResponseDto;
 import com.emergency.web.dto.response.user.UserInfoResponseDto;
 import com.emergency.web.exception.GlobalException;
+import com.emergency.web.jwt.JwtUtils;
 import com.emergency.web.mapper.user.UserMapper;
 import com.emergency.web.model.User;
 
@@ -45,6 +47,8 @@ public class UserService {
 	
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	
+	private final JwtUtils jwtUtils;
+	
 	@Transactional
 	public UserInfoResponseDto getMe() {
 		
@@ -70,7 +74,7 @@ public class UserService {
 	}
 	
 	@Transactional
-	public Boolean chkMe(ChkUserRequestDto chkUserRequestDto) {
+	public ChkUserResponseDto chkMe(ChkUserRequestDto chkUserRequestDto) {
 		
 		Boolean chk = false;
 		
@@ -88,11 +92,17 @@ public class UserService {
 	        chk = true;
 	    }
 		
-		return chk;
+		// Verify Token 생성
+		String verifyToken = jwtUtils.createVerifyToken(authentication);
+		
+		return ChkUserResponseDto.builder()
+								 .chk(chk)
+								 .verifyToken(verifyToken)
+								 .build();
 	}
 	
 	@Transactional
-	public UserInfoDtlResponseDto getMeDetail() {
+	public UserInfoDtlResponseDto getMeDetail(String verifyToken) {
 		
 		// SecurityContext에서 인증된 사용자 정보 추출
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -100,6 +110,10 @@ public class UserService {
 		if (authentication == null || !authentication.isAuthenticated()) {
 			throw new GlobalException("인증되지 않은 사용자입니다.", "UNAUTHORIZED", HttpStatus.UNAUTHORIZED);
 		}
+		
+		if (verifyToken == null || !jwtUtils.validateJwtToken(verifyToken)) {
+	        throw new GlobalException("유효하지 않은 검증 토큰입니다.", "INVALID_VERIFY_TOKEN", HttpStatus.UNAUTHORIZED);
+	    }
 			
 		String userId = authentication.getName();
 		
@@ -130,13 +144,14 @@ public class UserService {
 		String userId = authentication.getName();
 		
 		User.UserBuilder userBuilder = User.builder()
+				.userId(userId)
 		        .email(modRequestDto.getEmail())
 		        .hp(modRequestDto.getHp())
 		        .postCd(modRequestDto.getPostCd())
 		        .address(modRequestDto.getAddress());
 
 		if (modRequestDto.isChangePassword()) {
-			userBuilder.password(modRequestDto.getPassword()); // 여기서 조건부 세팅
+			userBuilder.password(bCryptPasswordEncoder.encode(modRequestDto.getPassword())); // 여기서 조건부 세팅
 		}
 
 		int res = userMapper.modMe(userBuilder.build());

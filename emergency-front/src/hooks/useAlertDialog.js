@@ -6,13 +6,15 @@ export function useAlertDialog() {
     open: false,
     message: '', // 모달 메시지 상태
     type: '', // 모달 타입 상태 ('success' or 'error')
+    errorCd: '',
   });
 
-  const showDialog = useCallback((message, type) => {
+  const showDialog = useCallback((message, type, errorCd = '') => {
     setDialogState({
       open: true,
       message,
       type,
+      errorCd,
     });
   }, []);
 

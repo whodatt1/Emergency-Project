@@ -50,7 +50,7 @@
 		 WHERE user_id = #{userId}
 	</update>
 	
-	<update id="updateUser" parameterType="com.emergency.web.model.User">
+	<update id="modMe" parameterType="com.emergency.web.model.User">
     	UPDATE tb_user
 	    <set>
 	        <if test="password != null and password != ''">
@@ -68,7 +68,7 @@
 	        <if test="address != null and address != ''">
 	            address = #{address},
 	        </if>
-	        mod_at = GETDATE()
+	        mod_at = NOW()
 	    </set>
 	     WHERE user_id = #{userId}
 	</update>

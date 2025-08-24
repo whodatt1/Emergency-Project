@@ -3,7 +3,7 @@ import { Button, FloatingLabel, Form, Container } from 'react-bootstrap';
 import AlertDialog from '../../components/AlertDialog';
 import DaumPC from '../../components/DaumPC';
 import { useNavigate } from 'react-router-dom'; // useNavigate 훅 임포트
-import { getMeDetail } from '../../apis/user';
+import { getMeDetail, modMe, outMeDetail } from '../../apis/user';
 import { useAlertDialog } from '../../hooks/useAlertDialog';
 
 const UserDetail = () => {
@@ -42,6 +42,26 @@ const UserDetail = () => {
 
       if (res.status === 200) {
         setUser(res.data);
+      }
+    } catch (error) {
+      console.log(error);
+
+      if (error.response.data.errorCd === 'INVALID_VERIFY_TOKEN') {
+        showDialog(
+          '회원수정 권한이 없습니다.',
+          'error',
+          'INVALID_VERIFY_TOKEN',
+        );
+      }
+    }
+  };
+
+  // verify 토큰 삭제
+  const fetchOutDetail = async () => {
+    try {
+      const res = await outMeDetail();
+
+      if (res.status === 200) {
       }
     } catch (error) {
       console.log(error);
@@ -101,7 +121,7 @@ const UserDetail = () => {
     setShowPostCode(true);
   };
 
-  const modifyUser = async (e) => {
+  const modUser = async (e) => {
     e.preventDefault();
     // 기존 데이터 초기화
     setValidMessage({
@@ -119,12 +139,11 @@ const UserDetail = () => {
     });
 
     try {
-      // 회원가입 요청
-      //const res = await signUp(user);
-      // console.log(res);
-      // if (res.status === 200) {
-      //   showDialog('회원수정에 성공하였습니다.', 'success');
-      // }
+      const res = await modMe(user);
+      console.log(res);
+      if (res.status === 200) {
+        showDialog('회원수정에 성공하였습니다.', 'success');
+      }
     } catch (err) {
       console.log(err);
       if (err.response) {
@@ -153,23 +172,33 @@ const UserDetail = () => {
     closeDialog();
 
     if (dialogState.type === 'success') {
-      navigate('/userLogin');
+      navigate('/');
+    } else {
+      if (dialogState.errorCd === 'INVALID_VERIFY_TOKEN') {
+        navigate('/userDetailAuth');
+      }
     }
   };
 
   useEffect(() => {
     fetchMeDetail();
+
+    return () => {
+      // 여기서 페이지 벗어날 경우 verify httpOnly 토큰을 삭제해줄 예정
+      fetchOutDetail();
+      console.log('UserDetail 벗어남');
+    };
   }, []);
 
   return (
     <Container fluid className="mt-5">
-      <Form onSubmit={modifyUser}>
+      <Form onSubmit={modUser}>
         <h1 className="h3 mb-3 fw-normal text-center">회원정보 관리</h1>
 
         {/* ✅ 비밀번호 변경 체크박스 */}
         <Form.Check
           type="checkbox"
-          id="changePasswordCheck"
+          name="changePassword"
           label="비밀번호 변경"
           className="mb-2"
           checked={user.changePassword}
@@ -296,6 +325,7 @@ const UserDetail = () => {
         message={dialogState.message}
         onConfirm={handleCloseDialog}
         type={dialogState.type} // 'success' 또는 'error'로 알림 타입 전달
+        errorCd={dialogState.errorCd}
       />
     </Container>
   );
