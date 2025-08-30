@@ -1,22 +1,50 @@
-# Emergency-Project
+# 🚨 Emergency-Project
 
-### 트러블슈팅
+## 📖 프로젝트 소개
+- 응급실을 이용하고자 하는 사람들에게 실시간 병상 정보를 제공하고자 하여 만들게 된 프로젝트입니다.
+- 응급실 / 입원실을 운영하는 병원 정보 리스트를 조회할 수 있으며, 진료과목, 가용 의료자원, 실시간 병상정보를 디테일 페이지에서 확인할 수 있습니다.
+- 로그인 후 특정 병원을 즐겨찾기 시 FCM 알림으로 갱신 알림을 받아볼 수 있습니다.
 
-1. 로그인시 Set-Cookie를 하였는데 네트워크에는 제대로 헤더가 붙어있지만 Cookie쪽에 저장되지 않는 상황 발생
-=> axios쪽에 withCredentials: true, // 쿠키와 자격증명 포함
+## 🛠 기술 스택
+### Frontend
+- React, React Router, React-Bootstrap, Axios
+### Backend
+- Spring BOOT / MySQL
+- Spring Security, OAuth2 Client, JWT, MyBatis, MySQL, Spring Batch, Kafka, Firebase Admin SDK (FCM)
 
-2. 로그인시 response.headers['authorization'] 이 안가져와짐
-=> 서버 CORS 필터에 .addExposedHeader("Authorization"); 추가하여 클라이언트쪽에서 읽을 수 있도록 수정한 후 해결
+## 📌 프로젝트 요약
 
-3. SERVICE KEY IS NOT REGISTERED ERROR 발생
-=> WebClient을 이용하여 http 요청을 할 때 service key를 queryParam으로 전달했는데, WebClient가 queryParam을 UriComponentsBuilder#encode() 방식을 이용해서 인코딩하기 때문에 service key의 값이 달라져서 생기는 문제
+https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15000563
 
-4. DefaultUriBuilderFactory() 객체를 생성하여 인코딩 모드를 NONE이나 VALUES_ONLY로 변경
+공공데이터포털에서 제공하는 전국 응급의료기관 정보 API를 활용한 웹사이트입니다.
 
-5. XMLMAPPER 사용하여 API XML 응답을 JSON으로 바꿔 처리하려고 의존성 추가하였는데 컨트롤러 응답시 XML이 우선시되는 상황이 발생 설정 추가하여 OBJECTMAPPER가 우선시되도록 수정
+- 사용자에게 실시간에 가깝게 정보를 제공해 주기 위하여 해당 API를 스프링 배치 + 스케쥴러를 활용하여 1분 주기로 DB에 업데이트하여 최신정보를 유지
+- JWT를 활용한 인증, 인가
+- 유저는 즐겨찾기한 병원에 대한 알림을 받을 수 있음. (비동기 처리, 안정적인 이벤트 전송을 위해 Kafka를 선택)
+  1. 배치의 Writer 내부에서 이벤트를 발행하여 해당 이벤트는 카프카 토픽에 메시지 발행
+  2. 카프카 Consumer가 FCM 토큰을 가지고 있는 유저에게 알림 전송
 
-6. 리액트 권한 요청 시 인터셉트 응답부분 originalRequest.headers.Authorization = ... 사용하여 재요청시 accessToken 전달이 안되어 계속 로그아웃 로직을 타게됨
-=> originalRequest.headers['authorization'] = ... 으로 수정하여 해결
+## 🔧 트러블슈팅
+
+### 1. 쿠키 저장 문제
+- **문제:** 로그인 시 `Set-Cookie`가 네트워크에는 보이지만 브라우저 Cookie에 저장되지 않음  
+- **해결:** Axios 요청에 `withCredentials: true` 추가
+
+### 2. Authorization 헤더 읽기 불가
+- **문제:** `response.headers['authorization']` 값을 클라이언트에서 읽을 수 없음  
+- **해결:** 서버 CORS 필터에 `.addExposedHeader("Authorization")` 추가
+
+### 3. SERVICE KEY 인코딩 문제
+- **문제:** WebClient 사용 시 `service key`가 자동 인코딩되어 오류 발생  
+- **해결:** `DefaultUriBuilderFactory` 생성 후 인코딩 모드 `NONE`/`VALUES_ONLY` 적용
+
+### 4. XML/JSON 매핑 우선순위 문제
+- **문제:** XMLMapper 사용 시 컨트롤러 응답이 XML로만 반환  
+- **해결:** ObjectMapper가 우선시되도록 설정 수정
+
+### 5. Axios 인터셉터 Authorization 누락
+- **문제:** `originalRequest.headers.Authorization` 설정 시 토큰 미반영  
+- **해결:** `originalRequest.headers['authorization']` 로 수정
 
 
 ## 🚀 로컬 Kafka 환경 (도커 사용)
