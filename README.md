@@ -12,6 +12,13 @@
 - Spring BOOT / MySQL
 - Spring Security, OAuth2 Client, JWT, MyBatis, MySQL, Spring Batch, Kafka, Firebase Admin SDK (FCM)
 
+## 💻 프로젝트 화면
+
+![리스트 페이지](./img/List.png)
+![디테일 페이지 1](./img/Detail1.png)
+![디테일 페이지 2](./img/Detail2.png)
+![FCM](./img/FCM.png)
+
 ## 📌 프로젝트 요약
 
 https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15000563
