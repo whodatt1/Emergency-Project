@@ -10,7 +10,7 @@
 - React, React Router, React-Bootstrap, Axios
 ### Backend
 - Spring BOOT / MySQL
-- Spring Security, OAuth2 Client, JWT, MyBatis, MySQL, Spring Batch, Kafka, Firebase Admin SDK (FCM)
+- Spring Security, JWT, MyBatis, MySQL, Spring Batch, Kafka, Firebase Admin SDK (FCM)
 
 ## 💻 프로젝트 화면
 
