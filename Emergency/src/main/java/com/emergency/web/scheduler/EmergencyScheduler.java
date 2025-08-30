@@ -52,7 +52,7 @@ public class EmergencyScheduler {
 	
 	// 로그인 후 로그인 혹은 로그아웃 과정을 거치지 않아 DB에 남아있는 만료기간이 지난 리프레쉬 토큰 삭제처리
 	@Async
-//	@Scheduled(fixedRate = 60000)
+	@Scheduled(fixedRate = 60000)
 	public void expiredRefreshTokensCleaner() {
 		// false일 경우 true로 변경 후 true 반환 if문 패스
 		// true일 경우 false 반환하며 if문 내부 실행하며 return
@@ -84,7 +84,7 @@ public class EmergencyScheduler {
 	
 	// 12 시간마다 실행 
 //	@Scheduled(fixedRate = 60000)
-//	@Scheduled(cron = "0 0 6,18 * * ?")
+	@Scheduled(cron = "0 0 6,18 * * ?")
 	public void staleEmgcRltmOutboxCleaner() {
 		log.info("staleEmgcRltmOutboxCleaner start");
 		
@@ -94,7 +94,7 @@ public class EmergencyScheduler {
 	}
 	
 	@Async
-//	@Scheduled(fixedRate = 60000)
+	@Scheduled(fixedRate = 60000)
 	public void excuteEmergencyRealTimeJob() {
 		if (isJobRunning("rltmApiJob")) {
 			log.warn("이전 배치가 실행 중입니다. 현재 배치를 건너뜁니다.");
@@ -123,7 +123,7 @@ public class EmergencyScheduler {
 	
 	@Async
 //	@Scheduled(fixedRate = 60000)
-//	@Scheduled(cron = "0 0 1 * * ?")
+	@Scheduled(cron = "0 0 1 * * ?")
 	public void excuteEmergencyBaseInfoJob() {
 		
 		try {
