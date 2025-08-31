@@ -32,11 +32,11 @@ const App = () => {
   const messaging = getMessaging(app);
 
   // 첫페이지 응급기관정보로 강제이동
-  // useEffect(() => {
-  //   if (window.location.pathname === '/') {
-  //     navigate('/emgcRltmList?page=0&size=10', { replace: true });
-  //   }
-  // }, [navigate]);
+  useEffect(() => {
+    if (window.location.pathname === '/') {
+      navigate('/emgcRltmList?page=0&size=10', { replace: true });
+    }
+  }, [navigate]);
 
   useEffect(() => {
     const initFcmToken = async () => {
