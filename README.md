@@ -10,19 +10,27 @@
 - React, React Router, React-Bootstrap, Axios
 ### Backend
 - Spring BOOT / MySQL
-- Spring Security, OAuth2 Client, JWT, MyBatis, MySQL, Spring Batch, Kafka, Firebase Admin SDK (FCM)
+- Spring Security, JWT, MyBatis, MySQL, Spring Batch, Kafka, Firebase Admin SDK (FCM)
 
-## 📌 프로젝트 요약
+## 💻 프로젝트 화면
+
+![리스트 페이지](./img/List.png)
+![디테일 페이지 1](./img/Detail1.png)
+![디테일 페이지 2](./img/Detail2.png)
+![FCM](./img/FCM.png)
+
+## 📌 프로젝트 핵심 요약
 
 https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15000563
 
 공공데이터포털에서 제공하는 전국 응급의료기관 정보 API를 활용한 웹사이트입니다.
 
 - 사용자에게 실시간에 가깝게 정보를 제공해 주기 위하여 해당 API를 스프링 배치 + 스케쥴러를 활용하여 1분 주기로 DB에 업데이트하여 최신정보를 유지
-- JWT를 활용한 인증, 인가
+- JWT를 활용한 인증, 인가 / 클라이언트에서 FCM 토큰 발행
 - 유저는 즐겨찾기한 병원에 대한 알림을 받을 수 있음. (비동기 처리, 안정적인 이벤트 전송을 위해 Kafka를 선택)
-  1. 배치의 Writer 내부에서 이벤트를 발행하여 해당 이벤트는 카프카 토픽에 메시지 발행
-  2. 카프카 Consumer가 FCM 토큰을 가지고 있는 유저에게 알림 전송
+  1. 배치의 Writer 업데이트 된 병원 리스트를 추려 해당 리스트로 내부에서 이벤트를 발행
+  2. 이벤트핸들러는 커밋 이전에 Outbox 테이블에 저장 / 커밋 이후 카프카 Producer 해당 리스트 객체의 Outbox를 PROCESSING으로 업데이트하며 FCM 토픽 발행 
+  3. 카프카 Consumer가 FCM 토큰을 가지고 있는 유저에게 알림 전송 및 Outbox 완료로 업데이트
 
 ## 🔧 트러블슈팅
 
