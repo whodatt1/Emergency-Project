@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.emergency.web.mapper.bookmark.BookmarkMapper">
+	
+	<insert id="insertBookmark" parameterType="com.emergency.web.model.Bookmark">
+		INSERT INTO tb_bookmark
+		(
+			user_id,
+			hp_id,
+			reg_at,
+			mod_at
+		)
+		VALUES
+		(
+			#{userId},
+			#{hpId},
+			#{regAt},
+			#{modAt}
+		)
+	</insert>
+	
+	<select id="existsBookmark" parameterType="com.emergency.web.model.Bookmark">
+		SELECT COUNT(*)
+		  FROM tb_bookmark
+		 WHERE user_id = #{userId}
+		   AND hp_id = #{hpId}
+	</select>
+	
+	<delete id="deleteBookmark" parameterType="com.emergency.web.model.Bookmark">
+		DELETE
+		  FROM tb_bookmark
+		 WHERE user_id = #{userId}
+		   AND hp_id = #{hpId}
+	</delete>
+	
+	<select id="getBookmarkMstList" parameterType="com.emergency.web.dto.request.bookmark.BookmarkMstRequestDto" resultType="com.emergency.web.dto.response.emgc.EmgcMstResponseDto">
+		SELECT b.hp_id
+		     , b.duty_name
+		     , b.duty_ha_yn
+		     , b.duty_er_yn
+		     , b.post_cdn1
+		     , b.post_cdn2
+		     , b.duty_addr
+		     , b.duty_tel
+		     , b.duty_inf
+		  FROM tb_bookmark a
+		  JOIN tb_emgc_rltm_master b
+		    ON a.hp_id = b.hp_id
+		 <where>
+			 <if test="userId != null and userId != ''">
+	             AND a.user_id = #{userId}
+	         </if>
+	         <if test="dutyNm != null and dutyNm != ''">
+	             AND b.duty_name LIKE CONCAT('%', #{dutyNm}, '%')
+	         </if>
+     	</where>
+	  ORDER BY b.duty_name
+	     LIMIT #{offset}, #{size};
+	</select>
+	
+	<select id="getBookmarkMstListTotalCnt" parameterType="com.emergency.web.dto.request.bookmark.BookmarkMstRequestDto" resultType="int">
+		SELECT COUNT(*)
+		  FROM tb_bookmark a
+		  JOIN tb_emgc_rltm_master b
+		    ON a.hp_id = b.hp_id
+		 <where>
+			 <if test="userId != null and userId != ''">
+	             AND a.user_id = #{userId}
+	         </if>
+	         <if test="dutyNm != null and dutyNm != ''">
+	             AND b.duty_name LIKE CONCAT('%', #{dutyNm}, '%')
+	         </if>
+     	</where>
+	  ORDER BY b.duty_name;
+	</select>
+</mapper>

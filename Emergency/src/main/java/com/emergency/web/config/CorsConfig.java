@@ -27,7 +27,10 @@ public class CorsConfig {
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowCredentials(true); // 자격증명을 포함하여 요청 가능하도록 설정
-		config.addAllowedOrigin("http://localhost:3000");
+		// 개발용
+		//config.addAllowedOrigin("http://localhost:3000");
+		// 도커 로컬 테스트용
+		config.addAllowedOrigin("http://localhost");
 		config.addAllowedHeader("*");
 		config.addAllowedMethod("*");
 		

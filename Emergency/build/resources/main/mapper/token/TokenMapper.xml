@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.emergency.web.mapper.token.TokenMapper">
+	
+	<insert id="saveRefreshToken" parameterType="com.emergency.web.model.RefreshToken">
+		INSERT INTO tb_refresh_token
+		(
+			user_id,
+			token,
+			expiry_date
+		)
+		VALUES
+		(
+			#{userId},
+			#{token},
+			#{expiryDate}
+		)
+	</insert>
+	
+	<select id="getRefreshTokenByUserId" parameterType="string">
+		SELECT  user_id
+			  , token
+			  , expiry_date
+		  FROM tb_refresh_token
+		 WHERE user_id = #{userId}
+	</select>
+	
+	<delete id="deleteRefreshTokenByUserId" parameterType="string">
+		DELETE 
+		  FROM tb_refresh_token
+		 WHERE user_id = #{userId}
+	</delete>
+	
+	<delete id="deleteExpiredRefreshToken">
+		DELETE
+		  FROM tb_refresh_token
+		 WHERE expiry_date <![CDATA[<]]> NOW()
+	</delete>
+	
+	<select id="getUserIdsWithExpiredRefreshToken" parameterType="string">
+		SELECT  user_id
+		  FROM tb_refresh_token
+		 WHERE expiry_date <![CDATA[<]]> NOW()
+	</select>
+	
+</mapper>

@@ -3,6 +3,7 @@ package com.emergency.web.config;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -13,12 +14,14 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
 /**
  * 
@@ -36,6 +39,7 @@ import lombok.RequiredArgsConstructor;
 * 2025.06.22        KHK                최초 생성
  */
 
+@Log4j2
 @Configuration
 @RequiredArgsConstructor
 public class KafkaConfig {
@@ -45,6 +49,8 @@ public class KafkaConfig {
 	// Producer를 만들고 관리하는 역할
 	@Bean
 	public ProducerFactory<String, Object> producerFactory() {
+		log.info("프로듀서 팩토리 : " + typeSafeProperties.getBootstrapServers());
+		
 		Map<String, Object> config = new HashMap<>();
 		// 브로커 설정
 		config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, typeSafeProperties.getBootstrapServers());
@@ -58,6 +64,8 @@ public class KafkaConfig {
 	// Consumer를 만들고 관리하는 역할
 	@Bean
 	public ConsumerFactory<String, Object> consumerFactory() {
+		log.info("컨슈머 팩토리 : " + typeSafeProperties.getBootstrapServers());
+		
 		Map<String, Object> config = new HashMap<>();
 		// 브로커 설정
 		config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, typeSafeProperties.getBootstrapServers());

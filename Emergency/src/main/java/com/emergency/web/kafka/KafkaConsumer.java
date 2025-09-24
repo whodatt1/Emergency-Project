@@ -52,13 +52,27 @@ public class KafkaConsumer {
             String dutyName = param.get("dutyName");
             
             List<Fcm> fcmList = fcmMapper.getFcmListWithHpId(hpId);
+            List<String> tokens = fcmList.stream()
+					                     .map(Fcm::getFcmToken)
+					                     .toList();
             
-            for (Fcm fcm : fcmList) {
+            int chunkSize = 100;
+            for (int i = 0; i < tokens.size(); i += chunkSize) {
+            	// 청크 사이즈만큼 리스트 자르기
+            	List<String> chunk = tokens.subList(i, Math.min(i + chunkSize, tokens.size()));
             	try {
-            		fcmService.sendNotification(dutyName, dutyName + "의 정보가 변경되었습니다.", hpId, fcm.getFcmToken());
+            		// 기존방식 HTTP 호출을 토큰별로 하게됨 과도한 호출로 인해 배포시 아웃바운드 과부하 발생 우려
+            		// fcmService.sendNotification(dutyName, dutyName + "의 정보가 변경되었습니다.", hpId, fcm.getFcmToken());
+            		fcmService.sendMulticastNotification(
+                            dutyName, 
+                            dutyName + "의 정보가 변경되었습니다.", 
+                            hpId, 
+                            chunk
+                    );
 				} catch (Exception e) {
 					allSuccess = false;
-					log.error("FCM 전송 실패 - token: {}, 에러: {}", fcm.getFcmToken(), e.getMessage(), e);
+					//log.error("FCM 전송 실패 - token: {}, 에러: {}", fcm.getFcmToken(), e.getMessage(), e);
+					log.error("FCM 멀티캐스트 전송 실패 - 토큰 수: {}, 에러: {}", chunk.size(), e.getMessage(), e);
 				}
 			}
             

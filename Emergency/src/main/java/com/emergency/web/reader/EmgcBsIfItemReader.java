@@ -18,6 +18,7 @@ import com.emergency.web.dto.response.emgc.EmgcBsIfResponseDto;
 import com.emergency.web.mapper.emgc.EmgcMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -38,22 +39,18 @@ import reactor.core.publisher.Mono;
 @Log4j2
 @Component
 @StepScope
+@RequiredArgsConstructor
 public class EmgcBsIfItemReader implements ItemReader<List<EmgcBsIfResponseDto>> {
 	
-	@Autowired
-	private TypeSafeProperties typeSafeProperties;
+	private final TypeSafeProperties typeSafeProperties;
 	
-	@Autowired
-	private ModelMapper modelMapper;
+	private final ModelMapper modelMapper;
 	
-	@Autowired
-	private WebClient webClient;
+	private final WebClient webClient;
 	
-	@Autowired
-	private XmlMapper xmlMapper;
+	private final XmlMapper xmlMapper;
 	
-	@Autowired
-	private EmgcMapper emgcRltmMapper;
+	private final EmgcMapper emgcRltmMapper;
 	
 	private int offset = 0;
 	

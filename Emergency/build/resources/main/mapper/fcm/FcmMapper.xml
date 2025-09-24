@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.emergency.web.mapper.fcm.FcmMapper">
+	
+	<insert id="insertFcmInfo" parameterType="com.emergency.web.model.Fcm">
+		INSERT INTO tb_fcm
+		(
+			user_id,
+			fcm_token		
+		)
+		VALUES
+		(
+			#{userId},
+			#{fcmToken}
+		)
+	</insert>
+	
+	<select id="getFcmInfoByUserIdAndFcmToken" parameterType="com.emergency.web.model.Fcm">
+		SELECT user_id,
+		       fcm_token
+		  FROM tb_fcm
+		 WHERE user_id = #{userId}
+		   AND fcm_token = #{fcmToken}   
+	</select>
+	
+	<delete id="deleteFcmInfoByUserId" parameterType="string">
+		DELETE
+		  FROM tb_fcm
+		 WHERE user_id = #{userId}
+	</delete>
+	
+	<select id="getFcmListWithHpId" parameterType="string">
+		SELECT a.user_id,
+			   a.fcm_token
+		  FROM tb_fcm a
+		  JOIN tb_bookmark b
+		    ON a.user_id = b.user_id
+		 WHERE b.hp_id = #{hpId}
+	</select>
+</mapper>

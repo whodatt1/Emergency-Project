@@ -1,7 +1,8 @@
 package com.emergency.web.reader;
 
 import java.time.Duration;
-import java.util.List;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -10,14 +11,15 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.NonTransientResourceException;
 import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.emergency.web.config.TypeSafeProperties;
 import com.emergency.web.dto.response.emgc.EmgcRltmResponseDto;
+import com.emergency.web.struct.EmgcRltmStruct;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
@@ -38,51 +40,59 @@ import reactor.util.retry.Retry;
 @Log4j2
 @Component
 @StepScope
-public class EmgcRltmItemReader implements ItemReader<List<EmgcRltmResponseDto>> {
+@RequiredArgsConstructor
+public class EmgcRltmItemReader implements ItemReader<EmgcRltmResponseDto> {
 	
-	@Autowired
-	private TypeSafeProperties typeSafeProperties;
+	private final TypeSafeProperties typeSafeProperties;
 	
-	@Autowired
-	private ModelMapper modelMapper;
+	private final ModelMapper modelMapper;
 	
-	@Autowired
-	private WebClient webClient;
+	private final WebClient webClient;
 	
-	@Autowired
-	private XmlMapper xmlMapper;
+	private final XmlMapper xmlMapper;
+	
+	private final EmgcRltmStruct emgcRltmStruct;
+	
+	// List에 담긴 객체를 단일 객체로 넘겨주기 위한 버퍼
+	private Queue<EmgcRltmResponseDto> buffer = new LinkedList<>();
 	
 	private int currPage = 1;
 	
+	private boolean lastPage = false;
+	
 	@Override
-	public List<EmgcRltmResponseDto> read()
+	public EmgcRltmResponseDto read()
 			throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
 		
-		EmgcRltmResponseDto.ApiResponse resp = getRltmList(currPage);
-		
-		// 호출이 실패한 경우는 익셉션 반환
-		if (!resp.requestSuccess()) {
-			log.error("RltmApi call fail : " + resp.getHeader().getResultMsg());
-			return null;
-		}
-		
-		if (!resp.isLastPage()) {
-			currPage++;
-		} else {
-			return null;
-		}
-		
-		return resp.getBody().getItems().stream().map(rltmInfo -> {
-			EmgcRltmResponseDto responseDto = modelMapper.map(rltmInfo, EmgcRltmResponseDto.class);
+		if (buffer.isEmpty() && !lastPage) {
+			EmgcRltmResponseDto.ApiResponse resp = getRltmList(currPage);
 			
-			return responseDto;
-		}).collect(Collectors.toList());
+			// 호출이 실패한 경우는 익셉션 반환
+			if (!resp.requestSuccess()) {
+				log.error("RltmApi call fail : " + resp.getHeader().getResultMsg());
+				return null;
+			}
+			
+			// 마지막 페이지 체크
+            lastPage = resp.isLastPage();
+            currPage++;
+            
+            // 변환 후 버퍼 채우기
+            buffer.addAll(
+                resp.getBody().getItems().stream()
+                    .map(emgcRltmStruct::toDto)
+                    .collect(Collectors.toList())
+            );
+		}
+		
+		// 단일 객체 Processor에 전달
+		return buffer.poll();
 	}
 	 
 	public EmgcRltmResponseDto.ApiResponse getRltmList(int currPage) throws Exception {
 		
-		log.info("API Host: {}", typeSafeProperties.getApiHost());
-		log.info("API Path: {}", typeSafeProperties.getApiRltmPath());
+//		log.info("API Host: {}", typeSafeProperties.getApiHost());
+//		log.info("API Path: {}", typeSafeProperties.getApiRltmPath());
 		
 		// String으로 XML 응답을 받음
 		String xmlResponse = webClient
@@ -92,7 +102,7 @@ public class EmgcRltmItemReader implements ItemReader<List<EmgcRltmResponseDto>>
 						.path(typeSafeProperties.getApiRltmPath()) // 엔드포인트 경로
 						.queryParam("serviceKey", typeSafeProperties.getApiNormalEncoding()) // API 서비스키 전달
 						.queryParam("pageNo", currPage)
-						.queryParam("numOfRows", 100)
+						.queryParam("numOfRows", 500)
 						.build()
 						)
 				.retrieve() // API로부터 데이터를 가져옴
@@ -100,8 +110,6 @@ public class EmgcRltmItemReader implements ItemReader<List<EmgcRltmResponseDto>>
 				.bodyToMono(String.class) // XML 응답을 String으로 받음
 				.retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2)))
 				.block(); // 비동기 요청을 동기적으로 기다리고 결과를 반환 (Mono의 단일 값 처리)
-		
-		log.info("XML Response: {}", xmlResponse);
 		
 		// XML
 		return xmlMapper.readValue(xmlResponse, EmgcRltmResponseDto.ApiResponse.class);

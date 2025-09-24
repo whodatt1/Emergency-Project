@@ -2,6 +2,8 @@ package com.emergency.web.event;
 
 import java.util.List;
 
+import org.springframework.batch.item.Chunk;
+
 import com.emergency.web.model.EmgcRltm;
 
 import lombok.Getter;
@@ -21,10 +23,10 @@ import lombok.Getter;
 
 @Getter
 public class EmgcRltmBatchEvent<T extends EmgcRltm> {
-	private final List<T> emgcRltmItems;
+	private final Chunk<T> emgcRltmItems;
 	private final String batchId;
 	
-	public EmgcRltmBatchEvent(List<T> emgcRltmItems, String batchId) {
+	public EmgcRltmBatchEvent(Chunk<T> emgcRltmItems, String batchId) {
 		this.emgcRltmItems = emgcRltmItems;
 		this.batchId = batchId;
 	}

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.batch.item.Chunk;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -46,7 +47,7 @@ public class ApplicationEventHandler {
 	// outbox 테이블을 재조회하여 알림을 전달할 수 있다.
 	@TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
 	public void handleEmgcRltmBatchEventBefore(EmgcRltmBatchEvent<EmgcRltm> event) {
-		List<EmgcRltm> emgcRltmList = event.getEmgcRltmItems();
+		Chunk<EmgcRltm> emgcRltmList = event.getEmgcRltmItems();
 		// 여기서 db outbox 테이블에 저장
 		for (EmgcRltm emgcRltm : emgcRltmList) {
 			Map<String, String> payload = new HashMap<>();
@@ -74,7 +75,7 @@ public class ApplicationEventHandler {
 		}
 	}
 	
-	@Async // @Async를 사용하면 별도의 쓰레드에서 처리되므로, 메인 트랜잭션 흐름을 빠르게 마무리 가능
+	@Async
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void handleEmgcRltmBatchEventAfter(EmgcRltmBatchEvent<EmgcRltm> event) {
 		// 여기서 db outbox 테이블에 저장된 객체를 불러와 kafka 컨슈머 서비스 메서드 호출

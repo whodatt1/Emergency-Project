@@ -53,6 +53,7 @@ public class KafkaProducer {
 			
 			try {
 				String jsonPayload = objectMapper.writeValueAsString(message);
+				
 				kafkaTemplate.send("EmgcRltmEvent", jsonPayload)
 							 .whenComplete((result ,ex) -> {
 								 // result => kafka 전송이 성공했을때의 결과객체

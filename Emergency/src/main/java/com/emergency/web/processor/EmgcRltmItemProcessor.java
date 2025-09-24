@@ -1,8 +1,5 @@
 package com.emergency.web.processor;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
@@ -23,12 +20,12 @@ import com.emergency.web.model.EmgcRltm;
  */
 
 @Component
-public class EmgcRltmItemProcessor implements ItemProcessor<List<EmgcRltmResponseDto>, List<EmgcRltm>> {
+public class EmgcRltmItemProcessor implements ItemProcessor<EmgcRltmResponseDto, EmgcRltm> {
 
 	@Override
-	public List<EmgcRltm> process(List<EmgcRltmResponseDto> item) throws Exception {
+	public EmgcRltm process(EmgcRltmResponseDto item) throws Exception {
 		// DTO to VO
-		return item.stream().map(EmgcRltmResponseDto::toEntity).collect(Collectors.toList());
+		return item.toEntity();
 	}
 	
 }
