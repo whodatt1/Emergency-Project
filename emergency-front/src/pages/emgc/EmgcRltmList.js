@@ -39,6 +39,8 @@ const EmgcRltmList = () => {
 
       const query = Object.fromEntries(searchParams.entries());
 
+      console.log('query : ' + query);
+
       const res = await getEmgcMstList(query);
 
       console.log(res);
@@ -170,8 +172,13 @@ const EmgcRltmList = () => {
   };
 
   const handlePageChange = (newPage) => {
+    if (emgcMstList.length === 0) return;
+
+    const lastHpId = emgcMstList[emgcMstList.length - 1].hpId;
+
     const newParams = new URLSearchParams(searchParams.toString());
     newParams.set('page', newPage);
+    newParams.set('lastHpId', lastHpId);
     setSearchParams(newParams);
   };
 

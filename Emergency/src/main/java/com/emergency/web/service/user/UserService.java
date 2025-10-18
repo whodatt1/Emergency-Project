@@ -49,7 +49,6 @@ public class UserService {
 	
 	private final JwtUtils jwtUtils;
 	
-	@Transactional
 	public UserInfoResponseDto getMe() {
 		
 		log.info("getMe running");
@@ -73,7 +72,6 @@ public class UserService {
 								  .build();
 	}
 	
-	@Transactional
 	public ChkUserResponseDto chkMe(ChkUserRequestDto chkUserRequestDto) {
 		
 		Boolean chk = false;
@@ -101,7 +99,6 @@ public class UserService {
 								 .build();
 	}
 	
-	@Transactional
 	public UserInfoDtlResponseDto getMeDetail(String verifyToken) {
 		
 		// SecurityContext에서 인증된 사용자 정보 추출

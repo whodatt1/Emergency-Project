@@ -33,7 +33,7 @@ const Header = () => {
               <Nav>
                 <Nav.Link
                   as={Link}
-                  to="/bookmarkList?offset=0&size=10"
+                  to="/bookmarkList?lastHpId=&size=10"
                   className="px-2"
                 >
                   즐겨찾기

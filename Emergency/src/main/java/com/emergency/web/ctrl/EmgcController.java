@@ -37,6 +37,9 @@ public class EmgcController {
 	
 	@GetMapping("/api/v1/emgc/mst")
 	public ResponseEntity<?> getEmgcMstList(EmgcMstRequestDto emgcMstRequestDto, Pageable pageable) {
+		
+		System.out.println(emgcMstRequestDto.toString());
+		
 		// Page를 그대로 전달하는건 적합하지 않음 DTO로 감싸서 보내자 CustomDto를 만들기
 		Page<?> mstList = emgcService.getEmgcMstList(emgcMstRequestDto, pageable); 
 		

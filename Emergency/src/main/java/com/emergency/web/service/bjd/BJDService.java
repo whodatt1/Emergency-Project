@@ -33,19 +33,16 @@ public class BJDService {
 	private final BJDMapper bjdMapper;
 	private final ModelMapper modelMapper;
 	
-	@Transactional
 	public List<BJDResponseDto> getSidoList() {
 		List<BJD> sidoList = bjdMapper.getSidoList();
 		return sidoList.stream().map(bjd -> modelMapper.map(bjd, BJDResponseDto.class)).collect(Collectors.toList());
 	}
 	
-	@Transactional
 	public List<BJDResponseDto> getGugunList(String sidoCd) {
 		List<BJD> gugunList = bjdMapper.getGugunList(sidoCd);
 		return gugunList.stream().map(bjd -> modelMapper.map(bjd, BJDResponseDto.class)).collect(Collectors.toList());
 	}
 	
-	@Transactional
 	public List<BJDResponseDto> getDongList(String gugunCd) {
 		List<BJD> dongList = bjdMapper.getDongList(gugunCd); 
 		return dongList.stream().map(bjd -> modelMapper.map(bjd, BJDResponseDto.class)).collect(Collectors.toList());

@@ -1,8 +1,5 @@
 package com.emergency.web.processor;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
@@ -23,12 +20,12 @@ import com.emergency.web.model.EmgcBsIf;
  */
 
 @Component
-public class EmgcBsIfItemProcessor implements ItemProcessor<List<EmgcBsIfResponseDto>, List<EmgcBsIf>> {
+public class EmgcBsIfItemProcessor implements ItemProcessor<EmgcBsIfResponseDto, EmgcBsIf> {
 
 	@Override
-	public List<EmgcBsIf> process(List<EmgcBsIfResponseDto> item) throws Exception {
+	public EmgcBsIf process(EmgcBsIfResponseDto item) throws Exception {
 		// DTO to VO
-		return item.stream().map(EmgcBsIfResponseDto::toEntity).collect(Collectors.toList());
+		return item.toEntity();
 	}
 	
 }

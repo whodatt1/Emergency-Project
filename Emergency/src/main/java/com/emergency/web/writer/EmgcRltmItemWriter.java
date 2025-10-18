@@ -37,7 +37,6 @@ public class EmgcRltmItemWriter<T extends EmgcRltm> implements ItemWriter<EmgcRl
 	private final JdbcBatchItemWriter<EmgcRltm> jdbcBatchItemWriter;
 	private final EmgcMapper emgcMapper;
 	private final ApplicationEventPublisher applicationEventPublisher;
-	private final KafkaProducer kafkaProducer;
 
 	@Override
 	public void write(Chunk<? extends EmgcRltm> chunk) throws Exception {

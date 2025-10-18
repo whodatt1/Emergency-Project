@@ -33,6 +33,7 @@
 		   AND hp_id = #{hpId}
 	</delete>
 	
+	<!-- 해당 List는 더보기 버튼 클릭 시 10개씩 추가되는 구조 디테일 페이지에서 돌아왔을때 펼친만큼 다시 보여주기 위해 offset 사용 -->
 	<select id="getBookmarkMstList" parameterType="com.emergency.web.dto.request.bookmark.BookmarkMstRequestDto" resultType="com.emergency.web.dto.response.emgc.EmgcMstResponseDto">
 		SELECT b.hp_id
 		     , b.duty_name

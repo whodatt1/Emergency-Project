@@ -31,4 +31,5 @@ public class EmgcMstRequestDto {
 	private String gugunNm;
 	private String dongNm;
 	private String dutyNm;
+	private String lastHpId;
 }

@@ -78,7 +78,14 @@ dependencies {
     // Firebase
     implementation 'com.google.firebase:firebase-admin:9.2.0'
     
-	
+	// Spring Boot Actuator (메트릭, 헬스체크 엔드포인트 제공)
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // Micrometer (Actuator 메트릭을 수집/노출)
+    implementation 'io.micrometer:micrometer-core'
+
+    // Prometheus 연동 (선택: 시각화하려면 Grafana + Prometheus 세트)
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 	
 }
 

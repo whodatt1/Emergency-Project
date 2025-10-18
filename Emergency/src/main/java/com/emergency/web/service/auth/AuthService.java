@@ -112,8 +112,6 @@ public class AuthService {
 							   .build();
 	}
 	
-	// 이 부분 다시 확인해서 수정
-	@Transactional
 	public RefreshResponseDto refresh(String refreshToken) {
 		
 		if (refreshToken == null || !jwtUtils.validateJwtToken(refreshToken)) {

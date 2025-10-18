@@ -89,7 +89,7 @@ public class EmgcRltmItemReader implements ItemReader<EmgcRltmResponseDto> {
 		return buffer.poll();
 	}
 	 
-	public EmgcRltmResponseDto.ApiResponse getRltmList(int currPage) throws Exception {
+	private EmgcRltmResponseDto.ApiResponse getRltmList(int currPage) throws Exception {
 		
 //		log.info("API Host: {}", typeSafeProperties.getApiHost());
 //		log.info("API Path: {}", typeSafeProperties.getApiRltmPath());

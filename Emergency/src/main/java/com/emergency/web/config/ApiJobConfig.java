@@ -65,7 +65,6 @@ public class ApiJobConfig {
 	// event
 	private final EmgcMapper emgcMapper;
 	private final ApplicationEventPublisher applicationEventPublisher;
-	private final KafkaProducer kafkaProducer;
 	
 	private final DataSource dataSource;
 	
@@ -104,7 +103,7 @@ public class ApiJobConfig {
 	Step bsIfApiStep(JobRepository jobRepository) {
 		return new StepBuilder("bsIfApiStep", jobRepository)
 				// 입력타입과 출력타입
-				.<List<EmgcBsIfResponseDto>, List<EmgcBsIf>>chunk(1, transactionManager)
+				.<EmgcBsIfResponseDto, EmgcBsIf>chunk(500, transactionManager)
 				.reader(emgcBsIfItemReader)
 				.processor(egmcBsIfItemProcessor)
 				.writer(emgcBsIfItemWriter())
@@ -234,12 +233,42 @@ public class ApiJobConfig {
 	    writer.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>());
 	    writer.afterPropertiesSet();
 		
-	    return new EmgcRltmItemWriter<>(writer, emgcMapper, applicationEventPublisher, kafkaProducer);
+	    return new EmgcRltmItemWriter<>(writer, emgcMapper, applicationEventPublisher);
 	}
 
 	@Bean
 	public EmgcBsIfItemWriter<EmgcBsIf> emgcBsIfItemWriter() {
-	    return new EmgcBsIfItemWriter<>(createJdbcWriter());
+		String sql = "INSERT INTO tb_emgc_rltm_master "
+				+ "( "
+				+ " hp_id, duty_name, duty_ha_yn, duty_er_yn,post_cdn1, post_cdn2, duty_addr, duty_tel, "
+				+ " duty_er_tel, duty_inf, duty_time_1c, duty_time_2c, duty_time_3c, duty_time_4c, duty_time_5c, "
+				+ " duty_time_6c, duty_time_7c, duty_time_8c, duty_time_1s, duty_time_2s, duty_time_3s, "
+				+ " duty_time_4s, duty_time_5s, duty_time_6s, duty_time_7s, duty_time_8s, duty_lon, "
+				+ " duty_lat, dgid_id_name"
+				+ ") "
+				+ "VALUES "
+				+ "( "
+				+ " :hpId, :dutyName, :dutyHayn, :dutyEryn, :postCdn1, :postCdn2, :dutyAddr, :dutyTel, "
+				+ " :dutyErTel, :dutyInf, :dutyTime1c, :dutyTime2c, :dutyTime3c, :dutyTime4c, :dutyTime5c, :dutyTime6c, "
+				+ " :dutyTime7c, :dutyTime8c, :dutyTime1s, :dutyTime2s, :dutyTime3s, :dutyTime4s, :dutyTime5s, "
+				+ " :dutyTime6s, :dutyTime7s, :dutyTime8s, :dutyLon, :dutyLat, :dgidIdName"
+				+ ") "
+				+ "ON DUPLICATE KEY UPDATE "
+				+ " hp_id = :hpId, duty_name = :dutyName, duty_ha_yn = :dutyHayn, duty_er_yn = :dutyEryn, "
+				+ " post_cdn1 = :postCdn1, post_cdn2 = :postCdn2, duty_addr = :dutyAddr, duty_tel = :dutyTel, duty_er_tel = :dutyErTel, "
+				+ " duty_inf = :dutyInf, duty_time_1c = :dutyTime1c, duty_time_2c = :dutyTime2c, duty_time_3c = :dutyTime3c, "
+				+ " duty_time_4c = :dutyTime4c, duty_time_5c = :dutyTime5c, duty_time_6c = :dutyTime6c, duty_time_7c = :dutyTime7c, "
+				+ " duty_time_8c = :dutyTime8c, duty_time_1s = :dutyTime1s, duty_time_2s = :dutyTime2s, duty_time_3s = :dutyTime3s, "
+				+ " duty_time_4s = :dutyTime4s, duty_time_5s = :dutyTime5s, duty_time_6s = :dutyTime6s, duty_time_7s = :dutyTime7s, "
+				+ " duty_time_8s = :dutyTime8s, duty_lon = :dutyLon, duty_lat = :dutyLat, "
+				+ " dgid_id_name = :dgidIdName ";
+		
+		JdbcBatchItemWriter<EmgcBsIf> writer = createJdbcWriter();
+	    writer.setSql(sql);
+	    writer.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>());
+	    writer.afterPropertiesSet();
+		
+	    return new EmgcBsIfItemWriter<>(writer);
 	}
 	
 }

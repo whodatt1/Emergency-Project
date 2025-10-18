@@ -1,5 +1,6 @@
 package com.emergency.web.handler;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ public class ApplicationEventHandler {
 	@TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
 	public void handleEmgcRltmBatchEventBefore(EmgcRltmBatchEvent<EmgcRltm> event) {
 		Chunk<EmgcRltm> emgcRltmList = event.getEmgcRltmItems();
+		
 		// 여기서 db outbox 테이블에 저장
 		for (EmgcRltm emgcRltm : emgcRltmList) {
 			Map<String, String> payload = new HashMap<>();

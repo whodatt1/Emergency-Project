@@ -25,7 +25,7 @@ import com.emergency.web.model.EmgcRltm;
 @Mapper
 public interface EmgcMapper {
 	
-	List<String> getEmgcRltmHpIdListBeforeBatch(int offset);
+	List<String> getEmgcRltmHpIdListBeforeBatch(Map<String, Object> paramMap);
 	List<EmgcBsIf> getEmgcMstList(Map<String, Object> paramMap);
 	int getEmgcMstListCnt(Map<String, Object> paramMap);
 	String getEmgcRltmUpdDateByHpId(String hpId);

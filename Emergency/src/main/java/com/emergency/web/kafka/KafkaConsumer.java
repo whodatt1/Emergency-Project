@@ -70,10 +70,11 @@ public class KafkaConsumer {
                             chunk
                     );
 				} catch (Exception e) {
-					allSuccess = false;
+					//allSuccess = false;
 					//log.error("FCM 전송 실패 - token: {}, 에러: {}", fcm.getFcmToken(), e.getMessage(), e);
 					log.error("FCM 멀티캐스트 전송 실패 - 토큰 수: {}, 에러: {}", chunk.size(), e.getMessage(), e);
-				}
+					throw new RuntimeException("FCM 멀티캐스트 전송 실패"); // 에러 핸드러가 처리
+				} 
 			}
             
             Outbox outbox = Outbox.builder()
@@ -93,6 +94,7 @@ public class KafkaConsumer {
 			}
 		} catch (Exception e) {
 			log.error("KafkaConsumer 처리 중 오류 발생 - payload: {}, 에러: {}", jsonPayload, e.getMessage(), e);
+			throw new RuntimeException("KafkaConsumer 처리 중 오류 발생"); // 에러 핸드러가 처리
 		}
 	}
 	

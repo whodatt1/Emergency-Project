@@ -56,7 +56,7 @@ public class KafkaProducer {
 				
 				kafkaTemplate.send("EmgcRltmEvent", jsonPayload)
 							 .whenComplete((result ,ex) -> {
-								 // result => kafka 전송이 성공했을때의 결과객체
+								 
 								 // ex => 실패했을 때 예외 예외가 없다면 null 반환
 								 if (ex == null) {
 									 int res = outboxMapper.updateOutboxStatus(outbox);
@@ -76,7 +76,22 @@ public class KafkaProducer {
 			} catch (Exception e) {
 				log.error("Kafka 메시지 직렬화 실패 - batchId: {}, hpId: {}", 
 				          event.getBatchId(), emgcRltm.getHpId(), e);
-				throw new RuntimeException("FCM 발송 실패", e);
+				
+				int res = outboxMapper.updateOutboxStatus(Outbox.builder()
+										                        .batchId(event.getBatchId())
+										                        .aggregateId(emgcRltm.getHpId())
+										                        .status("FAILED")
+										                        .build());
+				
+				if (res > 0) {
+				    log.info("Outbox 상태 업데이트 완료 - batchId: {}, hpId: {}, status: FAILED", 
+				             event.getBatchId(), emgcRltm.getHpId());
+				} else {
+					log.warn("Outbox 상태 업데이트 실패 - 영향받은 row 없음 - batchId: {}, hpId: {}", 
+				             event.getBatchId(), emgcRltm.getHpId());
+				}
+				
+				throw new RuntimeException("Kafka 메시지 직렬화 실패", e);
 			}
 		}
 	}

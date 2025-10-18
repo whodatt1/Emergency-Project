@@ -42,7 +42,6 @@ public class BookmarkService {
 	
 	private final BookmarkMapper bookmarkMapper;
 	
-	@Transactional
 	public BookmarkMstResponseDto getBookmarkMstList(BookmarkMstRequestDto bookmarkMstRequestDto) {
 		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -94,7 +93,6 @@ public class BookmarkService {
 		
 	}
 	
-	@Transactional
 	public Boolean existsBookmark(String hpId) {
 		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

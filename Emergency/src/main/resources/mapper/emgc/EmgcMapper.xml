@@ -2,11 +2,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.emergency.web.mapper.emgc.EmgcMapper">
 	
-	<select id="getEmgcRltmHpIdListBeforeBatch" parameterType="int">
+	<select id="getEmgcRltmHpIdListBeforeBatch" parameterType="map">
 		SELECT hp_id
 		  FROM tb_emgc_rltm_detail
-	  ORDER BY hp_id
-	     LIMIT 100 OFFSET #{offset};
+	   <where>
+	   	<if test="lastHpId != null and lastHpId != ''">
+	    	hp_id <![CDATA[>]]> #{lastHpId}
+	    </if>
+       </where>
+	  ORDER BY hp_id	
+	     LIMIT #{pageSize};
 	</select>
 	
 	<select id="getEmgcRltmUpdDateByHpId" parameterType="String" resultType="String">
@@ -27,6 +32,9 @@
 		     , duty_inf
 		  FROM tb_emgc_rltm_master
 		 <where>
+			 <if test="emgcMstRequestDto.lastHpId != null and emgcMstRequestDto.lastHpId != ''">
+	    		hp_id <![CDATA[>]]> #{emgcMstRequestDto.lastHpId}
+	    	 </if>
 	         <if test="emgcMstRequestDto.sidoNm != null and emgcMstRequestDto.sidoNm != ''">
 	             AND duty_addr LIKE CONCAT(#{emgcMstRequestDto.sidoNm}, '%')
 	         </if>
@@ -37,11 +45,11 @@
 	             AND duty_addr LIKE CONCAT('%', #{emgcMstRequestDto.dongNm}, '%')
 	         </if>
 	         <if test="emgcMstRequestDto.dutyNm != null and emgcMstRequestDto.dutyNm != ''">
-	             AND duty_name LIKE CONCAT('%', #{emgcMstRequestDto.dutyNm}, '%')
+	             AND duty_name LIKE CONCAT('%', #{emgc	MstRequestDto.dutyNm}, '%')
 	         </if>
      	</where>
 	  ORDER BY duty_name
-	     LIMIT #{pageable.offset}, #{pageable.pageSize};
+	     LIMIT #{pageable.pageSize};
 	</select>
 	
 	<select id="getEmgcMstListCnt" parameterType="map" resultType="int">
