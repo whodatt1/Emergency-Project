@@ -26,6 +26,10 @@
   2. 이벤트핸들러를 활용하여 커밋 이후 카프카 Producer 알림 전송 토픽 send() 처리
   3. 카프카 Consumer가 DB 정보에 FCM 토큰이 유효한 유저에게 FCM 알림 전송
 
+## 🧠 프로젝트 리팩토링 및 성능 개선 과정 포트폴리오
+
+https://even-gerbil-e3c.notion.site/Emergency-Project-Portfolio-2701d86b26e380519ae4e8469caef87f?source=copy_link
+
 ## 🚀 로컬 Kafka 환경 (도커 사용)
 
 ```yml
