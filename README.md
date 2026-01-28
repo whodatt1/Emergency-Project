@@ -5,12 +5,9 @@
 - 응급실 / 입원실을 운영하는 병원 정보 리스트를 조회할 수 있으며, 진료과목, 가용 의료자원, 실시간 병상정보를 디테일 페이지에서 확인할 수 있습니다.
 - 로그인 후 특정 병원을 즐겨찾기 시 FCM 알림으로 갱신 알림을 받아볼 수 있습니다.
 
-## 🛠 기술 스택
-### Frontend
-- React, React Router, React-Bootstrap, Axios
+## 🛠 주요 기술
 ### Backend
-- Spring BOOT / MySQL
-- Spring Security, JWT, MyBatis, MySQL, Spring Batch, Kafka, Firebase Admin SDK (FCM)
+- Spring Batch, Kafka, Firebase Admin SDK (FCM)
 
 ## 💻 프로젝트 화면
 
@@ -21,39 +18,17 @@
 
 ## 📌 프로젝트 핵심 요약
 
-https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15000563
-
 공공데이터포털에서 제공하는 전국 응급의료기관 정보 API를 활용한 웹사이트입니다.
 
-- 사용자에게 실시간에 가깝게 정보를 제공해 주기 위하여 해당 API를 스프링 배치 + 스케쥴러를 활용하여 1분 주기로 DB에 업데이트하여 최신정보를 유지
-- JWT를 활용한 인증, 인가 / 클라이언트에서 FCM 토큰 발행
-- 유저는 즐겨찾기한 병원에 대한 알림을 받을 수 있음. (비동기 처리, 안정적인 이벤트 전송을 위해 Kafka를 선택)
-  1. 배치의 Writer 업데이트 된 병원 리스트를 추려 해당 리스트로 내부에서 이벤트를 발행
-  2. 이벤트핸들러는 커밋 이전에 Outbox 테이블에 저장 / 커밋 이후 카프카 Producer 해당 리스트 객체의 Outbox를 PROCESSING으로 업데이트하며 FCM 토픽 발행 
-  3. 카프카 Consumer가 FCM 토큰을 가지고 있는 유저에게 알림 전송 및 Outbox 완료로 업데이트
+- 사용자에게 실시간에 가깝게 정보를 제공해 주기 위하여 해당 API를 스프링 배치 + 스케쥴러를 활용하여 2분 주기로 DB에 업데이트하여 해당 정보 기반으로 한 조회 페이지 구성
+- 유저는 즐겨찾기한 병원에 대한 알림을 받을 수 있음. (스프링 배치로 인한 DB업데이트와의 독립적 구성, 비동기 처리, 안정적인 메시지 전송을 위해 Kafka를 선택)
+  1. 배치의 Writer 업데이트 된 병원 리스트를 추려 해당 리스트를 담은 이벤트를 발행
+  2. 이벤트핸들러를 활용하여 커밋 이후 카프카 Producer 알림 전송 토픽 send() 처리
+  3. 카프카 Consumer가 DB 정보에 FCM 토큰이 유효한 유저에게 FCM 알림 전송
 
-## 🔧 트러블슈팅
+## 🧠 프로젝트 리팩토링 및 성능 개선 과정 포트폴리오
 
-### 1. 쿠키 저장 문제
-- **문제:** 로그인 시 `Set-Cookie`가 네트워크에는 보이지만 브라우저 Cookie에 저장되지 않음  
-- **해결:** Axios 요청에 `withCredentials: true` 추가
-
-### 2. Authorization 헤더 읽기 불가
-- **문제:** `response.headers['authorization']` 값을 클라이언트에서 읽을 수 없음  
-- **해결:** 서버 CORS 필터에 `.addExposedHeader("Authorization")` 추가
-
-### 3. SERVICE KEY 인코딩 문제
-- **문제:** WebClient 사용 시 `service key`가 자동 인코딩되어 오류 발생  
-- **해결:** `DefaultUriBuilderFactory` 생성 후 인코딩 모드 `NONE`/`VALUES_ONLY` 적용
-
-### 4. XML/JSON 매핑 우선순위 문제
-- **문제:** XMLMapper 사용 시 컨트롤러 응답이 XML로만 반환  
-- **해결:** ObjectMapper가 우선시되도록 설정 수정
-
-### 5. Axios 인터셉터 Authorization 누락
-- **문제:** `originalRequest.headers.Authorization` 설정 시 토큰 미반영  
-- **해결:** `originalRequest.headers['authorization']` 로 수정
-
+https://even-gerbil-e3c.notion.site/Emergency-Project-Portfolio-2701d86b26e380519ae4e8469caef87f?source=copy_link
 
 ## 🚀 로컬 Kafka 환경 (도커 사용)
 
