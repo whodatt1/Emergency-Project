@@ -96,6 +96,13 @@ public class ApiJobConfig {
 				.reader(emgcRltmItemReader)
 				.processor(emgcRltmItemProcessor)
 				.writer(emgcRltmItemWriter())
+				.faultTolerant() // 내결함성 기능 활성화
+				// [전략 변경] Skip 제거
+	            // 이유: Writer에 이벤트 발행 로직이 있어, Skip 발동 시(Scan Mode 진입 시) 
+	            // 단건 처리가 반복되면서 이벤트가 과도하게 발행되는 사이드 이펙트 방지
+	            // 2. Retry 설정 (DB 데드락 등 일시적인 에러는 재시도)
+	            .retry(java.sql.SQLException.class) // 예: DB 관련 에러 발생 시
+	            .retryLimit(3)                      // 최대 3회 재시도
 				.build();
 	}
 	
@@ -107,6 +114,9 @@ public class ApiJobConfig {
 				.reader(emgcBsIfItemReader)
 				.processor(egmcBsIfItemProcessor)
 				.writer(emgcBsIfItemWriter())
+				.faultTolerant() // 내결함성 기능 활성화
+	            .retry(java.sql.SQLException.class) // 예: DB 관련 에러 발생 시
+	            .retryLimit(3)                      // 최대 3회 재시도
 				.build();
 	}
 	
