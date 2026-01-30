@@ -1,6 +1,8 @@
 package com.emergency.web.struct;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
+
 import com.emergency.web.dto.response.emgc.EmgcRltmResponseDto;
 
 /**

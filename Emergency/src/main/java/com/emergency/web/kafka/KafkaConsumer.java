@@ -51,6 +51,14 @@ public class KafkaConsumer {
             String hpId = param.get("hpId");
             String dutyName = param.get("dutyName");
             
+            //String currentStatus = outboxMapper.selectOutboxStatus(batchId, hpId);
+			
+			// 이미 'FINISHED'라면? (이전에 처리했는데 Kafka가 또 보낸 경우)
+//			if ("FINISHED".equals(currentStatus)) {
+//				log.info("이미 처리된 메시지입니다. (Skip) - batchId: {}, hpId: {}", batchId, hpId);
+//				return;
+//			}
+            
             List<Fcm> fcmList = fcmMapper.getFcmListWithHpId(hpId);
             List<String> tokens = fcmList.stream()
 					                     .map(Fcm::getFcmToken)
@@ -69,7 +77,7 @@ public class KafkaConsumer {
                             hpId, 
                             chunk
                     );
-				} catch (Exception e) {
+				} catch (Exception e) { // 여기 익셉션처리 수정해야함
 					//allSuccess = false;
 					//log.error("FCM 전송 실패 - token: {}, 에러: {}", fcm.getFcmToken(), e.getMessage(), e);
 					log.error("FCM 멀티캐스트 전송 실패 - 토큰 수: {}, 에러: {}", chunk.size(), e.getMessage(), e);

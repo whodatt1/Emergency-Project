@@ -1,0 +1,71 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus  # 열고 싶은 actuator 엔드포인트
+  endpoint:
+    health:
+      show-details: always   # 헬스체크 세부정보 표시 (운영 환경에서는 주의)
+  metrics:
+    tags:
+      application: kafka-app   # 공통 태그 (앱 이름 같은 것)
+      
+mybatis:
+  mapper-locations: classpath:/mapper/**/*Mapper.xml
+  type-aliases-package: com.emergency.web.model
+  configuration:
+    map-underscore-to-camel-case: true
+    
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    #driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    #url: jdbc:mysql://localhost:3306/emergency?serverTimezone=Asia/Seoul
+    url: jdbc:log4jdbc:mysql://localhost:3306/emergency?serverTimezone=Asia/Seoul
+    username: root
+    password: Kzkz846@
+  batch:
+    job:
+      enabled: true
+    jdbc:
+      initialize-schema: never
+  kafka:
+    listener:
+      metrics-enabled: true
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.apache.kafka.clients.producer: DEBUG
+  config: classpath:log4j2-dev.xml
+    
+props:
+  jwtSecretCd: asdjmasdlknxcjdajqw###elkqweoasdi!poqik3213149asdaklsdmzxc@!#!KLJ#!L@K#J0iasdk@@askldjfaslkdf@asdmasldjf@123147$!@&#!@78@!#!@$asdl,;lak^ASnd
+  jwtAccessExpirationTime: 3600000
+  jwtRefreshExpirationTime: 86400000
+  jwtVerifyExpirationTime: 300000
+  tokenPrefix: "Bearer "
+  headerString: Authorization
+  refreshTokenName: emgcRefreshToken
+  verifyTokenName: X-Verify-Token
+  apiNormalEncoding: mG%2BHPy5pERR%2FdhNs87oqXRmdptOaIhGIywSmGUUZXjlvjshDfx2vVHrsKWpNQH88UPZAd%2BFlcfkClf1IP%2Fjc4A%3D%3D
+  bjdApiNormarDecoding: mG%2BHPy5pERR%2FdhNs87oqXRmdptOaIhGIywSmGUUZXjlvjshDfx2vVHrsKWpNQH88UPZAd%2BFlcfkClf1IP%2Fjc4A%3D%3D
+  apiHost: apis.data.go.kr
+  bjdApiHost: api.odcloud.kr
+  apiRltmPath: B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire
+  apiBsIfPath: B552657/ErmctInfoInqireService/getEgytBassInfoInqire
+  bjdPath: api/15063424/v1/uddi:257e1510-0eeb-44de-8883-8295c94dadf7
+  bootstrapServers: localhost:9092
+  consumerGroup: emgc-rltm-service-group
+  firebasePath: "/firebase/fcm-service-account.json"

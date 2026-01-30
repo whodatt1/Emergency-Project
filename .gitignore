@@ -1,1 +1,59 @@
-/.metadata/
+# ==============================================================================
+# 1. 글로벌/IDE 설정 (이 폴더 전체 적용)
+# ==============================================================================
+# Eclipse Workspace 메타데이터 (사진에 있는 .metadata 폴더 무시 필수!)
+.metadata/
+.recommenders/
+
+# Mac / Windows 시스템 파일
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# VS Code / IntelliJ / Eclipse 설정 파일들
+.idea/
+.vscode/
+.classpath
+.project
+.settings/
+*.iml
+bin/
+
+# ==============================================================================
+# 2. 백엔드 (Emergency 폴더용 - Spring Boot)
+# ==============================================================================
+# 빌드 결과물
+build/
+out/
+target/
+.gradle/
+
+# 로그
+logs/
+*.log
+
+# 보안 파일 (실제 서비스용 키값 등)
+application-secret.yml
+application-prod.yml
+
+# ==============================================================================
+# 3. 프론트엔드 (emergency-front 폴더용 - React/Vue 등)
+# ==============================================================================
+# 의존성 모듈 (절대 올리면 안됨 - 용량 주범)
+node_modules/
+
+# 빌드 결과물
+dist/
+dist-ssr/
+coverage/
+
+# 환경변수 파일 (보안)
+.env
+.env.local
+.env.*.local
+
+# npm/yarn 로그
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

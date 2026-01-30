@@ -1,5 +1,7 @@
 package com.emergency.web.mapper.outbox;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 
 import com.emergency.web.model.Fcm;
@@ -22,5 +24,6 @@ import com.emergency.web.model.Outbox;
 public interface OutboxMapper {
 	int insertOutbox(Outbox outbox);
 	int updateOutboxStatus(Outbox outbox);
+	void updateOutboxStatusBulk(String batchId, List<String> ids, String status);
 	int staleEmgcRltmOutboxCleaner();
 }

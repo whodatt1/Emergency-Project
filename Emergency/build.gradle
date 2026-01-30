@@ -9,7 +9,7 @@ version = '0.0.1-SNAPSHOT'
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
+		languageVersion = JavaLanguageVersion.of(21)
 	}
 }
 
@@ -35,13 +35,13 @@ dependencies {
 	// Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    
+    // Lombok + MapStruct together
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 
     // MapStruct
     implementation 'org.mapstruct:mapstruct:1.5.5.Final' // ← 최신 안정화 버전 추천
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
-    
-    // Lombok + MapStruct together
-    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
     
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.mysql:mysql-connector-j'
