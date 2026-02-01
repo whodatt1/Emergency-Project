@@ -26,4 +26,5 @@ public interface OutboxMapper {
 	int updateOutboxStatus(Outbox outbox);
 	void updateOutboxStatusBulk(String batchId, List<String> ids, String status);
 	int staleEmgcRltmOutboxCleaner();
+	String selectOutboxStatus(String batchId, String hpId);
 }

@@ -43,26 +43,45 @@ public class KafkaConsumer {
 	@KafkaListener(topics = "EmgcRltmEvent", groupId = "emgc-rltm-service-group")
 	public void EmgcRltmConsume(String jsonPayload) {
 		
-		boolean allSuccess = true;
+		String batchId = null;
+		String hpId = null;
+		
+		// 카운트 변수 추가
+		int successCount = 0;
+		int failCount = 0;
 		
 		try {
 			Map<String, String> param = objectMapper.readValue(jsonPayload, new TypeReference<Map<String, String>>() {});
-			String batchId = param.get("batchId");
-            String hpId = param.get("hpId");
+			batchId = param.get("batchId");
+            hpId = param.get("hpId");
             String dutyName = param.get("dutyName");
             
-            //String currentStatus = outboxMapper.selectOutboxStatus(batchId, hpId);
+            String currentStatus = outboxMapper.selectOutboxStatus(batchId, hpId);
 			
-			// 이미 'FINISHED'라면? (이전에 처리했는데 Kafka가 또 보낸 경우)
-//			if ("FINISHED".equals(currentStatus)) {
-//				log.info("이미 처리된 메시지입니다. (Skip) - batchId: {}, hpId: {}", batchId, hpId);
-//				return;
-//			}
+            if ("FINISHED".equals(currentStatus) || "PARTIAL_FAIL".equals(currentStatus)) {
+                log.info("이미 처리된 건입니다(재발송 안함). status: {} - batchId: {}", currentStatus, batchId);
+                return; 
+            }
             
             List<Fcm> fcmList = fcmMapper.getFcmListWithHpId(hpId);
             List<String> tokens = fcmList.stream()
 					                     .map(Fcm::getFcmToken)
 					                     .toList();
+            
+            // 토큰이 없는 경우 예외처리
+            if (tokens.isEmpty()) {
+                log.warn("전송할 FCM 토큰이 없습니다. - batchId: {}, hpId: {}", batchId, hpId);
+                
+                Outbox outbox = Outbox.builder()
+                        .batchId(batchId)
+                        .aggregateId(hpId)
+                        .status("FINISHED")
+                        .build();
+                  
+                outboxMapper.updateOutboxStatus(outbox);
+                
+                return;
+            }
             
             int chunkSize = 100;
             for (int i = 0; i < tokens.size(); i += chunkSize) {
@@ -77,29 +96,36 @@ public class KafkaConsumer {
                             hpId, 
                             chunk
                     );
+            		successCount++;
 				} catch (Exception e) { // 여기 익셉션처리 수정해야함
-					//allSuccess = false;
-					//log.error("FCM 전송 실패 - token: {}, 에러: {}", fcm.getFcmToken(), e.getMessage(), e);
+					failCount++;
 					log.error("FCM 멀티캐스트 전송 실패 - 토큰 수: {}, 에러: {}", chunk.size(), e.getMessage(), e);
-					throw new RuntimeException("FCM 멀티캐스트 전송 실패"); // 에러 핸드러가 처리
 				} 
 			}
+            
+            String finalStatus;
+            if (failCount == 0) {
+            	finalStatus = "FINISHED";
+            } else if (successCount == 0) {
+            	finalStatus = "FAILED";
+            } else {
+            	finalStatus = "PARTIAL_FAIL"; // 일부 성공, 일부 실패
+            }
             
             Outbox outbox = Outbox.builder()
 					  .batchId(batchId)
 					  .aggregateId(hpId)
-					  .status(allSuccess ? "FINISHED" : "FAILED")
+					  .status(finalStatus)
 					  .build();
             
             int res = outboxMapper.updateOutboxStatus(outbox);
 			 
-			if (res > 0) {
-				log.info("Outbox 상태 업데이트 완료 - batchId: {}, hpId: {}, status: {}", 
-				         batchId, hpId, allSuccess ? "FINISHED" : "FAILED");
-			} else {
-				log.warn("Outbox 상태 업데이트 실패 - 영향받은 row 없음 - batchId: {}, hpId: {}", 
-						 batchId, hpId);
-			}
+            if ("PARTIAL_FAIL".equals(finalStatus)) {
+                 log.warn("FCM 부분 실패 발생 - 총 청크: {}, 성공: {}, 실패: {} - batchId: {}", 
+                          (successCount + failCount), successCount, failCount, batchId);
+            } else if ("FAILED".equals(finalStatus)) {
+                 log.error("FCM 전체 실패 발생 - batchId: {}", batchId);
+            }
 		} catch (Exception e) {
 			log.error("KafkaConsumer 처리 중 오류 발생 - payload: {}, 에러: {}", jsonPayload, e.getMessage(), e);
 			throw new RuntimeException("KafkaConsumer 처리 중 오류 발생"); // 에러 핸드러가 처리

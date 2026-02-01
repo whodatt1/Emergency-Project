@@ -46,4 +46,11 @@
 		  FROM tb_outbox
 		 WHERE timestamp <![CDATA[<]]> DATE_SUB(NOW(), INTERVAL 12 HOUR);
 	</delete>
+	
+	<select id="selectOutboxStatus">
+		SELECT status
+		  FROM tb_outbox
+		 WHERE batch_id = #{batchId}
+		   AND aggregate_id = #{hpId}
+	</select>
 </mapper>
