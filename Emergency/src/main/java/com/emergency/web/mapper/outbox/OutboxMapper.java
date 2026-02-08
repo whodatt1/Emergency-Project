@@ -3,8 +3,8 @@ package com.emergency.web.mapper.outbox;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
-import com.emergency.web.model.Fcm;
 import com.emergency.web.model.Outbox;
 
 /**
@@ -24,7 +24,12 @@ import com.emergency.web.model.Outbox;
 public interface OutboxMapper {
 	int insertOutbox(Outbox outbox);
 	int updateOutboxStatus(Outbox outbox);
-	void updateOutboxStatusBulk(String batchId, List<String> ids, String status);
+	void updateOutboxStatusBulk(
+			@Param("batchId") String batchId, 
+			@Param("hpIds") List<String> hpIds,
+			@Param("status") String status);
 	int staleEmgcRltmOutboxCleaner();
-	String selectOutboxStatus(String batchId, String hpId);
+	String selectOutboxStatus(
+			@Param("batchId") String batchId,
+			@Param("hpId") String hpId);
 }
