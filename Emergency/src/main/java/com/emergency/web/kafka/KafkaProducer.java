@@ -61,18 +61,27 @@ public class KafkaProducer {
 				
 				String jsonPayload = objectMapper.writeValueAsString(message);
 				
-				// 비동기 전송 시작 
-				CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send("EmgcRltmEvent", jsonPayload);
+				// ================================================================
+                // [수정된 부분] Key값(hpId)을 두 번째 인자로 전달합니다.
+                // send(topic, key, data)
+                // ================================================================
+                // hpId를 키로 쓰면, 같은 병원 데이터는 항상 같은 파티션으로 들어갑니다.
 				
-				future.whenComplete((result, ex) -> {
-					if (ex == null) {
-						// 성공시 성공큐에 저장
-						successIds.add(emgcRltm.getHpId());
-					} else {
-						log.error("Kafka 전송 실패 - batchId: {}, hpId: {}", 
-						          event.getBatchId(), emgcRltm.getHpId(), ex);
-						failedIds.add(emgcRltm.getHpId());
-					}
+				// 비동기 전송 시작 
+				CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(
+						"EmgcRltmEvent",
+						emgcRltm.getHpId(),
+						jsonPayload);
+				
+					future.whenComplete((result, ex) -> {
+						if (ex == null) {
+							// 성공시 성공큐에 저장
+							successIds.add(emgcRltm.getHpId());
+						} else {
+							log.error("Kafka 전송 실패 - batchId: {}, hpId: {}", 
+							          event.getBatchId(), emgcRltm.getHpId(), ex);
+							failedIds.add(emgcRltm.getHpId());
+						}
 				});
 				
 				// 추후에 기다리기 위하여 추가

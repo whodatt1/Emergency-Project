@@ -3,6 +3,8 @@ package com.emergency.web.config;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -13,6 +15,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.MicrometerConsumerListener;
 import org.springframework.kafka.core.ProducerFactory;
@@ -49,6 +52,19 @@ import lombok.extern.log4j.Log4j2;
 public class KafkaConfig {
 	
 	private final TypeSafeProperties typeSafeProperties;
+	
+	@Bean
+    public KafkaAdmin kafkaAdmin() {
+        Map<String, Object> configs = new HashMap<>();
+        configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, typeSafeProperties.getBootstrapServers());
+        return new KafkaAdmin(configs);
+    }
+	
+	@Bean
+	public NewTopic emgcRltmEventTopic() {
+	    // "야 Kafka야, 대충 만들지 말고 '파티션 3개'로 각 잡고 만들어!" 라고 명시함
+	    return new NewTopic("EmgcRltmEvent", 3, (short) 1);
+	}
 	
 	// Producer를 만들고 관리하는 역할
 	@Bean

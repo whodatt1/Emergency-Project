@@ -17,19 +17,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * 
-* @packageName     : com.emergency.web.kafka
-* @fileName        : KafkaConsumer.java
-* @author          : KHK
-* @date            : 2025.07.07
-* @description     : KafkaConsumer 객체
-* ===========================================================
-* DATE              AUTHOR             NOTE
-* -----------------------------------------------------------
-* 2025.07.07        KHK                최초 생성
- */
-
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -40,13 +27,13 @@ public class KafkaConsumer {
 	private final FcmMapper fcmMapper;
 	private final FcmService fcmService;
 	
-	@KafkaListener(topics = "EmgcRltmEvent", groupId = "emgc-rltm-service-group")
+    // concurrency = "3": 파티션이 3개 이상일 경우 3개의 스레드가 병렬 처리 (속도 향상)
+	@KafkaListener(topics = "EmgcRltmEvent", groupId = "emgc-rltm-service-group", concurrency = "3")
 	public void EmgcRltmConsume(String jsonPayload) {
 		
 		String batchId = null;
 		String hpId = null;
 		
-		// 카운트 변수 추가
 		int successCount = 0;
 		int failCount = 0;
 		
@@ -58,38 +45,26 @@ public class KafkaConsumer {
             
             String currentStatus = outboxMapper.selectOutboxStatus(batchId, hpId);
 			
-            if ("FINISHED".equals(currentStatus) || "PARTIAL_FAIL".equals(currentStatus)) {
+            if ("FINISHED".equals(currentStatus) || "FAILED".equals(currentStatus)) {
                 log.info("이미 처리된 건입니다(재발송 안함). status: {} - batchId: {}", currentStatus, batchId);
                 return; 
             }
             
             List<Fcm> fcmList = fcmMapper.getFcmListWithHpId(hpId);
             List<String> tokens = fcmList.stream()
-					                     .map(Fcm::getFcmToken)
-					                     .toList();
+                                         .map(Fcm::getFcmToken)
+                                         .toList();
             
-            // 토큰이 없는 경우 예외처리
             if (tokens.isEmpty()) {
                 log.warn("전송할 FCM 토큰이 없습니다. - batchId: {}, hpId: {}", batchId, hpId);
-                
-                Outbox outbox = Outbox.builder()
-                        .batchId(batchId)
-                        .aggregateId(hpId)
-                        .status("FINISHED")
-                        .build();
-                  
-                outboxMapper.updateOutboxStatus(outbox);
-                
+                updateOutboxStatus(batchId, hpId, "FINISHED");
                 return;
             }
             
             int chunkSize = 100;
             for (int i = 0; i < tokens.size(); i += chunkSize) {
-            	// 청크 사이즈만큼 리스트 자르기
             	List<String> chunk = tokens.subList(i, Math.min(i + chunkSize, tokens.size()));
             	try {
-            		// 기존방식 HTTP 호출을 토큰별로 하게됨 과도한 호출로 인해 배포시 아웃바운드 과부하 발생 우려
-            		// fcmService.sendNotification(dutyName, dutyName + "의 정보가 변경되었습니다.", hpId, fcm.getFcmToken());
             		fcmService.sendMulticastNotification(
                             dutyName, 
                             dutyName + "의 정보가 변경되었습니다.", 
@@ -97,39 +72,56 @@ public class KafkaConsumer {
                             chunk
                     );
             		successCount++;
-				} catch (Exception e) { // 여기 익셉션처리 수정해야함
+				} catch (Exception e) {
 					failCount++;
-					log.error("FCM 멀티캐스트 전송 실패 - 토큰 수: {}, 에러: {}", chunk.size(), e.getMessage(), e);
+					log.error("FCM 멀티캐스트 전송 실패 - 토큰 수: {}, 에러: {}", chunk.size(), e.getMessage());
+                    // 여기서 throw 하지 않으므로 루프는 계속 진행됨 (의도된 동작)
 				} 
 			}
             
             String finalStatus;
-            if (failCount == 0) {
-            	finalStatus = "FINISHED";
-            } else if (successCount == 0) {
-            	finalStatus = "FAILED";
+            if (successCount > 0) {
+                // 1개라도 성공했으면 처리가 끝난 것으로 간주 (일부 실패했어도 재발송 안 함)
+                finalStatus = "FINISHED";
             } else {
-            	finalStatus = "PARTIAL_FAIL"; // 일부 성공, 일부 실패
+                // 성공이 0개라면 (즉, 모든 시도가 에러났거나 토큰이 없었거나) -> 완전 실패
+                finalStatus = "FAILED";
             }
             
-            Outbox outbox = Outbox.builder()
-					  .batchId(batchId)
-					  .aggregateId(hpId)
-					  .status(finalStatus)
-					  .build();
-            
-            int res = outboxMapper.updateOutboxStatus(outbox);
-			 
-            if ("PARTIAL_FAIL".equals(finalStatus)) {
-                 log.warn("FCM 부분 실패 발생 - 총 청크: {}, 성공: {}, 실패: {} - batchId: {}", 
-                          (successCount + failCount), successCount, failCount, batchId);
-            } else if ("FAILED".equals(finalStatus)) {
-                 log.error("FCM 전체 실패 발생 - batchId: {}", batchId);
-            }
+            updateOutboxStatus(batchId, hpId, finalStatus);
+			
+            if (failCount > 0) {
+                log.warn("FCM 발송 완료했으나 일부 실패 존재 - 상태: {}, 성공청크: {}, 실패청크: {}", 
+                         finalStatus, successCount, failCount);
+           }
+
 		} catch (Exception e) {
-			log.error("KafkaConsumer 처리 중 오류 발생 - payload: {}, 에러: {}", jsonPayload, e.getMessage(), e);
-			throw new RuntimeException("KafkaConsumer 처리 중 오류 발생"); // 에러 핸드러가 처리
+			// [보완 2] 예외 발생 시 DB 상태를 'FAILED'로 변경해야 함
+			log.error("KafkaConsumer 처리 중 치명적 오류 발생 (재시도 중단) - payload: {}, 에러: {}", jsonPayload, e.getMessage(), e);
+			
+			// JSON 파싱조차 실패해서 batchId가 null일 수도 있으니 체크
+			if (batchId != null && hpId != null) {
+				try {
+					updateOutboxStatus(batchId, hpId, "FAILED");
+				} catch (Exception dbEx) {
+					log.error("DB 상태 업데이트 중 2차 에러 발생", dbEx);
+				}
+			}
+			
+			// [핵심 주석]
+			// Kafka의 무한 재시도(Redelivery)를 방지하기 위해 예외를 상위로 던지지 않음(Swallow).
+			// 예외가 발생하더라도 이 메시지는 '처리됨(Committed)'으로 간주하고 넘어감.
 		}
+	}
+	
+	// 코드 중복 제거
+	private void updateOutboxStatus(String batchId, String aggregateId, String status) {
+		Outbox outbox = Outbox.builder()
+				  .batchId(batchId)
+				  .aggregateId(aggregateId)
+				  .status(status)
+				  .build();
+		outboxMapper.updateOutboxStatus(outbox);
 	}
 	
 }
