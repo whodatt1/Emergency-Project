@@ -27,6 +27,10 @@ public class KafkaConsumer {
 	private final FcmMapper fcmMapper;
 	private final FcmService fcmService;
 	
+	// 최대 재시도 횟수 및 대기 시간 설정
+    private static final int MAX_RETRY_ATTEMPTS = 3;
+    private static final long RETRY_DELAY_MS = 500; // 0.5초 대기
+	
     // concurrency = "3": 파티션이 3개 이상일 경우 3개의 스레드가 병렬 처리 (속도 향상)
 	@KafkaListener(topics = "EmgcRltmEvent", groupId = "emgc-rltm-service-group", concurrency = "3")
 	public void EmgcRltmConsume(String jsonPayload) {
@@ -63,37 +67,49 @@ public class KafkaConsumer {
             
             int chunkSize = 100;
             for (int i = 0; i < tokens.size(); i += chunkSize) {
-            	List<String> chunk = tokens.subList(i, Math.min(i + chunkSize, tokens.size()));
-            	try {
-            		fcmService.sendMulticastNotification(
-                            dutyName, 
-                            dutyName + "의 정보가 변경되었습니다.", 
-                            hpId, 
-                            chunk
-                    );
-            		successCount++;
-				} catch (Exception e) {
-					failCount++;
-					log.error("FCM 멀티캐스트 전송 실패 - 토큰 수: {}, 에러: {}", chunk.size(), e.getMessage());
-                    // 여기서 throw 하지 않으므로 루프는 계속 진행됨 (의도된 동작)
-				} 
-			}
-            
-            String finalStatus;
-            if (successCount > 0) {
-                // 1개라도 성공했으면 처리가 끝난 것으로 간주 (일부 실패했어도 재발송 안 함)
-                finalStatus = "FINISHED";
-            } else {
-                // 성공이 0개라면 (즉, 모든 시도가 에러났거나 토큰이 없었거나) -> 완전 실패
-                finalStatus = "FAILED";
+                List<String> chunk = tokens.subList(i, Math.min(i + chunkSize, tokens.size()));
+                
+                boolean isSent = false;
+                int attempt = 0;
+                Exception lastException = null;
+
+                // 실패한 청크만 3번까지 재시도하는 루프
+                while (!isSent && attempt < MAX_RETRY_ATTEMPTS) {
+                    try {
+                        attempt++;
+                        fcmService.sendMulticastNotification(
+                                dutyName, 
+                                dutyName + "의 정보가 변경되었습니다.", 
+                                hpId, 
+                                chunk
+                        );
+                        isSent = true; // 성공하면 루프 탈출
+                        successCount += chunk.size();
+                    } catch (Exception e) {
+                        lastException = e;
+                        log.warn("FCM 발송 일시적 실패 (시도 {}/{}) - 에러: {}", attempt, MAX_RETRY_ATTEMPTS, e.getMessage());
+                        
+                        // 재시도 전 잠깐 대기 (Backoff)
+                        if (attempt < MAX_RETRY_ATTEMPTS) {
+                            try { Thread.sleep(RETRY_DELAY_MS * attempt); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+                        }
+                    }
+                }
+                
+                // 3번 다 해봤는데도 실패하면?
+                if (!isSent) {
+                    failCount += chunk.size();
+                    log.error("[CHUNK FAIL] 3회 재시도 후에도 최종 실패 - batchId: {}, 토큰수: {}, 에러: {}", batchId, chunk.size(), lastException.getMessage());
+                    // 여기서도 throw하지 않고 다음 청크로 넘어갑니다 (부분 실패 허용)
+                }
             }
             
+            // 5. 최종 상태 업데이트
+            // 하나라도 성공했거나, 재시도 끝에 실패했더라도 일단 처리는 끝난 것임.
+            String finalStatus = (successCount > 0) ? "FINISHED" : "FAILED";
             updateOutboxStatus(batchId, hpId, finalStatus);
-			
-            if (failCount > 0) {
-                log.warn("FCM 발송 완료했으나 일부 실패 존재 - 상태: {}, 성공청크: {}, 실패청크: {}", 
-                         finalStatus, successCount, failCount);
-           }
+            
+            log.info("[RESULT] 처리 완료 - 성공: {}, 실패: {} (batchId: {})", successCount, failCount, batchId);
 
 		} catch (Exception e) {
 			// [보완 2] 예외 발생 시 DB 상태를 'FAILED'로 변경해야 함
@@ -109,7 +125,6 @@ public class KafkaConsumer {
 			}
 			
 			// [핵심 주석]
-			// Kafka의 무한 재시도(Redelivery)를 방지하기 위해 예외를 상위로 던지지 않음(Swallow).
 			// 예외가 발생하더라도 이 메시지는 '처리됨(Committed)'으로 간주하고 넘어감.
 		}
 	}
