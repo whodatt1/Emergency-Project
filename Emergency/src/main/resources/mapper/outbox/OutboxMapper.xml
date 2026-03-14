@@ -1,23 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.emergency.web.mapper.outbox.OutboxMapper">
-	<insert id="insertOutbox" parameterType="com.emergency.web.model.Outbox">
-	INSERT INTO tb_outbox (
-		batch_id,
-        aggregate_type,
-        aggregate_id,
-        event_type,
-        payload,
-        status
-    ) VALUES (
-    	#{batchId},
-        #{aggregateType},
-        #{aggregateId},
-        #{eventType},
-        #{payload},
-        #{status}
-    )
+	<insert id="upsertOutbox">
+	    INSERT INTO tb_outbox (
+	        batch_id,
+	        aggregate_type,
+	        aggregate_id,
+	        event_type,
+	        payload,
+	        status
+	    )
+	    VALUES (
+	        #{batchId},
+	        #{aggregateType},
+	        #{aggregateId},
+	        #{eventType},
+	        #{payload},
+	        #{status}
+	    )
+	    ON DUPLICATE KEY UPDATE
+	        batch_id = VALUES(batch_id),
+	        payload = VALUES(payload),
+	        status = 'READY_TO_PUBLISH' -- 다시 발송 대기 상태로 초기화
 	</insert>
+	
+	<update id="updateOutboxStatusToProcessing">
+	    UPDATE tb_outbox
+	    SET 
+	        status = 'PROCESSING',
+	        updated_at = NOW()
+	    WHERE hp_id = #{aggregateId}
+	      AND batch_id = #{batchId} -- findFailedMessages에서 읽어온 batch_id
+	      AND status = 'FAIL'       -- 혹시 그새 처리가 완료됐을 경우를 대비한 2중 방어
+	</update>
+	
+	<select id="findFailedMessages" resultType="com.emergency.web.model.Outbox">
+	    SELECT 
+	        o.batch_id AS batchId,
+	        o.aggregate_id AS aggregateId,
+	        o.status,
+	        m.duty_name AS dutyName
+	    FROM tb_outbox o
+	    INNER JOIN tb_emgc_rltm_master m ON o.aggregate_id = m.hp_id
+	    WHERE o.status = 'FAIL'
+	</select>
 	
 	<update id="updateOutboxStatus" parameterType="com.emergency.web.model.Outbox">
 		UPDATE tb_outbox

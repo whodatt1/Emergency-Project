@@ -1,16 +1,15 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.3.4'
-	id 'io.spring.dependency-management' version '1.1.6'
+	id 'org.springframework.boot' version '3.5.11'
+	id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'com.example'
+group = 'com.emergency'
 version = '0.0.1-SNAPSHOT'
+description = 'Demo project for Spring Boot'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
+	sourceCompatibility = '21'
 }
 
 configurations {
@@ -87,6 +86,11 @@ dependencies {
     // Prometheus 연동 (선택: 시각화하려면 Grafana + Prometheus 세트)
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 	
+}
+
+// MapStruct 등이 자동 생성한 구현체 클래스들을 이클립스가 소스 코드로 인식하도록 경로 추가
+sourceSets {
+    main.java.srcDirs += [ file("$buildDir/generated/sources/annotationProcessor/java/main") ]
 }
 
 tasks.named('test') {

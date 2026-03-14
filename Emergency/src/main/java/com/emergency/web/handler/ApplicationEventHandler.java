@@ -66,7 +66,7 @@ public class ApplicationEventHandler {
 									  .status("READY_TO_PUBLISH")
 									  .build();
 				
-				int res = outboxMapper.insertOutbox(outbox);
+				int res = outboxMapper.upsertOutbox(outbox);
 				
 				if (res < 1) {
 			        log.warn("Outbox 저장 실패 (영향 받은 row 없음): hpId={}", emgcRltm.getHpId());

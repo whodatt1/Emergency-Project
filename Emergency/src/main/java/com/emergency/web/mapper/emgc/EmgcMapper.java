@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.emergency.web.dto.response.emgc.EmgcDtlResponseDto;
 import com.emergency.web.model.EmgcBsIf;
-import com.emergency.web.model.EmgcRltm;
 
 /**
  * 
@@ -28,6 +28,6 @@ public interface EmgcMapper {
 	List<String> getEmgcRltmHpIdListBeforeBatch(Map<String, Object> paramMap);
 	List<EmgcBsIf> getEmgcMstList(Map<String, Object> paramMap);
 	int getEmgcMstListCnt(Map<String, Object> paramMap);
-	String getEmgcRltmUpdDateByHpId(String hpId);
+	List<Map<String, Object>> getEmgcRltmUpdDatesByHpIds(@Param("hpIds") List<String> hpIds);
 	EmgcDtlResponseDto getEmgcDtl(String hpId);
 }

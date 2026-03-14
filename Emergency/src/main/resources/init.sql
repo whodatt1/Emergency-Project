@@ -194,5 +194,5 @@ CREATE TABLE `tb_outbox` (
   `payload` text NOT NULL,
   `timestamp` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `status` varchar(50) NOT NULL DEFAULT 'READY_TO_PUBLISH',
-  PRIMARY KEY (`batch_id`, `aggregate_id`)
+  PRIMARY KEY (`aggregate_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2063 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

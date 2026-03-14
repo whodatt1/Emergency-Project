@@ -14,11 +14,15 @@
 	     LIMIT #{pageSize};
 	</select>
 	
-	<select id="getEmgcRltmUpdDateByHpId" parameterType="String" resultType="String">
-		SELECT upd_date
+	<select id="getEmgcRltmUpdDatesByHpIds" resultType="map">
+		SELECT hp_id AS hpId,
+		       upd_date AS updDate
 		  FROM tb_emgc_rltm_detail
-	   	 WHERE hp_id = #{hpId}
-	</select>
+		 WHERE hp_id IN
+		 <foreach item="hpId" collection="hpIds" open="(" separator="," close=")">
+			#{hpId}
+		 </foreach>		
+	</select>	
 	
 	<select id="getEmgcMstList" parameterType="map" resultType="com.emergency.web.model.EmgcBsIf">
 		SELECT hp_id

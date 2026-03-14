@@ -13,9 +13,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.emergency.web.config.ApiJobConfig;
+import com.emergency.web.kafka.KafkaProducer;
 import com.emergency.web.mapper.fcm.FcmMapper;
 import com.emergency.web.mapper.outbox.OutboxMapper;
 import com.emergency.web.mapper.token.TokenMapper;
+import com.emergency.web.model.Outbox;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -46,9 +48,40 @@ public class EmergencyScheduler {
 	private final JobExplorer jobExplorer;
 	
 	private final ApiJobConfig apiJobConfig;
+	private final KafkaProducer kafkaProducer;
 	
 	// Job을 제외한 작업의 실행상태를 추적하기 위해 추가
 	private final AtomicBoolean isRunning = new AtomicBoolean(false);
+	
+	@Scheduled(fixedRate = 60000) // 1분마다 실행
+	public void retryFailedOutboxMessage() {
+		log.info("실패한 아웃박스 메시지 재발송 작업 시작");
+		
+		List<Outbox> failedMessages = outboxMapper.findFailedMessages();
+		
+		if (failedMessages.isEmpty()) {
+			return;
+		}
+		
+		for (Outbox outbox : failedMessages) {
+			try {
+				int updatedRows = outboxMapper.updateOutboxStatusToProcessing(
+					outbox.getBatchId(),
+					outbox.getAggregateId()
+				);
+				
+				if (updatedRows > 0) {
+					log.info("재발송 시도 - batchId: {}, hpId: {}", outbox.getBatchId(), outbox.getAggregateId());
+					
+					kafkaProducer.retryPublish(outbox);
+				} else {
+					log.info("최신 데이터 덮어쓰기 감지. 이전 발송 건너뜀 - hpId: {}", outbox.getAggregateId());
+				}
+			} catch (Exception e) {
+				log.error("재발송 로직 수행 중 에러 - hpId: {}", outbox.getAggregateId(), e);
+			}
+		}
+	}
 	
 	// 로그인 후 로그인 혹은 로그아웃 과정을 거치지 않아 DB에 남아있는 만료기간이 지난 리프레쉬 토큰 삭제처리
 	@Async

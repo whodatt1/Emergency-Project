@@ -22,7 +22,7 @@ import com.emergency.web.model.Outbox;
 
 @Mapper
 public interface OutboxMapper {
-	int insertOutbox(Outbox outbox);
+	int upsertOutbox(Outbox outbox);
 	int updateOutboxStatus(Outbox outbox);
 	void updateOutboxStatusBulk(
 			@Param("batchId") String batchId, 
@@ -32,4 +32,6 @@ public interface OutboxMapper {
 	String selectOutboxStatus(
 			@Param("batchId") String batchId,
 			@Param("hpId") String hpId);
+	List<Outbox> findFailedMessages();
+	int updateOutboxStatusToProcessing(String batchId, String aggregateId);
 }

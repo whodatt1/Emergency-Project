@@ -62,7 +62,7 @@ public class KafkaConfig {
 	
 	@Bean
 	public NewTopic emgcRltmEventTopic() {
-	    // "야 Kafka야, 대충 만들지 말고 '파티션 3개'로 각 잡고 만들어!" 라고 명시함
+	    // 파티션 3개 생성 명시
 	    return new NewTopic("EmgcRltmEvent", 3, (short) 1);
 	}
 	
@@ -73,9 +73,11 @@ public class KafkaConfig {
 		
 		Map<String, Object> config = new HashMap<>();
 		// 최대 3회 재시도
-//		config.put(ProducerConfig.RETRIES_CONFIG, 5);
+		config.put(ProducerConfig.RETRIES_CONFIG, 3);
 		// 재시도 간 1초 대기
-//	    config.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, 3000);
+	    config.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, 1000);
+	    // 멱등성 보장 (중복 발송 방지): 프로듀서가 재시도할 때 같은 메시지가 2번 저장되는 것을 막아줍니다.
+	    config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
 		// 브로커 설정
 		config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, typeSafeProperties.getBootstrapServers());
 		// Key 직렬화

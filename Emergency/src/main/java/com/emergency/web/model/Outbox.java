@@ -32,4 +32,6 @@ public class Outbox {
 	private String payload;          // 이벤트 관련 JSON 데이터
 	private LocalDateTime timestamp; // 이벤트 기록 시간
 	private String status;           // 메시지 상태 (READY_TO_PUBLISH, PUBLISHED, 등)
+	
+	private String dutyName;
 }
