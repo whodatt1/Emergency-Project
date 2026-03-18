@@ -10,7 +10,7 @@
 ### 🛠 Tech Stack
 | Category | Technology |
 | --- | --- |
-| **Language & Framework** | Java 17, Spring Boot 3.x, JPA |
+| **Language & Framework** | Java 17, Spring Boot 3.x, MyBatis |
 | **Batch & Data** | **Spring Batch**, Scheduler, MySQL |
 | **Message Queue** | **Apache Kafka** |
 | **Notification** | Firebase Admin SDK (FCM) |
