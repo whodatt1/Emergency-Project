@@ -55,14 +55,13 @@
 	<update id="updateOutboxStatusBulk">
 	    UPDATE tb_outbox
 	       SET status = #{status}
-	         , mod_at = NOW()  
 	     WHERE batch_id = #{batchId}
 	       AND aggregate_id IN
 	       <foreach collection="hpIds" item="hpId" open="(" separator="," close=")">
 	           #{hpId}
 	       </foreach>
 	       
-			<if test="status == 'PROCESSING'">
+			<if test="status == 'COMPLETED'">
 		       AND status = 'READY_TO_PUBLISH'
 		    </if>
 	</update>
