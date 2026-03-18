@@ -65,7 +65,7 @@
 
 ## 🧠 프로젝트 리팩토링 및 성능 개선 과정 포트폴리오
 
-https://even-gerbil-e3c.notion.site/Emergency-Project-Portfolio-2701d86b26e380519ae4e8469caef87f?source=copy_link
+https://www.notion.so/Emergency-Project-Portfolio-2f63e1e2779f8062bda4d332d76dae58?source=copy_link
 
 ---
 
