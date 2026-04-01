@@ -8,7 +8,7 @@
 ## 개발 환경
 - **Backend:** Java 21, Spring Boot 3.x, MyBatis
 - **Batch Processing:** Spring Batch, Spring Scheduler
-- **Message Queue:** Apache Kafka
+- **Event Streaming:** Apache Kafka
 - **Database:** MySQL
 - **Push Notification:** Firebase Admin SDK (FCM)
 
