@@ -77,7 +77,7 @@ public class ApplicationEventHandler {
 		}
 	}
 	
-	@Async
+	// @Async 제거: KafkaProducer 내부가 이미 비동기이므로 불필요한 스레드 생성 방지
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void handleEmgcRltmBatchEventAfter(EmgcRltmBatchEvent<EmgcRltm> event) {
 		// 여기서 db outbox 테이블에 저장된 객체를 불러와 kafka 컨슈머 서비스 메서드 호출

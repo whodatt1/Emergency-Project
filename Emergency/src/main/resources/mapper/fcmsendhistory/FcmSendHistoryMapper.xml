@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.emergency.web.mapper.fcmsendhistory.FcmSendHistoryMapper">
+	
+	<insert id="insertHistoryIgnoreBulk">
+        INSERT IGNORE INTO tb_fcm_send_history (event_id, fcm_token, execution_id)
+	    VALUES
+	    <foreach collection="tokens" item="token" separator=",">
+	        (#{eventId}, #{token}, #{executionId})
+	    </foreach>
+    </insert>
+
+    <select id="getInsertedTokens" resultType="string">
+        SELECT fcm_token 
+          FROM tb_fcm_send_history 
+         WHERE event_id = #{eventId}
+           AND execution_id = #{executionId}
+    </select>
+</mapper>

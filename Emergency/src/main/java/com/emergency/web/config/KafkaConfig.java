@@ -60,11 +60,17 @@ public class KafkaConfig {
         return new KafkaAdmin(configs);
     }
 	
-	@Bean
-	public NewTopic emgcRltmEventTopic() {
-	    // 파티션 3개 생성 명시
-	    return new NewTopic("EmgcRltmEvent", 3, (short) 1);
-	}
+	// Worker용 메인 작업 토픽 (파티션 3개 필수)
+    @Bean
+    public NewTopic fcmSendTaskTopic() {
+        return new NewTopic("FcmSendTask", 3, (short) 1);
+    }
+
+    // Worker용 재시도 토픽 (파티션 3개 필수)
+    @Bean
+    public NewTopic fcmSendTaskRetryTopic() {
+        return new NewTopic("FcmSendTask-Retry", 3, (short) 1);
+    }
 	
 	// Producer를 만들고 관리하는 역할
 	@Bean
@@ -83,7 +89,7 @@ public class KafkaConfig {
 		// Key 직렬화
 		config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 		// Value 직렬화
-		config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+		config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 	    // 메시지 압축 설정 (옵션: snappy, gzip, lz4, zstd)
 	    config.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
 		
@@ -103,24 +109,9 @@ public class KafkaConfig {
 		// Key 직렬화
 		config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 		// Value 직렬화
-		config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+		config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 		return new DefaultKafkaConsumerFactory<>(config);
 	}
-	
-	// Kafka 메시지 전송을 도와주는 도구 내부에서 producerFactory를 통해 Producer를 얻음
-//	@Bean
-//	public KafkaTemplate<String, Object> kafkaTemplate() {
-//		return new KafkaTemplate<>(producerFactory());
-//	}
-//	
-//	@Bean
-//	public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
-//		ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
-//		factory.setConsumerFactory(consumerFactory());
-//		factory.setCommonErrorHandler(errorHandler());
-//	    factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD);
-//		return factory;
-//	}
 	
 	@Bean
 	public KafkaTemplate<String, Object> kafkaTemplate(MeterRegistry registry) {
@@ -149,7 +140,7 @@ public class KafkaConfig {
 	public DefaultErrorHandler errorHandler() {
 		return new DefaultErrorHandler((consumerRecord, exception) -> {
 											log.error("Error consuming record: {}", consumerRecord, exception);
-										}, new FixedBackOff(3000, 5));
+										}, new FixedBackOff(3000, 3));
 	}
 	
 }

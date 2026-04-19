@@ -70,8 +70,8 @@ public class EmgcRltmItemWriter<T extends EmgcRltm> implements ItemWriter<EmgcRl
 			}
 		}
 	    
-		//jdbcBatchItemWriter.write(chunk); // 테스트용
-	    //applicationEventPublisher.publishEvent(new EmgcRltmBatchEvent<>(chunk, batchId)); // 테스트용
+//		jdbcBatchItemWriter.write(chunk); // 테스트용
+//	    applicationEventPublisher.publishEvent(new EmgcRltmBatchEvent<>(chunk, batchId)); // 테스트용
 	    
 	    if (!targetToWrite.isEmpty()) {
 	    	Chunk<EmgcRltm> targetChunk = new Chunk<>(targetToWrite);

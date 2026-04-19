@@ -4,13 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,10 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.kafka.core.KafkaAdmin;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.emergency.web.mapper.fcm.FcmMapper;
-import com.emergency.web.mapper.outbox.OutboxMapper;
 import com.emergency.web.model.Fcm;
 import com.emergency.web.service.fcm.FcmService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,9 +34,6 @@ class KafkaConsumerIntegrationTest {
 
     @Autowired
     private KafkaConsumer kafkaConsumer;
-
-    @Autowired
-    private OutboxMapper outboxMapper;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -51,24 +49,19 @@ class KafkaConsumerIntegrationTest {
     @MockitoBean
     private FcmService fcmService;
 
+    // DB 조회를 가로채기 위한 가짜 객체
     @MockitoBean
     private FcmMapper fcmMapper;
 
-    private final String TEST_BATCH_ID = "CONSUME-BATCH-001";
+    // Dispatcher가 카프카로 쏘는 걸 가로채기 위한 가짜 객체
+    @MockitoBean
+    private KafkaTemplate<String, Object> kafkaTemplate;
+
+    private final String TEST_EVENT_ID = "TEST_BATCH_001_HP_TEST_chunk0";
 
     @BeforeEach
     void setUp() {
         cleanUp();
-        
-        // [Given] DB에 2가지 상태의 Outbox 데이터를 세팅합니다.
-        String sql = "INSERT INTO tb_outbox (batch_id, aggregate_type, aggregate_id, event_type, payload, status) " +
-                     "VALUES (?, ?, ?, ?, ?, ?)";
-        
-        // 1. 이미 처리 완료된 건 (멱등성 테스트용)
-        jdbcTemplate.update(sql, TEST_BATCH_ID, "EmgcRltm", "HP_FINISHED", "EmgcRltmUpdate", "{}", "FINISHED");
-        
-        // 2. 이제 막 카프카로 전송되어 FCM 발송을 기다리는 건 (정상 발송 테스트용)
-        jdbcTemplate.update(sql, TEST_BATCH_ID, "EmgcRltm", "HP_READY", "EmgcRltmUpdate", "{}", "COMPLETED");
     }
 
     @AfterEach
@@ -77,73 +70,70 @@ class KafkaConsumerIntegrationTest {
     }
 
     private void cleanUp() {
-        jdbcTemplate.update("DELETE FROM tb_outbox WHERE batch_id = ?", TEST_BATCH_ID);
+        // [수정됨] Worker 멱등성 테스트를 위해 발송 이력 테이블을 초기화합니다.
+        jdbcTemplate.update("DELETE FROM tb_fcm_send_history WHERE event_id = ?", TEST_EVENT_ID);
     }
 
     @Test
-    @DisplayName("이미 FINISHED 상태인 메시지가 들어오면 FCM을 발송하지 않고 무시한다.")
-    void testIdempotency_AlreadyFinished() throws Exception {
-        // given: 페이로드 생성
+    @DisplayName("[Dispatcher 테스트] 1,250개의 토큰이 있을 때 500개씩 청크로 정확히 3번 분할되어 카프카 큐로 전송된다.")
+    void testDispatcherChunkSplitting() throws Exception {
+        // given: Producer가 보낸 가짜 메인 이벤트 페이로드
         String jsonPayload = """
             {
-                "batchId": "CONSUME-BATCH-001",
-                "hpId": "HP_FINISHED",
-                "dutyName": "이미처리된병원"
+                "batchId": "TEST_BATCH_001",
+                "hpId": "HP_TEST",
+                "dutyName": "테스트병원"
             }
             """;
 
-        // when: 컨슈머 메서드 수동 호출
-        kafkaConsumer.EmgcRltmConsume(jsonPayload);
-
-        // fcmService.sendMulticastNotification(...) 메서드가 호출되지 않았음을 확인
-        verify(fcmService, never()).sendMulticastNotification(anyString(), anyString(), anyString(), anyList());
-    }
-
-    @Test
-    @DisplayName("[시나리오 2] 250개의 FCM 토큰이 있으면 100개씩 청크로 나누어 총 3번 발송하고 FINISHED로 바꾼다.")
-    void testFcmChunkSendingAndStatusUpdate() throws Exception {
-        // given: 페이로드 생성
-        String jsonPayload = """
-            {
-                "batchId": "CONSUME-BATCH-001",
-                "hpId": "HP_READY",
-                "dutyName": "정상발송병원"
-            }
-            """;
-
-        // =========================================================================
-        // 💡 [TODO 2] 가짜 토큰 250개 만들기 (Mock 조작)
-        // 목표: fcmMapper.getFcmListWithHpId("HP_READY")가 호출되면 
-        //       250개의 가짜 Fcm 객체가 담긴 리스트를 반환하도록 조작하세요.
-        // =========================================================================
-        
+        // 가짜 토큰 1,250개 생성
         List<Fcm> dummyFcmList = new ArrayList<>();
-        for (int i = 0; i < 250; i++) {
-            Fcm fcm = Fcm.builder()
-            		.fcmToken("TOKEN_" + i)
-            		.build();
-            dummyFcmList.add(fcm);
+        for (int i = 0; i < 1250; i++) {
+            dummyFcmList.add(Fcm.builder().fcmToken("TOKEN_" + i).build());
         }
         
-        // 여기에 when(...).thenReturn(...) 코드를 작성하세요.
-        when(fcmMapper.getFcmListWithHpId(eq("HP_READY")))
-        		.thenReturn(dummyFcmList);
-        
+        // Dispatcher가 DB에서 토큰을 조회할 때 1,250개를 반환하도록 조작
+        when(fcmMapper.getFcmListWithHpId(eq("HP_TEST"))).thenReturn(dummyFcmList);
 
-        // when: 컨슈머 메서드 수동 호출
+        // when: 메인 컨슈머(Dispatcher) 호출
         kafkaConsumer.EmgcRltmConsume(jsonPayload);
 
-        // 1: fcmService.sendMulticastNotification(...) 메서드가 3번 호출되었는지 검증
-        // 2: DB를 조회해서 HP_READY의 상태가 'FINISHED'로 바뀌었는지 검증
+        // then: 500, 500, 250 단위로 쪼개져서 kafkaTemplate.send가 정확히 "3번" 호출되었는지 검증!
+        verify(kafkaTemplate, times(3)).send(eq("FcmSendTask"), eq("HP_TEST"), anyString());
+    }
 
-        // 여기에 코드를 작성하세요.
-        verify(fcmService, times(3)).sendMulticastNotification(anyString(), anyString(), anyString(), anyList());
+    @Test
+    @DisplayName("[Worker 멱등성 테스트] 동일한 메시지가 2번 유입되어도, DB 제약조건에 의해 FCM 발송은 단 1회만 수행된다.")
+    void testWorkerIdempotencyWithRealDatabase() throws Exception {
+        // given: Dispatcher가 쪼개서 보낸 가짜 Worker 페이로드 생성
+        List<String> mockTokens = List.of("TOKEN_A", "TOKEN_B");
+        Map<String, Object> taskMessage = new HashMap<>();
+        taskMessage.put("hpId", "HP_TEST");
+        taskMessage.put("dutyName", "테스트병원");
+        taskMessage.put("tokens", mockTokens);
+        taskMessage.put("retryCount", 0);
+        taskMessage.put("eventId", TEST_EVENT_ID);
         
-        // DB 상태 검증
-        String finalStatus = outboxMapper.selectOutboxStatus("CONSUME-BATCH-001", "HP_READY");
+        String jsonPayload = objectMapper.writeValueAsString(taskMessage);
+
+        // sendMulticastNotification가 호출되면 빈 리스트(전원 성공)를 반환하도록 세팅
+        when(fcmService.sendMulticastNotification(anyString(), anyString(), anyString(), anyList()))
+            .thenReturn(new ArrayList<>());
+
+        // when 1: Worker 최초 수신 (정상 발송되어야 함)
+        kafkaConsumer.processFcmTask(jsonPayload);
         
-        assertThat(finalStatus).isEqualTo("FINISHED");
+        // when 2: 카프카 네트워크 지연 등으로 인해 Worker가 동일한 메시지를 중복 수신
+        kafkaConsumer.processFcmTask(jsonPayload);
+
+        // then: 
+        // 메서드가 2번 호출되었음에도, DB의 INSERT IGNORE 방어막 덕분에
+        // 실제 구글 FCM 서버로 발송을 요청하는 메서드는 단 "1번"만 호출되었는지 검증!
+        verify(fcmService, times(1)).sendMulticastNotification(anyString(), anyString(), eq("HP_TEST"), anyList());
         
-        
+        // DB에 중복 저장되지 않고 토큰 수(2개)만큼만 정확히 1세트 저장되었는지 검증
+        Integer historyCount = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM tb_fcm_send_history WHERE event_id = ?", Integer.class, TEST_EVENT_ID);
+        assertThat(historyCount).isEqualTo(2);
     }
 }
